@@ -1,0 +1,428 @@
+// All page copy, Arabic first. Prices, contact details and plan limits are PLACEHOLDERS (see README).
+
+export type Lang = 'ar' | 'en';
+
+export type MenuItem = { name: string; price: string };
+export type Playlist = {
+  id: string;
+  label: string;        // as shown in the phone app
+  meta: string;         // items · schedule
+  list: { title: string; items: MenuItem[] };
+  picture: { key: 'breakfast' | 'video' | 'iced'; caption: string; price: string };
+  side: { title: string; items?: MenuItem[]; offer?: string; offerNote?: string };
+};
+
+const SAR_AR = 'ر.س';
+
+export const content = {
+  ar: {
+    lang: 'ar' as Lang,
+    dir: 'rtl',
+    title: 'لوحة — شاشات القوائم للمقاهي والمطاعم',
+    description: 'لوحة تحوّل أي تلفاز في مقهاك أو مطعمك إلى لوحة قوائم رقمية تديرها من جوالك، وتواصل العرض حتى لو انقطع الإنترنت.',
+    currency: SAR_AR,
+    nav: {
+      brand: 'لوحة',
+      links: [
+        { href: '#how', label: 'كيف تعمل' },
+        { href: '#features', label: 'المزايا' },
+        { href: '#pricing', label: 'الأسعار' },
+        { href: '#faq', label: 'الأسئلة' },
+      ],
+      switchLabel: 'English',
+      switchHref: '/en/', // site-relative: wrap in url() when linking
+      switchLang: 'en',
+      cta: 'ابدأ الآن',
+      menu: 'القائمة',
+      close: 'إغلاق',
+    },
+    hero: {
+      before: 'غيّر شاشات',
+      words: ['مطعمك', 'مقهاك', 'أي نشاط عندك'],
+      wordAfter: '',
+      after: 'من جوالك',
+      lead: 'لوحة تحوّل أي تلفاز في مقهاك أو مطعمك إلى لوحة قوائم رقمية. وخلال ثواني شاشاتك بتتغير.',
+      cta: 'ابدأ مع لوحة',
+      secondary: 'شاهد الأسعار',
+      boardLabel: 'لوحة قوائم من ثلاث شاشات فوق الكاونتر',
+      tryHint: 'جرّبها: اختر قائمة من الجوال وانشرها.',
+      wallLabel: 'شاشات الكاونتر في المقهى',
+      nowShowing: 'يُعرض الآن:',
+    },
+    phone: {
+      cafe: 'بُن الحي',
+      branch: 'الفرع الرئيسي، حي الملقا',
+      screens: '3 شاشات متصلة',
+      screensOffline: 'الشاشات تعرض المحفوظ',
+      choose: 'ماذا تعرض الآن؟',
+      publish: 'انشر على 3 شاشات',
+      sending: 'جارٍ الإرسال…',
+      live: 'يُعرض الآن على 3 شاشات',
+      queued: 'سيصل عند عودة الإنترنت',
+      internet: 'الإنترنت في المقهى',
+      internetOn: 'متصل',
+      internetOff: 'مقطوع',
+    },
+    boardOffline: 'دون إنترنت · يعرض المحفوظ',
+    playlists: [
+      {
+        id: 'breakfast',
+        label: 'قائمة الفطور',
+        meta: '8 عناصر · 6 ص – 11 ص',
+        list: { title: 'الفطور', items: [
+          { name: 'شكشوكة بالجبن', price: '24' },
+          { name: 'فول وتميس', price: '18' },
+          { name: 'كرواسون زبدة', price: '12' },
+          { name: 'عصير برتقال', price: '14' },
+        ] },
+        picture: { key: 'breakfast', caption: 'فطور الصباح', price: '39' },
+        side: { title: 'مشروبات ساخنة', items: [
+          { name: 'قهوة سعودية', price: '10' },
+          { name: 'كابتشينو', price: '15' },
+          { name: 'لاتيه', price: '16' },
+          { name: 'شاي كرك', price: '8' },
+        ] },
+      },
+      {
+        id: 'coffee',
+        label: 'قهوة اليوم',
+        meta: '6 عناصر · فيديو',
+        list: { title: 'قهوة مختصة', items: [
+          { name: 'V60 إثيوبي', price: '19' },
+          { name: 'فلات وايت', price: '17' },
+          { name: 'كورتادو', price: '15' },
+          { name: 'قهوة سعودية', price: '10' },
+        ] },
+        picture: { key: 'video', caption: 'تُحضّر أمامك', price: '17' },
+        side: { title: 'مع قهوتك', items: [
+          { name: 'تمر سكري', price: '6' },
+          { name: 'كيكة التمر', price: '14' },
+          { name: 'كوكيز', price: '9' },
+          { name: 'معمول', price: '7' },
+        ] },
+      },
+      {
+        id: 'iced',
+        label: 'مشروبات باردة',
+        meta: '7 عناصر · 12 م – 5 م',
+        list: { title: 'باردة', items: [
+          { name: 'آيس لاتيه', price: '18' },
+          { name: 'كولد برو', price: '19' },
+          { name: 'سبانش لاتيه', price: '20' },
+          { name: 'ليمون بالنعناع', price: '14' },
+        ] },
+        picture: { key: 'iced', caption: 'آيس لاتيه', price: '18' },
+        side: { title: 'عرض الظهيرة', offer: 'كوبان آيس لاتيه بـ 30', offerNote: 'من 12 ظهرًا حتى 5 عصرًا' },
+      },
+    ] as Playlist[],
+    steps: {
+      heading: 'كيف تعمل لوحة',
+      items: [
+        { line: 'أولًا، صِل الجهاز بالتلفاز.', note: 'جهاز صغير خلف الشاشة، يعمل مع أي تلفاز فيه منفذ <span class="ltr">HDMI</span>.' },
+        { line: 'ثم امسح الرمز من جوالك.', note: 'يظهر على التلفاز رمز من ستة أحرف. الربط يأخذ أقل من دقيقة.' },
+        { line: 'ارفع قائمتك وصورك ومقاطعك.', note: 'نجهّز كل ملف ليظهر واضحًا على التلفاز، حتى مقاطع الجوال الثقيلة.' },
+        { line: 'وانشر، فتظهر خلال ثوانٍ.', note: 'على شاشة واحدة، أو على كل شاشات فروعك بلمسة.' },
+      ],
+      pairing: {
+        app: 'مشغّل لوحة',
+        instruction: 'افتح تطبيق لوحة، ثم «إضافة شاشة»، وامسح هذا الرمز.',
+        code: 'K7Q4MP',
+        refresh: 'يتجدد الرمز كل 10 دقائق',
+      },
+    },
+    announce: {
+      heading: 'إعلان عاجل',
+      inputLabel: 'اكتب إعلانًا ليظهر على الشاشات',
+      initial: 'مغلق للصلاة، نعود بعد 20 دقيقة',
+      examples: ['نفد الكرواسون اليوم، نعتذر', 'كوبان آيس لاتيه بـ 30 ر.س', 'مرحبًا بضيوف موسم الرياض'],
+      exampleLabel: 'أمثلة:',
+      statement: 'اكتب الإعلان، واختر الشاشات والمدة. يظهر فوق القائمة، بعدها بترجع القائمة لوحدها.',
+      durations: ['15 دقيقة', '30 دقيقة', 'ساعة'],
+      durationLabel: 'المدة',
+      ends: 'تعود القائمة بعد',
+      tag: 'إعلان',
+    },
+    features: {
+      heading: 'مزايا لوحة',
+      items: [
+        { title: 'تبديل تلقائي حسب وقت أنت تحدده', more: 'الفطور من 6 إلى 11 صباحًا، والغداء حتى 4 عصرًا، ثم قائمة المساء. يعمل الجدول على الشاشة نفسها، حتى دون إنترنت.', field: 'mint', on: true },
+        { title: 'عروض مكمّلة حتى إذا انقطع النت', more: 'تحفظ الشاشة المحتوى عليها، وتعود إلى العرض وحدها بعد انقطاع الكهرباء.', field: 'saffron', on: true },
+        { title: 'نبّهني إذا توقفت شاشة', more: 'يصلك تنبيه بعد 10 دقائق من انقطاع الشاشة، وآخر عند عودتها.', field: 'sea', on: false },
+        { title: 'انشر على كل الفروع بلمسة', more: 'يُعرض الآن على 12 شاشة في 4 فروع، من الرياض إلى الخبر.', field: 'sand', on: false },
+        { title: 'أعطِ كل مدير فرعه فقط', more: 'يدير المدير شاشات فرعه ومحتواه، وتبقى الفوترة والفريق بيدك.', field: 'teal', on: false },
+      ],
+    },
+    pricing: {
+      heading: 'ادفع حسب عدد شاشاتك',
+      monthly: 'شهري',
+      yearly: 'سنوي، وفّر شهرين',
+      per: 'لكل شاشة شهريًا',
+      perYearly: 'لكل شاشة شهريًا، تُدفع سنويًا',
+      cta: 'ابدأ بباقة',
+      sub: 'ادفع لكل شاشة شهريًا، وكلما زادت شاشاتك قلّ سعر الشاشة. بلا عقود.',
+      popular: 'الأكثر طلبًا',
+      fits: 'تناسبك',
+      calcLabel: 'كم شاشة في مقهاك؟',
+      calcTotal: 'المجموع',
+      calcMonth: 'شهريًا',
+      screenForms: ['شاشة واحدة', 'شاشتان', 'شاشات', 'شاشة'],
+      assure: ['بلا عقود، ألغِ متى شئت', 'الأسعار شاملة الضريبة', 'الربط في أقل من دقيقة', 'يعمل مع أي تلفاز فيه HDMI'],
+      plans: [
+        { id: 'starter', name: 'البداية', desc: 'لمقهى صغير بشاشة أو شاشتين.', min: 1, max: 2, range: 'شاشة أو شاشتان', monthly: 49, yearly: 41, items: ['فرع واحد', 'قوائم تشغيل بلا حدود', 'عرض دون إنترنت', 'تنبيه إذا توقفت شاشة', 'مساحة 5 جيجابايت'], field: 'sand' },
+        { id: 'growth', name: 'النمو', desc: 'لمقهى أو مطعم بأكثر من ركن عرض.', min: 3, max: 10, range: 'من 3 إلى 10 شاشات', monthly: 39, yearly: 33, items: ['حتى 3 فروع', 'كل ما في البداية', 'جداول حسب الوقت', 'إعلانات عاجلة', 'مدير لكل فرع', 'مساحة 25 جيجابايت'], field: 'mint' },
+        { id: 'chain', name: 'السلسلة', desc: 'للعلامات التي تدير عدة فروع.', min: 11, max: 999, range: '11 شاشة فأكثر', monthly: 29, yearly: 24, items: ['فروع بلا حدود', 'كل ما في النمو', 'مجموعات شاشات', 'سجل العرض لكل شاشة', 'صلاحيات للفريق', 'تركيب في موقعك', 'مساحة 100 جيجابايت'], field: 'teal' },
+      ],
+      hardware: 'جهاز التشغيل 199 ر.س مرة واحدة، أو استخدم تلفاز <span class="ltr">Android TV</span> أو <span class="ltr">Google TV</span> لديك.',
+    },
+    faq: {
+      heading: 'أسئلة شائعة',
+      items: [
+        { q: 'هل أحتاج تلفازًا ذكيًا؟', a: 'لا. يكفي أي تلفاز فيه منفذ <span class="ltr">HDMI</span> مع جهاز التشغيل، أو تلفاز يعمل بنظام <span class="ltr">Android TV</span> أو <span class="ltr">Google TV</span>.' },
+        { q: 'ماذا يحدث إذا انقطع الإنترنت؟', a: 'تواصل الشاشة عرض آخر محتوى محفوظ عليها كاملًا، وتصل تعديلاتك وحدها عند عودة الاتصال.' },
+        { q: 'كم يستغرق تركيب الشاشة؟', a: 'بعد توصيل الجهاز، أقل من دقيقة: تمسح الرمز الظاهر على التلفاز وتسمّي الشاشة وتختار فرعها.' },
+        { q: 'هل يمكنني عرض مقاطع فيديو؟', a: 'نعم. ارفعها من جوالك بأي صيغة شائعة، ونحوّلها إلى صيغة تعمل بسلاسة على التلفاز.' },
+        { q: 'لدي أكثر من فرع، هل تناسبني؟', a: 'نعم. رتّب الشاشات حسب الفروع، وأضف مديرًا لكل فرع، وانشر على الكل بلمسة.' },
+        { q: 'هل يمكنني الإلغاء متى شئت؟', a: 'نعم. الاشتراك شهري، ويمكنك إيقافه من حسابك في أي وقت.' },
+      ],
+    },
+    cta: {
+      line1: 'لوحتك جاهزة،',
+      line2: 'وجوالك أيضًا.',
+      text: 'صِل الشاشة الأولى اليوم، وغيّر قائمتك قبل أن يصل أول زبون.',
+      button: 'ابدأ مع لوحة',
+    },
+    footer: {
+      about: 'لوحة: شاشات القوائم للمقاهي والمطاعم.',
+      address: 'الرياض، المملكة العربية السعودية',
+      hours: 'الأحد إلى الخميس، 9 ص – 6 م',
+      phone: '+966 50 000 0000',
+      email: 'hello@lawha.app',
+      emailUser: 'hello',
+      emailDomain: '@lawha.app',
+      cr: 'سجل تجاري 0000000000',
+      top: 'إلى الأعلى',
+      links: [
+        { href: '#', label: 'الخصوصية' },
+        { href: '#', label: 'الشروط' },
+        { href: '#', label: 'واتساب' },
+        { href: '#', label: 'إنستغرام' },
+      ],
+      credits: 'صور القوائم وفيديو القهوة من مجموعات مفتوحة',
+      creditsTitle: 'مصادر الصور والفيديو',
+      city: 'الرياض 2026',
+      mailSubject: 'أرغب في البدء مع لوحة',
+      mailBody: 'مرحبًا،\nاسم المقهى أو المطعم:\nعدد الفروع:\nعدد الشاشات:\n',
+    },
+  },
+
+  en: {
+    lang: 'en' as Lang,
+    dir: 'ltr',
+    title: 'Lawha — menu screens for cafés and restaurants',
+    description: 'Lawha turns any TV in your café or restaurant into a digital menu board you run from your phone. Screens keep playing even when the internet drops.',
+    currency: 'SAR',
+    nav: {
+      brand: 'Lawha',
+      links: [
+        { href: '#how', label: 'How it works' },
+        { href: '#features', label: 'Features' },
+        { href: '#pricing', label: 'Pricing' },
+        { href: '#faq', label: 'Questions' },
+      ],
+      switchLabel: 'العربية',
+      switchHref: '/',
+      switchLang: 'ar',
+      cta: 'Get started',
+      menu: 'Menu',
+      close: 'Close',
+    },
+    hero: {
+      before: 'Change your',
+      words: ['restaurant', 'café', 'business'],
+      wordAfter: 'screens',
+      after: 'from your phone',
+      lead: 'Lawha turns any TV in your café or restaurant into a digital menu board. Pick on your phone, and the screens change in seconds.',
+      cta: 'Start with Lawha',
+      secondary: 'See pricing',
+      boardLabel: 'A three-screen menu board above the counter',
+      tryHint: 'Try it: pick a menu on the phone and publish.',
+      wallLabel: 'The screens above the café counter',
+      nowShowing: 'Now showing:',
+    },
+    phone: {
+      cafe: 'Bun Al-Hay',
+      branch: 'Main branch, Al Malqa',
+      screens: '3 screens online',
+      screensOffline: 'Screens play saved content',
+      choose: 'What’s on now?',
+      publish: 'Publish to 3 screens',
+      sending: 'Sending…',
+      live: 'Live on 3 screens',
+      queued: 'Sends when the internet is back',
+      internet: 'Café internet',
+      internetOn: 'On',
+      internetOff: 'Off',
+    },
+    boardOffline: 'Offline · playing saved',
+    playlists: [
+      {
+        id: 'breakfast',
+        label: 'Breakfast menu',
+        meta: '8 items · 6–11 am',
+        list: { title: 'Breakfast', items: [
+          { name: 'Shakshuka & cheese', price: '24' },
+          { name: 'Foul & tamees', price: '18' },
+          { name: 'Butter croissant', price: '12' },
+          { name: 'Orange juice', price: '14' },
+        ] },
+        picture: { key: 'breakfast', caption: 'Morning breakfast', price: '39' },
+        side: { title: 'Hot drinks', items: [
+          { name: 'Saudi coffee', price: '10' },
+          { name: 'Cappuccino', price: '15' },
+          { name: 'Latte', price: '16' },
+          { name: 'Karak tea', price: '8' },
+        ] },
+      },
+      {
+        id: 'coffee',
+        label: 'Coffee of the day',
+        meta: '6 items · video',
+        list: { title: 'Specialty', items: [
+          { name: 'Ethiopian V60', price: '19' },
+          { name: 'Flat white', price: '17' },
+          { name: 'Cortado', price: '15' },
+          { name: 'Saudi coffee', price: '10' },
+        ] },
+        picture: { key: 'video', caption: 'Made in front of you', price: '17' },
+        side: { title: 'With your coffee', items: [
+          { name: 'Sukkari dates', price: '6' },
+          { name: 'Date cake', price: '14' },
+          { name: 'Cookie', price: '9' },
+          { name: 'Maamoul', price: '7' },
+        ] },
+      },
+      {
+        id: 'iced',
+        label: 'Cold drinks',
+        meta: '7 items · 12–5 pm',
+        list: { title: 'Cold', items: [
+          { name: 'Iced latte', price: '18' },
+          { name: 'Cold brew', price: '19' },
+          { name: 'Spanish latte', price: '20' },
+          { name: 'Lemon mint', price: '14' },
+        ] },
+        picture: { key: 'iced', caption: 'Iced latte', price: '18' },
+        side: { title: 'Afternoon deal', offer: 'Two iced lattes for 30', offerNote: 'From 12 noon to 5 pm' },
+      },
+    ] as Playlist[],
+    steps: {
+      heading: 'How Lawha works',
+      items: [
+        { line: 'First, plug the box into the TV.', note: 'A small box behind the screen. It works with any TV that has an HDMI port.' },
+        { line: 'Then scan the code with your phone.', note: 'The TV shows a six-character code. Pairing takes under a minute.' },
+        { line: 'Upload your menus, photos and videos.', note: 'We prepare every file to look sharp on the TV, even heavy phone videos.' },
+        { line: 'Publish, and it’s live in seconds.', note: 'On one screen, or on every screen in every branch with one tap.' },
+      ],
+      pairing: {
+        app: 'Lawha Player',
+        instruction: 'Open the Lawha app, tap “Add screen”, and scan this code.',
+        code: 'K7Q4MP',
+        refresh: 'The code refreshes every 10 minutes',
+      },
+    },
+    announce: {
+      heading: 'Announcements',
+      inputLabel: 'Type an announcement for the screens',
+      initial: 'Closed for prayer, back in 20 minutes',
+      examples: ['Sorry, croissants are sold out today', 'Two iced lattes for SAR 30', 'Welcome, Riyadh Season guests'],
+      exampleLabel: 'Examples:',
+      statement: 'Type it, pick the screens and how long. It shows over the menu, then the menu comes back by itself.',
+      durations: ['15 min', '30 min', '1 hour'],
+      durationLabel: 'Duration',
+      ends: 'Menu returns in',
+      tag: 'Announcement',
+    },
+    features: {
+      heading: 'Lawha features',
+      items: [
+        { title: 'Auto-switch at the times you set', more: 'Breakfast 6 to 11 am, lunch until 4 pm, then the evening menu. The schedule runs on the screen itself, even offline.', field: 'mint', on: true },
+        { title: 'Keep playing when the internet drops', more: 'Screens keep the content on the device and start playing again by themselves after a power cut.', field: 'saffron', on: true },
+        { title: 'Tell me if a screen stops', more: 'You get an alert after a screen has been offline for 10 minutes, and another when it’s back.', field: 'sea', on: false },
+        { title: 'Publish to every branch in one tap', more: 'Live on 12 screens in 4 branches, from Riyadh to Khobar.', field: 'sand', on: false },
+        { title: 'Give each manager their own branch', more: 'Managers run their branch’s screens and content. Billing and the team stay with you.', field: 'teal', on: false },
+      ],
+    },
+    pricing: {
+      heading: 'Pay for the screens you run',
+      monthly: 'Monthly',
+      yearly: 'Yearly, save two months',
+      per: 'per screen, per month',
+      perYearly: 'per screen, per month, billed yearly',
+      cta: 'Start with',
+      sub: 'Pay per screen, per month. The more screens you run, the less each one costs. No contracts.',
+      popular: 'Most popular',
+      fits: 'Fits you',
+      calcLabel: 'How many screens do you have?',
+      calcTotal: 'Total',
+      calcMonth: 'per month',
+      screenForms: ['1 screen', '2 screens', 'screens', 'screens'],
+      assure: ['No contract, cancel any time', 'Prices include VAT', 'Pairing takes under a minute', 'Works with any TV that has HDMI'],
+      plans: [
+        { id: 'starter', name: 'Starter', desc: 'For a small café with one or two screens.', min: 1, max: 2, range: 'One or two screens', monthly: 49, yearly: 41, items: ['One branch', 'Unlimited playlists', 'Plays offline', 'Alert if a screen stops', '5 GB storage'], field: 'sand' },
+        { id: 'growth', name: 'Growth', desc: 'For a café or restaurant with several display spots.', min: 3, max: 10, range: '3 to 10 screens', monthly: 39, yearly: 33, items: ['Up to 3 branches', 'Everything in Starter', 'Time-of-day schedules', 'Announcements', 'A manager per branch', '25 GB storage'], field: 'mint' },
+        { id: 'chain', name: 'Chain', desc: 'For brands that run several branches.', min: 11, max: 999, range: '11 screens or more', monthly: 29, yearly: 24, items: ['Unlimited branches', 'Everything in Growth', 'Screen groups', 'Play log for every screen', 'Team roles', 'On-site installation', '100 GB storage'], field: 'teal' },
+      ],
+      hardware: 'The player box is SAR 199, paid once, or use your own Android TV or Google TV.',
+    },
+    faq: {
+      heading: 'Questions',
+      items: [
+        { q: 'Do I need a smart TV?', a: 'No. Any TV with an HDMI port works with the player box, or use a TV that runs Android TV or Google TV.' },
+        { q: 'What if the internet drops?', a: 'The screen keeps playing the last complete content saved on it, and your changes arrive by themselves when it reconnects.' },
+        { q: 'How long does setup take?', a: 'Once the box is plugged in, under a minute: scan the code on the TV, name the screen and pick its branch.' },
+        { q: 'Can I show videos?', a: 'Yes. Upload them from your phone in any common format, and we convert them to play smoothly on the TV.' },
+        { q: 'I have several branches. Does it fit?', a: 'Yes. Group screens by branch, add a manager for each one, and publish to all of them in one tap.' },
+        { q: 'Can I cancel any time?', a: 'Yes. Plans are monthly, and you can stop yours from your account at any time.' },
+      ],
+    },
+    cta: {
+      line1: 'Your board is set.',
+      line2: 'So is your phone.',
+      text: 'Pair your first screen today, and change the menu before the first customer walks in.',
+      button: 'Start with Lawha',
+    },
+    footer: {
+      about: 'Lawha: menu screens for cafés and restaurants.',
+      address: 'Riyadh, Saudi Arabia',
+      hours: 'Sunday to Thursday, 9 am – 6 pm',
+      phone: '+966 50 000 0000',
+      email: 'hello@lawha.app',
+      emailUser: 'hello',
+      emailDomain: '@lawha.app',
+      cr: 'CR 0000000000',
+      top: 'Back to top',
+      links: [
+        { href: '#', label: 'Privacy' },
+        { href: '#', label: 'Terms' },
+        { href: '#', label: 'WhatsApp' },
+        { href: '#', label: 'Instagram' },
+      ],
+      credits: 'Menu photos and coffee footage from open collections',
+      creditsTitle: 'Photo and video sources',
+      city: 'Riyadh 2026',
+      mailSubject: 'I’d like to start with Lawha',
+      mailBody: 'Hello,\nCafé or restaurant name:\nNumber of branches:\nNumber of screens:\n',
+    },
+  },
+};
+
+export type Content = (typeof content)['ar'];
+
+export function mailto(c: Content, extra = '') {
+  const subject = encodeURIComponent(c.footer.mailSubject);
+  const body = encodeURIComponent(c.footer.mailBody + extra);
+  return `mailto:${c.footer.email}?subject=${subject}&body=${body}`;
+}
+
+// A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
+export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;

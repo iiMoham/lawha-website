@@ -1,0 +1,241 @@
+---
+// The header is a floating dark capsule, like a small screen above the page:
+// - a white pill slides under the hovered link, and rests on the section you are reading (scroll spy);
+// - a thin blue line along its bottom edge fills as the page scrolls;
+// - it tightens a little once you leave the top.
+// One navigation list at every width. Script measures whether the row fits; when it does not, the list
+// becomes a native popover opened by the menu button (no hard-coded breakpoint, so translations and text
+// scaling move the point by themselves). Without script the collapsed popover layout is used.
+import Logo from './Logo.astro';
+import { mailto, url, type Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const n = c.nav;
+const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
+---
+<header class="site-header wrap" data-header>
+  <div class="capsule">
+    <div class="header-inner">
+      <a class="brand" href={url(c.lang === 'ar' ? '/' : '/en/')}>
+        <Logo arcs size={24} />
+        <span class="brand-name">{n.brand}</span>
+      </a>
+      <nav class="site-nav" aria-label={n.menu}>
+        <button class="menu-button" type="button" popovertarget="site-menu" popovertargetaction="toggle" aria-controls="site-menu">
+          <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
+          <span class="menu-label">{n.menu}</span>
+        </button>
+        <ul id="site-menu" class="site-menu" popover="auto" data-menu>
+          <li class="pill" aria-hidden="true"></li>
+          {n.links.map((l) => (
+            <li><a class="nav-link" href={l.href}><span>{l.label}</span><span class="go" aria-hidden="true">→</span></a></li>
+          ))}
+        </ul>
+      </nav>
+      <div class="actions">
+        <a class="lang" href={url(n.switchHref)} hreflang={n.switchLang} lang={n.switchLang} aria-label={n.switchLabel} title={n.switchLabel}>{langShort}</a>
+        <a class="button nav-cta" href={mailto(c)}>{n.cta} <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <span class="progress" aria-hidden="true"></span>
+  </div>
+</header>
+
+<style>
+  .site-header { position: sticky; inset-block-start: 0; z-index: 50; padding-block: 0.75rem; pointer-events: none; transition: padding var(--t-ui) var(--ease-out); }
+  .capsule { pointer-events: auto; }
+  .capsule {
+    position: relative; border-radius: var(--pill); background: var(--night); color: var(--night-ink);
+    outline: 1px solid rgb(255 255 255 / 0.08); outline-offset: -1px; /* taste-skill-ignore: edge so the bar reads over the black closing section */
+  }
+  .header-inner { display: flex; align-items: center; gap: clamp(0.75rem, 2vw, 1.75rem); min-block-size: 4rem; padding-inline: 1.5rem 0.5rem; transition: min-block-size var(--t-ui) var(--ease-out); }
+  /* keep the row's natural width measurable */
+  .header-inner > * { flex-shrink: 0; white-space: nowrap; }
+
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; padding-inline-end: 0.25rem; text-decoration: none; color: inherit; font-family: var(--font-display); font-weight: 700; font-size: 1.45rem; line-height: 1; }
+  :root[lang="en"] .brand { font-size: 1.3rem; letter-spacing: -0.01em; }
+  .brand :global(.logo) { transition: rotate var(--t-ui) var(--ease-out); }
+  .site-nav { margin-inline-start: auto; }
+  .actions { display: flex; align-items: center; gap: 0.5rem; }
+
+  .lang {
+    display: grid; place-items: center; inline-size: 2.75rem; block-size: 2.75rem; border-radius: 50%;
+    background: var(--night-2); color: var(--night-ink); text-decoration: none; font-family: var(--font-text); font-weight: 700; font-size: 0.9375rem;
+    transition: background-color var(--t-hover) ease, color var(--t-hover) ease;
+  }
+  .nav-cta { min-block-size: 2.75rem; padding-inline: 1.2rem; font-size: var(--step-small); }
+  .site-header :focus-visible { outline-color: var(--signal); }
+
+  /* the reading line along the bottom edge (decorative; scroll-driven where supported) */
+  .progress { position: absolute; inset-inline: 1.75rem; inset-block-end: 0; block-size: 2px; border-radius: 2px; background: var(--accent); scale: 0 1; transform-origin: left; pointer-events: none; }
+  :root[dir="rtl"] .progress { transform-origin: right; }
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .progress { animation-name: read; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root); }
+    }
+  }
+  @keyframes read { from { scale: 0 1; } to { scale: 1 1; } }
+
+  /* collapsed (default) layout: the list is a dark sheet under the bar */
+  .menu-button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-block-size: 2.75rem; min-inline-size: 2.75rem; padding-inline: 0.9rem;
+    border-radius: var(--pill); background: var(--night-2); color: var(--night-ink); font-weight: 500; anchor-name: --menu-button;
+  }
+  .menu-icon { position: relative; display: inline-block; inline-size: 16px; block-size: 10px; }
+  .menu-icon span { position: absolute; inset-inline: 0; block-size: 2px; border-radius: 2px; background: currentColor; transition: translate var(--t-ui) var(--ease-out), rotate var(--t-ui) var(--ease-out); }
+  .menu-icon span:first-child { inset-block-start: 0; }
+  .menu-icon span:last-child { inset-block-end: 0; }
+  .site-nav:has(.site-menu:is(:popover-open, .\:popover-open)) .menu-icon span:first-child { translate: 0 4px; rotate: 45deg; }
+  .site-nav:has(.site-menu:is(:popover-open, .\:popover-open)) .menu-icon span:last-child { translate: 0 -4px; rotate: -45deg; }
+
+  .site-menu {
+    position: fixed; inset: auto; inset-block-start: 5.25rem; inset-block-start: calc(anchor(--menu-button bottom) + 0.85rem);
+    inset-inline: var(--margin); inline-size: auto; max-inline-size: 30rem; margin: 0 0 0 auto; block-size: fit-content; max-block-size: calc(100dvh - 7rem); overflow: auto;
+    padding: 0.5rem 1.25rem; border: 0; border-radius: calc(var(--radius) * 1.5); background: var(--night); color: var(--night-ink); list-style: none;
+    box-shadow: 0 24px 60px rgb(10 13 20 / 0.28); /* taste-skill-ignore: a floating menu is a real overlay */
+  }
+  :root[dir="rtl"] .site-menu { margin: 0 auto 0 0; }
+  .site-menu li + li:not(.pill + li) { border-block-start: 1px solid rgb(255 255 255 / 0.08); }
+  .pill { display: none; }
+  .nav-link { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1rem; color: inherit; text-decoration: none; font-size: var(--step-lead); font-weight: 500; }
+  .go { color: var(--signal); }
+  :root[dir="rtl"] .go { display: inline-block; scale: -1 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .site-menu { transition: opacity var(--t-ui) ease, translate var(--t-ui) var(--ease-out), display var(--t-ui), overlay var(--t-ui); transition-behavior: allow-discrete; }
+    .site-menu:not(:is(:popover-open, .\:popover-open)) { opacity: 0; translate: 0 -8px; }
+    @starting-style { .site-menu:is(:popover-open, .\:popover-open) { opacity: 0; translate: 0 -8px; } }
+  }
+
+  /* wide layout: the same list, inline, with the sliding pill */
+  .site-header.is-wide .menu-button { display: none; }
+  .site-header.is-wide .site-menu {
+    position: relative; inset: auto; display: flex; align-items: center; gap: 0.25rem; inline-size: auto; max-inline-size: none; block-size: auto; max-block-size: none;
+    overflow: visible; margin: 0; padding: 0.25rem; border-radius: var(--pill); background: var(--night-2); box-shadow: none; opacity: 1; translate: none; /* taste-skill-ignore: removes the overlay shadow */
+  }
+  .site-header.is-wide .site-menu li + li { border: 0; }
+  .site-header.is-wide .site-menu::backdrop { display: none; }
+  .site-header.is-wide .pill {
+    display: block; position: absolute; inset-block: 0.25rem; left: 0; inline-size: var(--pw, 0px); translate: var(--px, 0px) 0;
+    border-radius: var(--pill); background: var(--night-ink); opacity: 0; pointer-events: none;
+    transition: translate 380ms var(--ease-out), inline-size 380ms var(--ease-out), opacity var(--t-ui) ease;
+  }
+  .site-header.is-wide .site-menu[data-pill] .pill { opacity: 1; }
+  .site-header.is-wide .nav-link { position: relative; display: block; padding: 0.55rem 1rem; font-size: var(--step-small); border-radius: var(--pill); transition: color var(--t-hover) ease; }
+  .site-header.is-wide .nav-link[data-hot] { color: var(--ink); }
+  .site-header.is-wide .go { display: none; }
+  .site-header.is-measuring * { transition: none !important; }
+
+  /* after leaving the top: a slightly tighter bar */
+  .site-header.is-scrolled { padding-block: 0.5rem; }
+  .site-header.is-scrolled .header-inner { min-block-size: 3.5rem; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .brand:hover :global(.logo) { rotate: -8deg; }
+    .lang:hover { background: var(--night-ink); color: var(--ink); }
+    .menu-button:hover { background: #222838; }
+    .nav-cta:hover .arrow { translate: 3px 0; }
+    :root[dir="rtl"] .nav-cta:hover .arrow { translate: -3px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pill, .site-header, .header-inner { transition: none !important; } }
+  @media (forced-colors: active) {
+    .capsule, .site-menu { border: 1px solid CanvasText; /* taste-skill-ignore: forced-colors needs an edge */ }
+    .site-header.is-wide .nav-link[data-hot] { color: inherit; text-decoration: underline; }
+    .pill { display: none !important; }
+  }
+  /* on a narrow phone the button keeps its icon and accessible name, and the row keeps the call to action */
+  @media (max-width: 30rem) {
+    .header-inner { gap: 0.4rem; padding-inline: 1rem 0.375rem; }
+    .brand { font-size: 1.3rem; gap: 0.45rem; }
+    .brand :global(.logo) { inline-size: auto; block-size: 21px; }
+    .menu-label { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .menu-button { padding-inline: 0; }
+    .actions { gap: 0.4rem; }
+    .nav-cta { padding-inline: 0.9rem; }
+    .nav-cta .arrow { display: none; }
+  }
+</style>
+
+<script>
+  if (!Object.hasOwn(HTMLElement.prototype, 'popover')) {
+    import('@oddbird/popover-polyfill');
+  }
+
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const inner = header?.querySelector<HTMLElement>('.header-inner');
+  const menu = header?.querySelector<HTMLElement>('#site-menu');
+  if (header && inner && menu) {
+    const links = [...menu.querySelectorAll<HTMLAnchorElement>('.nav-link')];
+    let lastWidth = 0;
+    let current: HTMLAnchorElement | null = null;   // the section being read
+    let hover: HTMLAnchorElement | null = null;     // the link under the pointer / focus
+
+    const isOpen = () => menu.matches(':is(:popover-open, .\\:popover-open)');
+
+    // ---- the sliding pill ----
+    const place = () => {
+      const target = hover ?? current;
+      links.forEach((a) => a.toggleAttribute('data-hot', a === target));
+      if (!target || !header.classList.contains('is-wide')) { menu.removeAttribute('data-pill'); return; }
+      menu.style.setProperty('--px', `${target.offsetLeft}px`);
+      menu.style.setProperty('--pw', `${target.offsetWidth}px`);
+      menu.setAttribute('data-pill', '');
+    };
+    links.forEach((a) => {
+      a.addEventListener('pointerenter', () => { hover = a; place(); });
+      a.addEventListener('focus', () => { hover = a; place(); });
+      a.addEventListener('blur', () => { hover = null; place(); });
+    });
+    menu.addEventListener('pointerleave', () => { hover = null; place(); });
+
+    // ---- fit or collapse ----
+    const measure = () => {
+      const width = header.clientWidth;
+      const wide = header.classList.contains('is-wide');
+      // while collapsed, only re-measure when the header has grown
+      if (!wide && lastWidth && width <= lastWidth) { lastWidth = width; return; }
+      lastWidth = width;
+      const wasOpen = isOpen();
+      header.classList.add('is-measuring', 'is-wide');
+      menu.removeAttribute('popover');
+      const fits = inner.scrollWidth <= inner.clientWidth;
+      if (!fits) {
+        header.classList.remove('is-wide');
+        menu.setAttribute('popover', 'auto');
+        if (wasOpen) menu.showPopover();
+      }
+      place();
+      requestAnimationFrame(() => header.classList.remove('is-measuring'));
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(header);
+    ro.observe(menu);
+
+    // an in-page link does not light-dismiss the popover, so close it when one is followed
+    menu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a') && menu.hasAttribute('popover') && isOpen()) menu.hidePopover();
+    });
+
+    // ---- scroll spy: the section crossing the upper third of the viewport ----
+    const sections = links
+      .map((a) => ({ a, el: document.querySelector<HTMLElement>(a.hash) }))
+      .filter((x): x is { a: HTMLAnchorElement; el: HTMLElement } => !!x.el);
+    const visible = new Set<HTMLElement>();
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) visible.add(e.target as HTMLElement); else visible.delete(e.target as HTMLElement); });
+      const hit = sections.find((s) => visible.has(s.el));
+      const next = hit?.a ?? null;
+      if (next !== current) { current = next; place(); }
+    }, { rootMargin: '-30% 0px -65% 0px' });
+    sections.forEach((s) => spy.observe(s.el));
+
+    // ---- tighter bar once the page has scrolled ----
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { header.classList.toggle('is-scrolled', window.scrollY > 24); ticking = false; });
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+</script>

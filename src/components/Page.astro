@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from './Nav.astro';
+import Hero from './Hero.astro';
+import Steps from './Steps.astro';
+import Announce from './Announce.astro';
+import Features from './Features.astro';
+import Pricing from './Pricing.astro';
+import Faq from './Faq.astro';
+import Cta from './Cta.astro';
+import Footer from './Footer.astro';
+import type { Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+---
+<Base c={c}>
+  <Nav c={c} />
+  <main>
+    <Hero c={c} />
+    <Steps c={c} />
+    <Announce c={c} />
+    <Features c={c} />
+    <Pricing c={c} />
+    <Faq c={c} />
+    <Cta c={c} />
+  </main>
+  <Footer c={c} />
+</Base>

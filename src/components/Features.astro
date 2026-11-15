@@ -1,0 +1,506 @@
+---
+// Features as a grid of cards. Each card is a small working piece of the product the visitor can play with:
+// drag the time of day, cut the internet, unplug a screen, publish to every branch, pick a manager.
+// All controls are native (range, switch, buttons). Emoji are plain characters, so each platform draws its own
+// (Apple's on iPhone and Mac).
+import type { Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const f = c.features;
+const ar = c.lang === 'ar';
+
+const t = ar
+  ? {
+      dragHint: 'اسحب المؤشر لتغيير الوقت',
+      timeLabel: 'وقت اليوم',
+      showing: 'يُعرض الآن',
+      blocks: [
+        { key: 'breakfast', name: 'الفطور', time: '6 ص – 11 ص', from: 0, to: 300, emoji: '🍳',
+          items: [['🍳', 'شكشوكة بالجبن', '24'], ['🥐', 'كرواسون زبدة', '12'], ['🍊', 'عصير برتقال', '14']] },
+        { key: 'lunch', name: 'الغداء', time: '11 ص – 4 م', from: 300, to: 600, emoji: '🥗',
+          items: [['🥗', 'سلطة دجاج', '32'], ['🍝', 'باستا بالريحان', '38'], ['🍋', 'ليمون بالنعناع', '14']] },
+        { key: 'evening', name: 'المساء', time: '4 م – 12 ص', from: 600, to: 1080, emoji: '🌙',
+          items: [['🍰', 'كيكة التمر', '14'], ['☕', 'قهوة سعودية', '10'], ['🫖', 'شاي كرك', '8']] },
+      ],
+      am: 'ص', pm: 'م',
+      net: 'الإنترنت', netOn: 'متصل', netOff: 'مقطوع', online: 'متصل · يحدّث المحتوى', offline: 'دون إنترنت · يعرض المحفوظ',
+      netHint: 'جرّب تفصل الإنترنت 👇',
+      alertsHead: '🔔 التنبيهات', unplug: '🔌 افصل شاشة الكاونتر', replug: '🔌 أعد توصيل الشاشة',
+      down: '📺 توقفت شاشة الكاونتر', up: '✅ عادت شاشة الكاونتر', justNow: 'الآن', earlier: 'قبل قليل', tenMin: 'منذ 10 دقائق',
+      publishing: 'جارٍ النشر', published: 'تم النشر على كل الشاشات', publish: '🚀 انشر من جديد',
+      branches: [
+        { name: 'الملقا، الرياض', short: 'الملقا', n: 4, label: '4 شاشات' },
+        { name: 'العليا، الرياض', short: 'العليا', n: 3, label: '3 شاشات' },
+        { name: 'الخبر', short: 'الخبر', n: 3, label: '3 شاشات' },
+        { name: 'جدة', short: 'جدة', n: 2, label: 'شاشتان' },
+      ],
+      team: [
+        { initial: 'أ', name: 'أنت', role: '👑 المالك', can: [0, 1, 2, 3], sees: 'أنت ترى كل الفروع، والفوترة والفريق.' },
+        { initial: 'س', name: 'سارة', role: 'مديرة الملقا', can: [0], sees: 'سارة تدير شاشات الملقا فقط.' },
+        { initial: 'ف', name: 'فهد', role: 'مدير العليا', can: [1], sees: 'فهد يدير شاشات العليا فقط.' },
+      ],
+      pickMember: 'اختر عضوًا لترى صلاحياته',
+    }
+  : {
+      dragHint: 'Drag the handle to change the time',
+      timeLabel: 'Time of day',
+      showing: 'Now showing',
+      blocks: [
+        { key: 'breakfast', name: 'Breakfast', time: '6–11 am', from: 0, to: 300, emoji: '🍳',
+          items: [['🍳', 'Shakshuka & cheese', '24'], ['🥐', 'Butter croissant', '12'], ['🍊', 'Orange juice', '14']] },
+        { key: 'lunch', name: 'Lunch', time: '11 am–4 pm', from: 300, to: 600, emoji: '🥗',
+          items: [['🥗', 'Chicken salad', '32'], ['🍝', 'Basil pasta', '38'], ['🍋', 'Mint lemonade', '14']] },
+        { key: 'evening', name: 'Evening', time: '4 pm–12 am', from: 600, to: 1080, emoji: '🌙',
+          items: [['🍰', 'Date cake', '14'], ['☕', 'Saudi coffee', '10'], ['🫖', 'Karak tea', '8']] },
+      ],
+      am: 'am', pm: 'pm',
+      net: 'Internet', netOn: 'On', netOff: 'Off', online: 'Online · content syncing', offline: 'Offline · playing saved',
+      netHint: 'Try cutting the internet 👇',
+      alertsHead: '🔔 Alerts', unplug: '🔌 Unplug the counter screen', replug: '🔌 Plug it back in',
+      down: '📺 Counter screen stopped', up: '✅ Counter screen is back', justNow: 'Just now', earlier: 'Moments ago', tenMin: '10 min ago',
+      publishing: 'Publishing', published: 'Published to every screen', publish: '🚀 Publish again',
+      branches: [
+        { name: 'Al Malqa, Riyadh', short: 'Al Malqa', n: 4, label: '4 screens' },
+        { name: 'Olaya, Riyadh', short: 'Olaya', n: 3, label: '3 screens' },
+        { name: 'Khobar', short: 'Khobar', n: 3, label: '3 screens' },
+        { name: 'Jeddah', short: 'Jeddah', n: 2, label: '2 screens' },
+      ],
+      team: [
+        { initial: 'Y', name: 'You', role: '👑 Owner', can: [0, 1, 2, 3], sees: 'You see every branch, plus billing and the team.' },
+        { initial: 'S', name: 'Sara', role: 'Al Malqa manager', can: [0], sees: 'Sara runs the Al Malqa screens only.' },
+        { initial: 'F', name: 'Fahad', role: 'Olaya manager', can: [1], sees: 'Fahad runs the Olaya screens only.' },
+      ],
+      pickMember: 'Pick a member to see their access',
+    };
+const total = t.branches.reduce((s, b) => s + b.n, 0);
+const startMin = 220; // 9:40 am, 3h40 into the day that starts at 6
+const fmt = (m: number) => {
+  const mins = 6 * 60 + m;
+  const h24 = Math.floor(mins / 60) % 24;
+  const mm = String(mins % 60).padStart(2, '0');
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${mm} ${h24 < 12 ? t.am : t.pm}`;
+};
+const firstBlock = t.blocks[0]!;
+const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
+---
+<section class="features wrap" id="features" aria-labelledby="feat-h">
+  <header class="sec-head" data-reveal>
+    <h2 class="sec-title" id="feat-h">{f.heading}</h2>
+  </header>
+
+  <div class="grid">
+    {f.items.map((it, i) => {
+      const key = keys[i] ?? 'schedule';
+      return (
+        <article class={`card c-${key}`} data-reveal style={`--i:${i % 3}`} aria-labelledby={`feat-${i}`} data-card={key}>
+          <div class="viz" data-ui>
+            {key === 'schedule' && (
+              <div class="sched" data-sched data-am={t.am} data-pm={t.pm}>
+                <div class="sched-main">
+                  <div class="sched-top">
+                    <span class="pill nums"><span class="dot"></span><span data-clock>{fmt(startMin)}</span></span>
+                    <span class="hint" data-hint>{t.dragHint}</span>
+                  </div>
+                  <div class="track">
+                    {t.blocks.map((b, k) => <span class="seg" data-seg={k} data-on={k === 0 ? '' : undefined} style={`flex-grow:${b.to - b.from}`} aria-hidden="true"></span>)}
+                    <input class="range" type="range" min="0" max="1080" step="10" value={startMin} aria-label={t.timeLabel} aria-valuetext={fmt(startMin)} data-range />
+                  </div>
+                  <div class="labels" aria-hidden="true">
+                    {t.blocks.map((b, k) => <span class="lab" data-lab={k} data-on={k === 0 ? '' : undefined} style={`flex-grow:${b.to - b.from}`}><b>{b.emoji} {b.name}</b><span>{b.time}</span></span>)}
+                  </div>
+                </div>
+                <div class="sched-tv" aria-live="polite">
+                  <span class="sr-only" data-sr>{t.showing}: {firstBlock.name}</span>
+                  <div class="mtv" aria-hidden="true">
+                    {t.blocks.map((b, k) => (
+                      <div class="mtv-layer" data-menu={k} data-on={k === 0 ? '' : undefined} data-from={b.from} data-to={b.to}>
+                        <span class="mtv-t">{b.emoji} {b.name}</span>
+                        {b.items.map(([e, n, p]) => <span class="mtv-r"><span><span class="emo">{e}</span> {n}</span><span class="nums">{p}</span></span>)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {key === 'offline' && (
+              <div class="off" data-offline-card>
+                <div class="mini-tv" aria-hidden="true">
+                  <div class="mini-scr">
+                    <span class="badge" data-badge><span class="dot"></span><span data-badge-text>{t.online}</span></span>
+                    <span class="mini-t">{firstBlock.emoji} {firstBlock.name}</span>
+                    {firstBlock.items.map(([e, n, p], k) => <span class="mini-r" style={`--k:${k}`}><span><span class="emo">{e}</span> {n}</span><span class="nums">{p}</span></span>)}
+                  </div>
+                </div>
+                <span class="hint" data-hint>{t.netHint}</span>
+                <label class="net">
+                  <span>📶 {t.net}</span>
+                  <span class="net-state" data-net-state aria-hidden="true">{t.netOn}</span>
+                  <input type="checkbox" role="switch" class="switch" checked data-feat-net data-on-label={t.netOn} data-off-label={t.netOff} data-online={t.online} data-offline={t.offline} />
+                </label>
+              </div>
+            )}
+
+            {key === 'alerts' && (
+              <div class="alerts" data-alerts data-down={t.down} data-up={t.up} data-now={t.justNow} data-earlier={t.earlier} data-unplug={t.unplug} data-replug={t.replug}>
+                <span class="a-head">{t.alertsHead}</span>
+                <ul class="stack" aria-live="polite" data-stack>
+                  <li class="note n-up"><span class="n-txt"><b>{t.up}</b><span data-meta>{t.justNow}</span></span></li>
+                  <li class="note n-down"><span class="n-txt"><b>{t.down}</b><span>{t.tenMin}</span></span></li>
+                </ul>
+                <button type="button" class="act" data-plug>{t.unplug}</button>
+              </div>
+            )}
+
+            {key === 'branches' && (
+              <div class="branches" data-branches data-total={total} data-publishing={t.publishing} data-published={t.published}>
+                <span class="b-head" aria-live="polite"><span data-b-status>{t.published}</span> <span class="nums b-count" data-b-count>{total}/{total}</span></span>
+                <ul class="b-list">
+                  {t.branches.map((b) => (
+                    <li class="b-row" data-n={b.n} data-done=""><span>📍 {b.name}</span><span class="b-n"><span>{b.label}</span><span class="b-ic" aria-hidden="true"><span class="b-wait">⏳</span><span class="b-ok">✅</span></span></span></li>
+                  ))}
+                </ul>
+                <button type="button" class="act act-light" data-publish>{t.publish}</button>
+              </div>
+            )}
+
+            {key === 'team' && (
+              <div class="team" data-team>
+                <div class="members" role="group" aria-label={t.pickMember}>
+                  {t.team.map((m, k) => (
+                    <button type="button" class="member" aria-pressed={k === 1 ? 'true' : 'false'} data-can={m.can.join(',')} data-sees={m.sees}>
+                      <span class={`avatar a${k}`} aria-hidden="true">{m.initial}</span>
+                      <span class="m-txt"><b>{m.name}</b><span>{m.role}</span></span>
+                    </button>
+                  ))}
+                </div>
+                <ul class="access" aria-hidden="true">
+                  {t.branches.map((b, k) => <li class="acc" data-acc={k} data-yes={t.team[1]!.can.includes(k) ? '' : undefined}><span class="acc-ic"><span class="y">✅</span><span class="n">🔒</span></span>{b.short}</li>)}
+                </ul>
+                <p class="sees" aria-live="polite" data-sees-text>{t.team[1]!.sees}</p>
+              </div>
+            )}
+          </div>
+          <h3 class="c-title" id={`feat-${i}`}>{it.title}</h3>
+        </article>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .features { padding-block: 0 var(--section); }
+  .grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(0.75rem, 1.4vw, 1.25rem); }
+  .card { --card: #ffffff; --card-ink: var(--ink); --card-muted: var(--muted); --well: var(--bg); grid-column: span 2; display: flex; flex-direction: column; gap: 1.25rem; padding: clamp(1rem, 1.6vw, 1.25rem) clamp(1rem, 1.6vw, 1.25rem) clamp(1.25rem, 2vw, 1.5rem); border-radius: calc(var(--radius) * 1.5); background: var(--card); color: var(--card-ink); outline: 1.5px solid #e3e6ec; outline-offset: -1.5px; transition: translate var(--t-ui) var(--ease-out), outline-color var(--t-ui) ease; }
+  .c-schedule { grid-column: span 4; }
+  .c-offline { --card: var(--night); --card-ink: var(--night-ink); --card-muted: #a7afbf; --well: var(--night-2); outline-color: var(--night); }
+  .c-branches { --card: var(--accent); --card-ink: var(--accent-ink); --card-muted: rgb(255 255 255 / 0.82); --well: rgb(255 255 255 / 0.12); outline-color: var(--accent); }
+  .c-offline :focus-visible, .c-branches :focus-visible { outline-color: var(--night-ink); }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover { translate: 0 -3px; }
+    .card:not(.c-offline, .c-branches):hover { outline-color: #c9d3f5; }
+  }
+
+  .c-title { margin-block-start: auto; font-size: clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem); line-height: var(--lh-head); font-weight: 700; text-wrap: balance; }
+
+  /* the interface well at the top of each card */
+  .viz { flex: 1; min-block-size: 10.5rem; display: flex; align-items: center; justify-content: center; padding: 1rem; border-radius: var(--radius); background: var(--well); font-size: 0.875rem; line-height: 1.35; }
+  .viz b { font-weight: 700; }
+  .dot { display: inline-block; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; flex: none; background: var(--live); transition: background-color var(--t-ui) ease; }
+  .emo { font-style: normal; }
+  .hint { color: var(--card-muted); font-size: 0.8125rem; transition: opacity var(--t-ui) ease; }
+  .hint[data-gone] { opacity: 0; }
+
+  /* shared small action button inside a well */
+  .act {
+    align-self: stretch; min-block-size: 2.75rem; padding: 0.5rem 1rem; border-radius: var(--pill); background: var(--ink); color: #fff;
+    font: inherit; font-weight: 500; cursor: pointer; transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease;
+  }
+  .act:active { transform: scale(0.97); }
+  .act-light { background: #fff; color: var(--accent); }
+  @media (hover: hover) and (pointer: fine) { .act:hover { background: #222838; } .act-light:hover { background: var(--accent-soft); } }
+
+  /* ---------- schedule: drag the time of day, the TV follows ---------- */
+  .sched { inline-size: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem); gap: clamp(1rem, 2.4vw, 2rem); align-items: center; }
+  .sched-main { display: flex; flex-direction: column; gap: 0.875rem; min-inline-size: 0; }
+  .sched-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.65rem; border-radius: var(--pill); background: #fff; font-weight: 500; }
+  .track { position: relative; display: flex; gap: 4px; block-size: 2.75rem; }
+  .seg { flex-basis: 0; border-radius: 8px; background: #dfe3ea; transition: background-color var(--t-ui) ease; }
+  .seg[data-on] { background: var(--accent); }
+  .range { position: absolute; inset: -0.5rem 0; inline-size: 100%; block-size: calc(100% + 1rem); margin: 0; appearance: none; -webkit-appearance: none; background: transparent; cursor: grab; touch-action: pan-y; }
+  .range:active { cursor: grabbing; }
+  .range::-webkit-slider-runnable-track { block-size: 100%; background: transparent; }
+  .range::-moz-range-track { block-size: 100%; background: transparent; }
+  .range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; inline-size: 14px; block-size: 3.75rem; margin-block-start: 0; border-radius: 7px; background: var(--ink); border: 3px solid #fff; cursor: grab; }
+  .range::-moz-range-thumb { inline-size: 8px; block-size: 3.5rem; border-radius: 7px; background: var(--ink); border: 3px solid #fff; cursor: grab; }
+  .range:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+  .labels { display: flex; gap: 4px; }
+  .lab { flex-basis: 0; display: flex; flex-direction: column; color: var(--muted); min-inline-size: 0; }
+  .lab b { color: var(--ink); transition: color var(--t-ui) ease; }
+  .lab[data-on] b { color: var(--accent); }
+
+  .sched-tv { min-inline-size: 0; }
+  .mtv { position: relative; aspect-ratio: 4 / 3; padding: 5px; border-radius: 12px; background: #000; }
+  .mtv-layer { position: absolute; inset: 5px; display: flex; flex-direction: column; justify-content: center; gap: 0.4rem; padding: 0.75rem 0.9rem; border-radius: 7px; background: var(--tv-screen); color: var(--tv-ink); font-size: 0.8125rem; opacity: 0; }
+  .mtv-layer[data-on] { opacity: 1; z-index: 1; }
+  .mtv-layer[data-prev] { opacity: 1; }
+  .mtv-t { font-weight: 700; color: var(--signal); font-size: 1rem; margin-block-end: 0.2rem; }
+  .mtv-r { display: flex; justify-content: space-between; gap: 0.5rem; }
+  .mtv-r > span:first-child { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---------- offline: cut the internet, the TV keeps playing ---------- */
+  .off { inline-size: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  .mini-tv { inline-size: min(100%, 15rem); aspect-ratio: 16 / 10; padding: 5px; border-radius: 10px; background: #000; }
+  .mini-scr { position: relative; block-size: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.25rem; padding: 0.7rem 0.85rem; border-radius: 6px; background: var(--tv-screen); color: var(--tv-ink); font-size: 0.75rem; }
+  .mini-t { font-weight: 700; color: var(--signal); font-size: 0.875rem; }
+  .mini-r { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.1rem 0.35rem; margin-inline: -0.35rem; border-radius: 4px; }
+  .badge { position: absolute; inset-block-start: 0.5rem; inset-inline-end: 0.5rem; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.94); color: var(--ink); font-size: 0.6875rem; font-weight: 500; transition: background-color var(--t-ui) ease; }
+  .off[data-cut] .badge { background: #fff4e0; }
+  .off[data-cut] .badge .dot { background: var(--warn); }
+  .net { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; inline-size: min(100%, 15rem); min-block-size: 2.75rem; padding: 0.25rem 0.5rem 0.25rem 0.9rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.08); cursor: pointer; font-weight: 500; }
+  :root[dir="rtl"] .net { padding: 0.25rem 0.9rem 0.25rem 0.5rem; }
+  .net-state { margin-inline-start: auto; color: var(--card-muted); font-size: 0.8125rem; }
+  .net .switch { font-size: 0.875rem; }
+
+  /* ---------- alerts: unplug a screen, a notification slides in ---------- */
+  .alerts { inline-size: 100%; display: flex; flex-direction: column; gap: 0.6rem; }
+  .a-head { font-weight: 700; }
+  .stack { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  .note { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.65rem 0.8rem; border-radius: 12px; background: #fff; border-inline-start: 3px solid var(--live); }
+  .note.n-down { border-inline-start-color: #ef4444; }
+  .note:nth-child(n + 3) { display: none; }
+  .note:nth-child(2) { opacity: 0.7; }
+  .n-txt { display: flex; flex-direction: column; }
+  .n-txt span { color: var(--muted); font-size: 0.8125rem; }
+
+  /* ---------- branches: publish, each branch ticks ---------- */
+  .branches { inline-size: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
+  .b-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-weight: 700; margin-block-end: 0.25rem; }
+  .b-count { padding: 0.1rem 0.55rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.18); }
+  .b-list { display: flex; flex-direction: column; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .b-row { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.4rem 0.7rem; border-radius: 10px; background: rgb(255 255 255 / 0.14); transition: background-color var(--t-ui) ease; }
+  .b-row[data-done] { background: rgb(255 255 255 / 0.22); }
+  .b-n { display: inline-flex; align-items: center; gap: 0.45rem; opacity: 0.9; }
+  .b-ic { display: inline-grid; inline-size: 1.25em; }
+  .b-ic > span { grid-area: 1 / 1; transition: opacity 200ms ease, scale 260ms var(--ease-out); }
+  .b-row:not([data-done]) .b-ok, .b-row[data-done] .b-wait { opacity: 0; scale: 0.5; }
+  .branches .act { margin-block-start: 0.35rem; }
+
+  /* ---------- team: pick a member, see what they can open ---------- */
+  .team { inline-size: 100%; display: flex; flex-direction: column; gap: 0.6rem; }
+  .members { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+  .member {
+    display: flex; flex-direction: column; align-items: center; gap: 0.35rem; min-inline-size: 0; padding: 0.6rem 0.35rem; border: 0; border-radius: 12px;
+    background: #fff; color: var(--ink); font: inherit; text-align: center; cursor: pointer; outline: 2px solid transparent; outline-offset: -2px;
+    transition: outline-color var(--t-ui) ease, transform var(--t-press) var(--ease-out);
+  }
+  .member:active { transform: scale(0.97); }
+  .member[aria-pressed="true"] { outline-color: var(--accent); }
+  .member:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .avatar { display: grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 0.875rem; flex: none; }
+  .avatar.a1 { background: #7c5cff; }
+  .avatar.a2 { background: #0e8f8e; }
+  .m-txt { display: flex; flex-direction: column; min-inline-size: 0; }
+  .m-txt span { color: var(--muted); font-size: 0.75rem; }
+  .access { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+  .acc { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.6rem; border-radius: 10px; background: #fff; color: var(--muted); font-size: 0.8125rem; transition: color var(--t-ui) ease, background-color var(--t-ui) ease; }
+  .acc[data-yes] { color: var(--ink); background: var(--accent-soft); font-weight: 500; }
+  .acc-ic { display: inline-grid; }
+  .acc-ic > span { grid-area: 1 / 1; transition: opacity 200ms ease, scale 260ms var(--ease-out); }
+  .acc:not([data-yes]) .y, .acc[data-yes] .n { opacity: 0; scale: 0.5; }
+  .sees { font-size: 0.8125rem; color: var(--muted); min-block-size: 2.4em; }
+
+  /* ---------- motion ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .mtv-layer[data-on] { animation: wipe 520ms var(--ease-in-out) both; }
+    .note[data-new] { animation: slide-in 460ms var(--ease-out) both; }
+    .off .mini-r { animation: playing 3.6s linear infinite; animation-delay: calc(var(--k) * 1.2s); }
+    .b-row[data-tick] { animation: tick 420ms var(--ease-out); }
+    .acc[data-flash] { animation: tick 380ms var(--ease-out); }
+    .note.n-down[data-new] b { animation: shake 420ms ease 120ms; }
+  }
+  @keyframes wipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes slide-in { from { opacity: 0; translate: 0 -12px; scale: 0.97; } to { opacity: 1; translate: 0 0; scale: 1; } }
+  @keyframes playing { 0%, 30% { background: rgb(142 167 255 / 0.18); } 34%, 100% { background: transparent; } }
+  @keyframes tick { 40% { scale: 1.03; } }
+  @keyframes shake { 25% { translate: -2px 0; } 50% { translate: 2px 0; } 75% { translate: -1px 0; } }
+
+  @media (max-width: 64rem) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card { grid-column: span 1; }
+    .c-schedule { grid-column: 1 / -1; }
+  }
+  @media (max-width: 40rem) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .c-schedule { grid-column: auto; }
+    .viz { min-block-size: 0; }
+    .sched { grid-template-columns: minmax(0, 1fr); }
+    .sched-tv { justify-self: center; inline-size: min(100%, 16rem); }
+  }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const onceVisible = (el: Element, fn: () => void, threshold = 0.5) => {
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { io.disconnect(); fn(); } }, { threshold });
+    io.observe(el);
+  };
+  const whileVisible = (el: Element, fn: (v: boolean) => void) => {
+    new IntersectionObserver(([e]) => fn(!!e?.isIntersecting), { threshold: 0.3 }).observe(el);
+  };
+
+  // ---------- schedule ----------
+  const sched = document.querySelector<HTMLElement>('[data-sched]');
+  if (sched) {
+    const range = sched.querySelector<HTMLInputElement>('[data-range]')!;
+    const clock = sched.querySelector<HTMLElement>('[data-clock]')!;
+    const hint = sched.querySelector<HTMLElement>('[data-hint]');
+    const sr = sched.querySelector<HTMLElement>('[data-sr]')!;
+    const segs = [...sched.querySelectorAll<HTMLElement>('[data-seg]')];
+    const labs = [...sched.querySelectorAll<HTMLElement>('[data-lab]')];
+    const menus = [...sched.querySelectorAll<HTMLElement>('[data-menu]')];
+    const am = sched.dataset['am'] ?? 'am';
+    const pm = sched.dataset['pm'] ?? 'pm';
+    const srPrefix = (sr.textContent ?? '').split(':')[0] ?? '';
+    const fmt = (m: number) => {
+      const mins = 6 * 60 + m;
+      const h24 = Math.floor(mins / 60) % 24;
+      const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+      return `${h12}:${String(mins % 60).padStart(2, '0')} ${h24 < 12 ? am : pm}`;
+    };
+    let block = 0;
+    const update = (m: number) => {
+      const txt = fmt(m);
+      clock.textContent = txt;
+      range.setAttribute('aria-valuetext', txt);
+      const k = Math.max(0, menus.findIndex((el) => m >= Number(el.dataset['from']) && m < Number(el.dataset['to'])));
+      const next = m >= 1080 ? menus.length - 1 : k;
+      if (next !== block) {
+        const prev = menus[block];
+        prev?.setAttribute('data-prev', '');
+        window.setTimeout(() => prev?.removeAttribute('data-prev'), 560);
+        block = next;
+        [segs, labs, menus].forEach((list) => list.forEach((el, i) => el.toggleAttribute('data-on', i === block)));
+        const name = menus[block]?.querySelector('.mtv-t')?.textContent?.trim() ?? '';
+        sr.textContent = `${srPrefix}: ${name}`;
+      }
+    };
+    let auto = !reduce;
+    let visible = false;
+    const stopAuto = () => { auto = false; hint?.setAttribute('data-gone', ''); };
+    range.addEventListener('input', () => update(Number(range.value)));
+    ['pointerdown', 'keydown', 'focus'].forEach((ev) => range.addEventListener(ev, stopAuto));
+    whileVisible(sched, (v) => { visible = v; });
+    // the day plays by itself (10 minutes every 90ms) until the visitor takes the handle
+    window.setInterval(() => {
+      if (!auto || !visible || document.hidden) return;
+      const v = (Number(range.value) + 10) % 1090;
+      range.value = String(v);
+      update(v);
+    }, 90);
+  }
+
+  // ---------- offline ----------
+  const off = document.querySelector<HTMLElement>('[data-offline-card]');
+  if (off) {
+    const sw = off.querySelector<HTMLInputElement>('[data-feat-net]')!;
+    const state = off.querySelector<HTMLElement>('[data-net-state]')!;
+    const badge = off.querySelector<HTMLElement>('[data-badge-text]')!;
+    const hint = off.querySelector<HTMLElement>('[data-hint]');
+    sw.addEventListener('change', () => {
+      const on = sw.checked;
+      off.toggleAttribute('data-cut', !on);
+      state.textContent = (on ? sw.dataset['onLabel'] : sw.dataset['offLabel']) ?? '';
+      badge.textContent = (on ? sw.dataset['online'] : sw.dataset['offline']) ?? '';
+      hint?.setAttribute('data-gone', '');
+    });
+  }
+
+  // ---------- alerts ----------
+  const alerts = document.querySelector<HTMLElement>('[data-alerts]');
+  if (alerts) {
+    const stack = alerts.querySelector<HTMLElement>('[data-stack]')!;
+    const btn = alerts.querySelector<HTMLButtonElement>('[data-plug]')!;
+    const d = alerts.dataset;
+    let plugged = true;
+    btn.addEventListener('click', () => {
+      plugged = !plugged;
+      stack.querySelectorAll('[data-meta]').forEach((m) => { m.textContent = d['earlier'] ?? ''; });
+      const li = document.createElement('li');
+      li.className = `note ${plugged ? 'n-up' : 'n-down'}`;
+      li.setAttribute('data-new', '');
+      const txt = document.createElement('span');
+      txt.className = 'n-txt';
+      const b = document.createElement('b');
+      b.textContent = (plugged ? d['up'] : d['down']) ?? '';
+      const meta = document.createElement('span');
+      meta.setAttribute('data-meta', '');
+      meta.textContent = d['now'] ?? '';
+      txt.append(b, meta);
+      li.append(txt);
+      // Astro scopes component styles with an attribute; copy it so the new note is styled
+      const scope = [...stack.attributes].find((a) => a.name.startsWith('data-astro-cid'));
+      [li, txt, b, meta].forEach((el) => { if (scope) el.setAttribute(scope.name, ''); });
+      stack.prepend(li);
+      while (stack.children.length > 4) stack.lastElementChild?.remove();
+      btn.textContent = (plugged ? d['unplug'] : d['replug']) ?? '';
+    });
+  }
+
+  // ---------- branches ----------
+  const br = document.querySelector<HTMLElement>('[data-branches]');
+  if (br) {
+    const rows = [...br.querySelectorAll<HTMLElement>('.b-row')];
+    const status = br.querySelector<HTMLElement>('[data-b-status]')!;
+    const count = br.querySelector<HTMLElement>('[data-b-count]')!;
+    const btn = br.querySelector<HTMLButtonElement>('[data-publish]')!;
+    const total = Number(br.dataset['total']) || 0;
+    let running = false;
+    const run = () => {
+      if (running) return;
+      running = true;
+      btn.disabled = true;
+      let done = 0;
+      rows.forEach((r) => { r.removeAttribute('data-done'); r.removeAttribute('data-tick'); });
+      status.textContent = `${br.dataset['publishing'] ?? ''}…`;
+      count.textContent = `0/${total}`;
+      const step = reduce ? 0 : 520;
+      rows.forEach((r, i) => {
+        window.setTimeout(() => {
+          r.setAttribute('data-done', '');
+          r.setAttribute('data-tick', '');
+          done += Number(r.dataset['n']) || 0;
+          count.textContent = `${done}/${total}`;
+          if (i === rows.length - 1) {
+            status.textContent = br.dataset['published'] ?? '';
+            running = false;
+            btn.disabled = false;
+          }
+        }, step * (i + 1) + (reduce ? 0 : 200));
+      });
+    };
+    btn.addEventListener('click', run);
+    if (!reduce) onceVisible(br, run, 0.6);
+  }
+
+  // ---------- team ----------
+  const team = document.querySelector<HTMLElement>('[data-team]');
+  if (team) {
+    const members = [...team.querySelectorAll<HTMLButtonElement>('.member')];
+    const accs = [...team.querySelectorAll<HTMLElement>('[data-acc]')];
+    const sees = team.querySelector<HTMLElement>('[data-sees-text]')!;
+    members.forEach((m) => m.addEventListener('click', () => {
+      members.forEach((x) => x.setAttribute('aria-pressed', String(x === m)));
+      const can = (m.dataset['can'] ?? '').split(',').map(Number);
+      accs.forEach((a, i) => {
+        const yes = can.includes(i);
+        if (yes !== a.hasAttribute('data-yes')) { a.removeAttribute('data-flash'); void a.offsetWidth; a.setAttribute('data-flash', ''); }
+        a.toggleAttribute('data-yes', yes);
+      });
+      sees.textContent = m.dataset['sees'] ?? '';
+    }));
+  }
+</script>

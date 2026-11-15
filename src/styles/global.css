@@ -1,0 +1,167 @@
+/* Lawha website — global tokens and foundations.
+   Fonts: Wafeq (Regular 400, Medium 500, Bold 700). Files are bundled by the build (hashed). */
+
+@font-face { font-family: "Wafeq"; src: url("../assets/fonts/wafeq-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Wafeq"; src: url("../assets/fonts/wafeq-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Wafeq"; src: url("../assets/fonts/wafeq-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+:root {
+  /* palette: cool neutrals, near-black ink and one electric-blue accent */
+  --bg: #f7f8fa;
+  --surface: #eceff3;
+  --ink: #0a0d14;
+  --muted: #535b6b;
+  --accent: #2453ff;
+  --accent-strong: #1a3fd1;
+  --accent-ink: #ffffff;
+  --accent-soft: #e4eaff;
+  --night: #0a0d14;
+  --night-2: #141925;
+  --night-ink: #f7f8fa;
+  --signal: #8ea7ff;      /* accent text on dark screens */
+  --warn: #f5a524;
+  --live: #22c55e;
+  --tv: #05070b;
+  --tv-screen: #0e1119;
+  --tv-ink: #f5f7fb;
+  --tv-muted: #9aa3b5;
+
+  --font-display: "Wafeq", "IBM Plex Sans Arabic", "Geeza Pro", system-ui, sans-serif;
+  --font-text: "Wafeq", "IBM Plex Sans Arabic", "Geeza Pro", system-ui, sans-serif;
+
+  /* five size steps */
+  --step-small: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --step-head: clamp(2.25rem, 1.4rem + 3.4vw, 4.75rem);
+  /* every fluid size keeps max <= 2.5 x min so browser zoom can still reach 200% */
+  --step-display: clamp(4.5rem, 0.6rem + 10.4vw, 11rem);
+
+  --margin: clamp(1rem, 2.4vw, 2.25rem);
+  --gutter: clamp(1rem, 2vw, 2rem);
+  --section: clamp(4.5rem, 9vw, 8.5rem);
+  --radius: 12px;
+  --pill: 999px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-ui: 240ms;
+  --t-reveal: 800ms;
+
+  /* Arabic needs taller lines; English overrides below */
+  --lh-display: 1.25;
+  --lh-head: 1.3;
+  --lh-text: 1.75;
+  --track-display: 0;
+}
+
+/* English is set tighter: Latin can take negative tracking, Arabic never can (it breaks the joins). */
+:root[lang="en"] {
+  --lh-display: 1.02;
+  --lh-head: 1.06;
+  --lh-text: 1.55;
+  --track-display: -0.03em;
+  --step-display: clamp(3.5rem, 0.4rem + 7.6vw, 8.5rem);
+}
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-text); font-size: var(--step-body); line-height: var(--lh-text); font-kerning: normal; font-size-adjust: from-font; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: clip; }
+h1, h2, h3, h4, p, figure, blockquote, ul, ol, dl, dd { margin: 0; }
+ul[class], ol[class] { padding: 0; list-style: none; }
+img, video, svg, canvas { display: block; max-width: 100%; }
+img, video { height: auto; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; }
+:target { scroll-margin-top: 6rem; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+/* ---------- type ---------- */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; text-wrap: balance; hyphens: none; letter-spacing: var(--track-display); }
+.head { font-size: var(--step-head); line-height: var(--lh-head); }
+.lead { font-size: var(--step-lead); line-height: 1.6; max-width: 40ch; }
+:root[lang="en"] .lead { line-height: 1.4; }
+.small { font-size: var(--step-small); line-height: 1.6; }
+.muted { color: var(--muted); }
+p, li, dd { text-wrap: pretty; }
+p { max-width: 62ch; }
+.nums { font-variant-numeric: tabular-nums; }
+/* Latin runs inside Arabic text (HDMI, Android TV) keep their own direction */
+.ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+
+/* ---------- layout ---------- */
+.wrap { padding-inline: var(--margin); }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- controls ---------- */
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 0.6em; min-height: 3.25rem; padding: 0 1.6rem; background: var(--accent); color: var(--accent-ink); border-radius: var(--pill); text-decoration: none; white-space: nowrap; font-weight: 500; font-size: var(--step-body); transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease, color var(--t-hover) ease; }
+.button:active { transform: scale(0.97); }
+.button--light { background: var(--accent-ink); color: var(--accent); }
+.link { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.3em; text-decoration-thickness: 0.07em; transition: text-decoration-color var(--t-hover) ease, color var(--t-hover) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { background-color: var(--accent-strong); }
+  .button--light:hover { background-color: #fff; }
+  .link:hover { text-decoration-color: currentColor; }
+}
+/* directional arrows mirror in RTL */
+.arrow { display: inline-block; transition: transform var(--t-ui) var(--ease-out); }
+:root[dir="rtl"] .arrow { transform: scaleX(-1); }
+@media (hover: hover) and (pointer: fine) {
+  .button:hover .arrow, .link:hover .arrow { transform: translateX(4px); }
+  :root[dir="rtl"] .button:hover .arrow, :root[dir="rtl"] .link:hover .arrow { transform: scaleX(-1) translateX(4px); }
+}
+
+/* the product's own switch: a native <input type="checkbox" role="switch"> with its look replaced */
+.switch { --w: 2.9em; --h: 1.7em; appearance: none; position: relative; display: inline-block; flex: none; inline-size: var(--w); block-size: var(--h); margin: 0; border-radius: var(--pill); background: #c3c8d2; cursor: pointer; transition: background-color var(--t-ui) ease; }
+.switch::after { content: ""; position: absolute; inset-block-start: 0.2em; inset-inline-start: 0.2em; inline-size: calc(var(--h) - 0.4em); block-size: calc(var(--h) - 0.4em); border-radius: 50%; background: #fff; transition: translate var(--t-ui) var(--ease-out); }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { translate: calc(var(--w) - var(--h)) 0; }
+:root[dir="rtl"] .switch:checked::after { translate: calc((var(--w) - var(--h)) * -1) 0; }
+.switch:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (forced-colors: active) { .switch { border: 2px solid CanvasText; } .switch::after { background: CanvasText; } }
+
+/* a radio or checkbox whose label is the whole control: the input stays focusable but draws nothing */
+.ghost-input { appearance: none; position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+label:has(> .ghost-input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- motion: entrances ----------
+   Where scroll-driven animations exist, entrances run on a view() timeline (no script).
+   Elsewhere Base.astro adds .no-sda and an IntersectionObserver sets .is-in once.
+   Content is never hidden without script, and reduced motion keeps everything still. */
+@keyframes rise { from { opacity: 0; translate: 0 18px; } }
+@keyframes reveal { from { opacity: 0; translate: 0 28px; } }
+@keyframes shutter { from { clip-path: inset(0 0 100% 0 round var(--radius)); } to { clip-path: inset(0 0 0 0 round var(--radius)); } }
+@keyframes settle { from { scale: 1.12; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-rise] { animation: rise var(--t-reveal) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
+
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    /* longhands on purpose: a minifier must not fold the timeline into the shorthand, which browsers reject */
+    [data-reveal] { animation-name: reveal; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: entry calc(var(--i, 0) * 6%) entry calc(60% + var(--i, 0) * 6%); }
+    .shutter { animation-name: shutter; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: entry 0% cover 35%; }
+    .shutter .shutter-img { animation-name: settle; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: entry 0% cover 55%; }
+  }
+
+  .no-sda [data-reveal] { opacity: 0; translate: 0 24px; transition: opacity 700ms var(--ease-out), translate 900ms var(--ease-out); transition-delay: calc(var(--i, 0) * 80ms); }
+  .no-sda [data-reveal].is-in { opacity: 1; translate: 0 0; }
+  .no-sda .shutter { clip-path: inset(0 0 100% 0 round var(--radius)); transition: clip-path 1100ms var(--ease-in-out); }
+  .no-sda .shutter .shutter-img { scale: 1.12; transition: scale 1500ms var(--ease-soft); }
+  .no-sda .shutter.is-in { clip-path: inset(0 0 0 0 round var(--radius)); }
+  .no-sda .shutter.is-in .shutter-img { scale: 1; }
+}
+
+/* ---------- section header: one pattern for every section ---------- */
+.sec-head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: 0.75rem; align-items: end; margin-block-end: clamp(2rem, 4vw, 3.5rem); }
+.sec-title { grid-column: 1 / span 7; font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 1.2rem + 2.4vw, 3.5rem); line-height: var(--lh-head); letter-spacing: var(--track-display); text-wrap: balance; }
+.sec-sub { grid-column: 8 / -1; color: var(--muted); max-width: 40ch; }
+@media (max-width: 54rem) {
+  .sec-head { display: flex; flex-direction: column; align-items: stretch; }
+}

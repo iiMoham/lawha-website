@@ -1,0 +1,32 @@
+---
+// The close: the page's colours flip and the opening idea returns.
+import { mailto, type Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const k = c.cta;
+---
+<section class="cta" aria-labelledby="cta-h">
+  <div class="wrap cta-in">
+    <h2 class="c-head" id="cta-h" data-reveal>{k.line1}<br />{k.line2}</h2>
+    <div class="c-foot" data-reveal style="--i:1">
+      <p class="c-text">{k.text}</p>
+      <a class="button c-btn" href={mailto(c)}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta { background: var(--night); color: var(--night-ink); }
+  .cta-in { min-height: 0; display: flex; flex-direction: column; justify-content: space-between; padding-block: clamp(4rem, 9vw, 8rem) clamp(2.5rem, 4vw, 3rem); gap: clamp(2.5rem, 5vw, 4rem); }
+  .c-head { font-size: clamp(3rem, 1.2rem + 5vw, 6.5rem); line-height: var(--lh-display); font-weight: 700; }
+  .c-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; }
+  .c-text { font-size: var(--step-lead); line-height: 1.6; max-width: 32ch; }
+  :root[lang="en"] .c-text { line-height: 1.4; }
+  .c-btn { background: var(--accent); color: var(--accent-ink); min-height: 3.75rem; padding-inline: 2rem; }
+  @media (hover: hover) and (pointer: fine) { .c-btn:hover { background: var(--accent-strong); } }
+  @media (max-width: 54rem) {
+    .c-head { font-size: clamp(3.25rem, 1.5rem + 7vw, 5rem); }
+    :root[lang="en"] .c-head { font-size: clamp(2.25rem, 0.75rem + 6vw, 4.5rem); }
+    .c-btn { width: 100%; }
+  }
+</style>

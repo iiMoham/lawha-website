@@ -1,0 +1,187 @@
+---
+// Pricing: a screen calculator over three plan cards. The calculator picks the plan and shows the monthly total.
+// Prices are placeholders.
+import { mailto, type Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const p = c.pricing;
+const start = 5;
+const popular = 'growth';
+const check = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const planFor = (n: number) => p.plans.find((x) => n >= x.min && n <= x.max) ?? p.plans[0];
+const first = planFor(start);
+---
+<section class="pricing wrap" id="pricing" aria-labelledby="price-h" data-pricing
+  data-forms={JSON.stringify(p.screenForms)} data-lang={c.lang}>
+  <header class="sec-head" data-reveal>
+    <h2 class="sec-title" id="price-h">{p.heading}</h2>
+    <p class="sec-sub">{p.sub}</p>
+  </header>
+
+  <div class="bar" data-reveal style="--i:1">
+    <div class="calc">
+      <label class="calc-q" for="screens">{p.calcLabel}</label>
+      <div class="calc-row">
+        <input id="screens" class="range" type="range" min="1" max="30" step="1" value={start} />
+        <output class="calc-n nums" for="screens" data-count>{start}</output>
+      </div>
+      <p class="calc-out" aria-live="polite">
+        <span data-calc-plan>{first?.name}</span>
+        <span class="sep" aria-hidden="true">·</span>
+        <span>{p.calcTotal}</span>
+        <b class="nums" data-calc-total>{(first?.monthly ?? 0) * start}</b>
+        <span>{c.currency} {p.calcMonth}</span>
+      </p>
+    </div>
+    <fieldset class="period">
+      <legend class="sr-only">{p.heading}</legend>
+      <label><input class="ghost-input" type="radio" name="period" value="monthly" checked />{p.monthly}</label>
+      <label><input class="ghost-input" type="radio" name="period" value="yearly" />{p.yearly}</label>
+    </fieldset>
+  </div>
+
+  <div class="plans">
+    {p.plans.map((plan, i) => (
+      <article class={`plan${plan.id === popular ? ' is-popular' : ''}${plan.id === first?.id ? ' is-match' : ''}`} data-plan={plan.id}
+        data-min={plan.min} data-max={plan.max} data-monthly={plan.monthly} data-yearly={plan.yearly}
+        data-reveal style={`--i:${i}`} aria-labelledby={`plan-${plan.id}`}>
+        <div class="tags">
+          {plan.id === popular && <span class="tag tag-pop">{p.popular}</span>}
+          <span class="tag tag-fit">{p.fits}</span>
+        </div>
+        <h3 class="name" id={`plan-${plan.id}`}>{plan.name}</h3>
+        <p class="price">
+          <s class="was nums" aria-hidden="true">{plan.monthly}</s>
+          <span class="amount nums" data-amount>{plan.monthly}</span>
+          <span class="cur">{c.currency}</span>
+        </p>
+        <p class="per" data-per data-monthly={p.per} data-yearly={p.perYearly}>{p.per}</p>
+        <a class="button p-cta" href={mailto(c, `${plan.name}\n`)}>{p.cta} {plan.name} <span class="arrow" aria-hidden="true">→</span></a>
+        <p class="range-chip">{plan.range}</p>
+        <ul class="feats">
+          {plan.items.map((x) => <li><span class="tick" set:html={check} />{x}</li>)}
+        </ul>
+      </article>
+    ))}
+  </div>
+
+  <ul class="assure" data-reveal>
+    {p.assure.map((x) => <li><span class="tick" set:html={check} />{x}</li>)}
+  </ul>
+  <p class="hardware" data-reveal set:html={p.hardware} />
+</section>
+
+<style>
+  .pricing { padding-block: 0 var(--section); }
+
+  /* calculator + billing period */
+  .bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem 2rem; margin-block-end: clamp(1.25rem, 2.5vw, 2rem); padding: clamp(1rem, 2vw, 1.5rem) clamp(1.25rem, 2.4vw, 2rem); border-radius: calc(var(--radius) * 1.5); background: var(--surface); }
+  .calc { flex: 1 1 26rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .calc-q { font-weight: 700; font-size: var(--step-lead); line-height: 1.3; }
+  .calc-row { display: flex; align-items: center; gap: 1rem; }
+  .range { flex: 1; accent-color: var(--accent); min-block-size: 2.75rem; margin: 0; cursor: pointer; }
+  .calc-n { min-inline-size: 3.25rem; padding: 0.35rem 0.5rem; border-radius: 10px; background: #fff; text-align: center; font-weight: 700; font-size: var(--step-lead); }
+  .calc-out { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.35rem; color: var(--muted); }
+  .calc-out b { color: var(--ink); font-size: var(--step-lead); }
+  [data-calc-plan] { color: var(--accent); font-weight: 700; }
+  .period { display: inline-flex; margin: 0; padding: 0.25rem; border: 0; min-inline-size: 0; border-radius: var(--pill); background: #fff; }
+  .period label { position: relative; display: inline-flex; align-items: center; min-block-size: 2.75rem; padding: 0 1.1rem; border-radius: var(--pill); font-weight: 500; font-size: var(--step-small); cursor: pointer; transition: background-color var(--t-ui) ease, color var(--t-ui) ease; }
+  .period label:has(:checked) { background: var(--ink); color: #fff; }
+
+  /* plan cards */
+  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.75rem, 1.4vw, 1.25rem); align-items: stretch; }
+  .plan { --plan: #ffffff; --plan-ink: var(--ink); --plan-muted: var(--muted); --plan-line: #e3e6ec; position: relative; display: flex; flex-direction: column; padding: clamp(1.5rem, 2.4vw, 2rem); border-radius: calc(var(--radius) * 1.75); background: var(--plan); color: var(--plan-ink); outline: 1.5px solid var(--plan-line); outline-offset: -1.5px; transition: outline-color var(--t-ui) ease, translate var(--t-ui) var(--ease-out); }
+  .plan.is-popular { --plan: var(--night); --plan-ink: var(--night-ink); --plan-muted: #a7afbf; --plan-line: var(--night); }
+  .plan.is-match { outline: 3px solid var(--accent); outline-offset: -3px; }
+  .plan.is-popular.is-match { outline-color: var(--accent); }
+  @media (hover: hover) and (pointer: fine) { .plan:hover { translate: 0 -4px; } }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; min-block-size: 1.75rem; margin-block-end: 1rem; }
+  .tag { display: inline-flex; align-items: center; padding: 0.2rem 0.65rem; border-radius: var(--pill); font-size: var(--step-small); font-weight: 500; line-height: 1.4; }
+  .tag-pop { background: var(--accent); color: #fff; }
+  .tag-fit { display: none; background: var(--accent-soft); color: var(--accent); }
+  .plan.is-match .tag-fit { display: inline-flex; }
+  .plan.is-popular .tag-fit { background: rgb(255 255 255 / 0.12); color: #c9d6ff; }
+
+  .name { font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.75rem); line-height: 1.3; font-weight: 700; }
+  .price { display: flex; align-items: baseline; gap: 0.5rem; margin-block-start: 1rem; line-height: 1; }
+  .amount { font-size: clamp(3rem, 2.2rem + 2.2vw, 4.5rem); font-weight: 700; letter-spacing: -0.02em; }
+  .cur { font-size: var(--step-lead); font-weight: 500; }
+  .was { display: none; color: var(--plan-muted); font-size: var(--step-lead); text-decoration-thickness: 2px; }
+  .pricing.is-yearly .was { display: inline; }
+  .per { margin-block-start: 0.5rem; color: var(--plan-muted); font-size: var(--step-small); }
+  .p-cta { justify-content: center; inline-size: 100%; margin-block-start: 1.5rem; min-block-size: 3.25rem; background: transparent; color: var(--plan-ink); outline: 1.5px solid currentColor; outline-offset: -1.5px; }
+  .plan.is-popular .p-cta { background: var(--accent); color: #fff; outline: 0; }
+  @media (hover: hover) and (pointer: fine) {
+    .p-cta:hover { background: var(--ink); color: #fff; outline-color: var(--ink); }
+    .plan.is-popular .p-cta:hover { background: var(--accent-strong); }
+  }
+  .range-chip { margin-block-start: 1.75rem; font-weight: 700; }
+  .feats { margin-block-start: 1rem; display: flex; flex-direction: column; gap: 0.6rem; font-size: var(--step-body); }
+  .feats li, .assure li { display: flex; align-items: flex-start; gap: 0.6rem; }
+  .tick { display: inline-grid; place-items: center; flex: none; inline-size: 1.375rem; block-size: 1.375rem; margin-block-start: 0.15em; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+  .plan.is-popular .tick { background: var(--accent); color: #fff; }
+
+  .assure { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-block-start: clamp(1.5rem, 3vw, 2.5rem); font-weight: 500; }
+  .hardware { margin-block-start: 1rem; max-width: 70ch; color: var(--muted); font-size: var(--step-small); }
+
+  @media (max-width: 64rem) {
+    .plans { grid-template-columns: minmax(0, 1fr); max-inline-size: 34rem; margin-inline: auto; }
+    .assure { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .plan:not(.is-popular, .is-match) .tags { display: none; }
+  }
+  @media (max-width: 40rem) {
+    .assure { grid-template-columns: minmax(0, 1fr); }
+    .period { inline-size: 100%; }
+    .period label { flex: 1; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) { .plan { transition: none; } }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-pricing]');
+  const range = root?.querySelector<HTMLInputElement>('#screens');
+  if (root && range) {
+    const forms = JSON.parse(root.dataset['forms'] ?? '[]') as string[];
+    const ar = root.dataset['lang'] === 'ar';
+    const plans = [...root.querySelectorAll<HTMLElement>('[data-plan]')];
+    const count = root.querySelector<HTMLElement>('[data-count]');
+    const planOut = root.querySelector<HTMLElement>('[data-calc-plan]');
+    const totalOut = root.querySelector<HTMLElement>('[data-calc-total]');
+    let period: 'monthly' | 'yearly' = 'monthly';
+
+    // "5 screens" with Arabic number agreement: 1, 2, 3–10, 11+
+    const label = (n: number) => {
+      if (!ar) return n === 1 ? (forms[0] ?? '') : `${n} ${forms[2] ?? ''}`;
+      if (n === 1) return forms[0] ?? '';
+      if (n === 2) return forms[1] ?? '';
+      return `${n} ${n <= 10 ? forms[2] : forms[3]}`;
+    };
+
+    const update = () => {
+      const n = Number(range.value);
+      if (count) count.textContent = String(n);
+      range.setAttribute('aria-valuetext', label(n));
+      root.classList.toggle('is-yearly', period === 'yearly');
+      for (const plan of plans) {
+        const price = Number(plan.dataset[period]);
+        const amount = plan.querySelector<HTMLElement>('[data-amount]');
+        if (amount) amount.textContent = String(price);
+        const per = plan.querySelector<HTMLElement>('[data-per]');
+        if (per) per.textContent = per.dataset[period] ?? '';
+        const fits = n >= Number(plan.dataset['min']) && n <= Number(plan.dataset['max']);
+        plan.classList.toggle('is-match', fits);
+        if (fits) {
+          if (planOut) planOut.textContent = `${label(n)} · ${plan.querySelector('.name')?.textContent ?? ''}`;
+          if (totalOut) totalOut.textContent = (price * n).toLocaleString(ar ? 'ar-SA-u-nu-latn' : 'en-US');
+        }
+      }
+    };
+
+    range.addEventListener('input', update);
+    root.querySelectorAll<HTMLInputElement>('input[name="period"]').forEach((input) => {
+      input.addEventListener('change', () => { if (input.checked) { period = input.value as 'monthly' | 'yearly'; update(); } });
+    });
+    update();
+  }
+</script>

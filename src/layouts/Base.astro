@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import { url, type Content } from '../i18n';
+
+interface Props { c: Content }
+const { c } = Astro.props;
+const site = Astro.site ? new URL(url('/'), Astro.site).toString() : '';
+---
+<!doctype html>
+<html lang={c.lang} dir={c.dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="text-scale" content="scale" />
+    <title>{c.title}</title>
+    <meta name="description" content={c.description} />
+    <meta name="theme-color" content="#f7f8fa" />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" hreflang="ar" href={`${site}`} />
+    <link rel="alternate" hreflang="en" href={`${site}en/`} />
+    <link rel="alternate" hreflang="x-default" href={`${site}`} />
+    <meta property="og:title" content={c.title} />
+    <meta property="og:description" content={c.description} />
+    <meta property="og:locale" content={c.lang === 'ar' ? 'ar_SA' : 'en_US'} />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      if (!(window.CSS && CSS.supports('(animation-timeline: view()) and (animation-range: entry)'))) document.documentElement.classList.add('no-sda');
+    </script>
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Fallback for browsers without scroll-driven animations: reveal once when an element enters the viewport.
+      if (document.documentElement.classList.contains('no-sda')) {
+        const targets = document.querySelectorAll<HTMLElement>('[data-reveal], .shutter');
+        if (!('IntersectionObserver' in window)) {
+          targets.forEach((el) => el.classList.add('is-in'));
+        } else {
+          const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-in');
+              io.unobserve(entry.target);
+            }
+          }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+          targets.forEach((el) => io.observe(el));
+        }
+      }
+    </script>
+  </body>
+</html>

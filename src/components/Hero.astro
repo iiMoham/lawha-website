@@ -1,0 +1,293 @@
+---
+import MenuBoard from './MenuBoard.astro';
+import Phone from './Phone.astro';
+import { mailto, type Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const h = c.hero;
+const firstLabel = c.playlists[0]?.label ?? '';
+---
+<section class="hero" id="top" data-hero>
+  <div class="wrap intro">
+    <h1 class="title" data-rise style="--i:0">
+      <span class="tl tl-1"><span class="tl-a">{h.before}</span> <span class="tl-b"><span class="rot hl" data-rot>{h.words.map((w, i) => <span class="rot-w" data-on={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>{w}</span>)}</span>{h.wordAfter && ` ${h.wordAfter}`}</span></span>
+      <span class="tl">{h.after}</span>
+    </h1>
+    <div class="copy" data-rise style="--i:1">
+      <p class="lead">{h.lead}</p>
+      <div class="actions">
+        <a class="button" href={mailto(c)}>{h.cta} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="link more" href="#pricing">{h.secondary}</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="stage" data-rise style="--i:2">
+      <p class="s-label s-hint">{h.tryHint}</p>
+      <div class="s-phone"><Phone c={c} /></div>
+      <p class="s-label s-wall-label">{h.wallLabel}</p>
+      <div class="s-wall">
+        <MenuBoard c={c} />
+        <p class="s-now" aria-live="polite"><span class="dot"></span><span>{h.nowShowing}</span> <strong data-now>{firstLabel}</strong></p>
+      </div>
+    </div>
+  </div>
+  <span class="packet" aria-hidden="true"></span>
+</section>
+
+<style>
+  .hero { position: relative; overflow-x: clip; padding-block: clamp(1.25rem, 3vw, 2.5rem) clamp(3rem, 7vw, 6rem); }
+
+  /* intro: the headline on one side, what it is and what to do on the other */
+  .intro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: 1.75rem; align-items: end; }
+  /* Two lines: «غيّر شاشات [word]» / «من جوالك». Line 1 never wraps, so its size is capped to fit the longest
+     rotating word in the headline's width: --fit is that line's width in em (Wafeq Bold; AR «أي نشاط عندك»
+     = 11.35em, EN "Change your restaurant screens" = 14.85em), plus a little room. Re-measure if the words change. */
+  .title { grid-column: 1 / span 8; container-type: inline-size; --fit: 11.6; font-size: clamp(3.25rem, 1.2rem + 4.8vw, 5rem); line-height: var(--lh-display); font-weight: 700; }
+  :root[lang="en"] .title { --fit: 15.1; font-size: clamp(2.25rem, 0.9rem + 3.9vw, 4.25rem); }
+  .tl { display: block; font-size: min(1em, calc(100cqi / var(--fit))); }
+  .tl-1 { white-space: nowrap; }
+  .hl { color: var(--accent); }
+
+  /* the business word: restaurant → café → any business. All words share one grid cell;
+     the box width follows the current word so "screens" stays right next to it. */
+  .rot { display: inline-grid; justify-items: start; vertical-align: bottom; }
+  .rot-w { grid-area: 1 / 1; white-space: nowrap; }
+  .rot-w:not([data-on]) { display: none; }
+  :global(.js) .rot.is-live { transition: inline-size 520ms var(--ease-in-out); }
+  :global(.js) .rot.is-live .rot-w { display: block; opacity: 0; translate: 0 0.35em; transition: opacity 360ms var(--ease-out), translate 520ms var(--ease-out); }
+  :global(.js) .rot.is-live .rot-w[data-on] { opacity: 1; translate: 0 0; transition-delay: 160ms; }
+  :global(.js) .rot.is-live .rot-w[data-off] { translate: 0 -0.35em; }
+  .copy { grid-column: 9 / -1; display: flex; flex-direction: column; gap: 1.75rem; padding-block-end: 0.5rem; }
+  .lead { max-width: 34ch; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 2rem; }
+  .more { font-weight: 500; text-decoration-color: currentColor; }
+
+  /* the demo: the owner's phone beside the café's screens, each with its label */
+  .stage {
+    margin-block-start: clamp(1.75rem, 3vw, 2.75rem);
+    display: grid;
+    grid-template-columns: minmax(17rem, 21rem) minmax(0, 1fr);
+    grid-template-areas: "hint wall-label" "phone wall";
+    column-gap: clamp(2rem, 4vw, 4.5rem);
+    row-gap: 1rem;
+    padding: clamp(1rem, 2.4vw, 2rem) clamp(1rem, 3vw, 2.5rem);
+    border-radius: calc(var(--radius) * 1.5);
+    background: var(--surface);
+  }
+  .s-label { font-size: var(--step-small); font-weight: 500; color: var(--ink); }
+  .s-hint { grid-area: hint; }
+  .s-wall-label { grid-area: wall-label; }
+  .s-phone { grid-area: phone; }
+  .s-phone :global(.phone) { max-inline-size: 21rem; }
+  .s-wall { grid-area: wall; display: flex; flex-direction: column; justify-content: center; gap: 1rem; min-inline-size: 0; }
+  .s-now { display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0.5rem; font-size: var(--step-small); color: var(--muted); }
+  .s-now strong { color: var(--ink); font-weight: 500; }
+  .s-now .dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: var(--live); }
+
+  .packet { position: absolute; top: 0; left: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 6px rgb(36 83 255 / 0.2); opacity: 0; pointer-events: none; z-index: 5; } /* taste-skill-ignore: interface fragment, overlay or photo scrim */
+
+  /* narrower: phone first, the screens right under the publish button */
+  @media (max-width: 54rem) {
+    .stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hint" "phone" "wall-label" "wall"; justify-items: center; }
+    .s-label, .s-wall { inline-size: 100%; max-inline-size: 40rem; }
+    .s-phone { inline-size: 100%; max-inline-size: 21rem; }
+    .s-wall-label { margin-block-start: 1.5rem; }
+  }
+  @media (max-width: 54rem) {
+    .intro { display: flex; flex-direction: column; align-items: stretch; }
+    .copy { padding: 0; }
+  }
+  /* phones: two lines would make the headline too small, so the rotating word (with "screens") gets its own line */
+  @media (max-width: 40rem) {
+    .tl { font-size: 1em; }
+    .tl-a { display: block; }
+  }
+</style>
+
+<script>
+  // Headline word rotation: restaurant → café → any business. Static first word with reduced motion.
+  const rot = document.querySelector<HTMLElement>('[data-rot]');
+  if (rot && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const words = [...rot.querySelectorAll<HTMLElement>('.rot-w')];
+    let at = 0;
+    let widths: number[] = [];
+    const measure = () => {
+      rot.style.inlineSize = '';
+      widths = words.map((w) => w.getBoundingClientRect().width);
+      rot.style.inlineSize = `${widths[at] ?? 0}px`;
+    };
+    rot.classList.add('is-live');
+    measure();
+    document.fonts.ready.then(measure).catch(() => {});
+    new ResizeObserver(measure).observe(rot.closest('h1') ?? rot);
+
+    let visible = true;
+    new IntersectionObserver(([e]) => { visible = !!e?.isIntersecting; }).observe(rot);
+    setInterval(() => {
+      if (!visible || document.hidden || words.length < 2) return;
+      const prev = words[at];
+      at = (at + 1) % words.length;
+      const next = words[at];
+      prev?.removeAttribute('data-on');
+      prev?.setAttribute('data-off', '');
+      next?.removeAttribute('data-off');
+      next?.setAttribute('data-on', '');
+      rot.style.inlineSize = `${widths[at] ?? 0}px`;
+      window.setTimeout(() => prev?.removeAttribute('data-off'), 560);
+    }, 2600);
+  }
+
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const board = hero?.querySelector<HTMLElement>('[data-board]');
+  const phone = hero?.querySelector<HTMLElement>('[data-phone]');
+  if (hero && board && phone) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const radios = [...phone.querySelectorAll<HTMLInputElement>('input[data-pick]')];
+    const publishBtn = phone.querySelector<HTMLButtonElement>('[data-publish]')!;
+    const status = phone.querySelector<HTMLElement>('[data-status]')!;
+    const statusText = phone.querySelector<HTMLElement>('[data-status-text]')!;
+    const state = phone.querySelector<HTMLElement>('[data-state]')!;
+    const stateText = phone.querySelector<HTMLElement>('[data-state-text]')!;
+    const net = phone.querySelector<HTMLInputElement>('input[data-net]')!;
+    const netLabel = phone.querySelector<HTMLElement>('[data-net-label]')!;
+    const packet = hero.querySelector<HTMLElement>('.packet')!;
+    const tvs = [...board.querySelectorAll<HTMLElement>('.tv')];
+    const now = hero.querySelector<HTMLElement>('[data-now]');
+    const labelOf = (id: string) => radios.find((r) => r.value === id)?.closest('label')?.querySelector('.ph-name')?.textContent ?? '';
+
+    let active = board.dataset['active'] ?? '';
+    let selected = active;
+    let online = true;
+    let queued: string | null = null;
+    let busy = false;
+    let auto = !reduce;
+    let inView = true;
+
+    const setStatus = (mode: 'live' | 'sending' | 'queued') => {
+      status.dataset['mode'] = mode;
+      statusText.textContent = status.dataset[mode] ?? '';
+    };
+
+    const pick = (id: string) => {
+      selected = id;
+      radios.forEach((r) => { r.checked = r.value === id; });
+    };
+
+    const syncVideo = () => {
+      board.querySelectorAll<HTMLVideoElement>('video[data-video]').forEach((v) => {
+        const layer = v.closest('.layer');
+        const show = !!layer?.hasAttribute('data-on') && inView && !reduce && !document.hidden;
+        if (show) { if (v.preload === 'none') v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
+      });
+    };
+
+    const switchBoard = (id: string) => {
+      active = id;
+      board.dataset['active'] = id;
+      if (now) now.textContent = labelOf(id);
+      tvs.forEach((tv, i) => {
+        window.setTimeout(() => {
+          tv.querySelectorAll<HTMLElement>('.layer').forEach((layer) => {
+            const on = layer.dataset['pl'] === id;
+            if (on) {
+              layer.setAttribute('data-on', '');
+              layer.classList.remove('is-entering');
+              void layer.offsetWidth;
+              layer.classList.add('is-entering');
+              layer.style.zIndex = '2';
+            } else if (layer.hasAttribute('data-on')) {
+              layer.style.zIndex = '1';
+              window.setTimeout(() => { if (board.dataset['active'] !== layer.dataset['pl']) layer.removeAttribute('data-on'); }, reduce ? 0 : 640);
+            }
+          });
+          tv.classList.add('is-hit');
+          window.setTimeout(() => tv.classList.remove('is-hit'), 500);
+          if (i === tvs.length - 1) syncVideo();
+        }, reduce ? 0 : i * 140);
+      });
+    };
+
+    // the packet travels on a curve from the publish button to the board
+    const fly = (toBoard: boolean): Promise<void> => {
+      if (reduce) return Promise.resolve();
+      const hr = hero.getBoundingClientRect();
+      const a = publishBtn.getBoundingClientRect();
+      const b = board.getBoundingClientRect();
+      const x0 = a.left + a.width / 2 - hr.left, y0 = a.top + a.height / 2 - hr.top;
+      const x1 = b.left + b.width / 2 - hr.left, y1 = b.top + b.height / 2 - hr.top;
+      const cx = (x0 + x1) / 2, cy = Math.min(y0, y1) - 120;
+      const end = toBoard ? 1 : 0.45;
+      const frames: Keyframe[] = [];
+      for (let k = 0; k <= 24; k++) {
+        const t = (k / 24) * end;
+        const x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1;
+        const y = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1;
+        frames.push({ transform: `translate(${x}px, ${y}px) scale(${toBoard ? 1 : 1 - t})`, opacity: k === 0 ? 0 : (toBoard ? 1 : 1 - t) });
+      }
+      const anim = packet.animate(frames, { duration: toBoard ? 760 : 620, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' });
+      return anim.finished.then(() => { packet.style.opacity = '0'; }).catch(() => {});
+    };
+
+    const send = async (id: string) => {
+      busy = true;
+      setStatus('sending');
+      await fly(true);
+      switchBoard(id);
+      window.setTimeout(() => { setStatus('live'); busy = false; }, reduce ? 0 : 420);
+    };
+
+    const publish = async () => {
+      if (busy) return;
+      if (!online) {
+        queued = selected;
+        setStatus('queued');
+        busy = true;
+        await fly(false);
+        busy = false;
+        return;
+      }
+      if (selected === active) { setStatus('live'); tvs.forEach((tv) => { tv.classList.add('is-hit'); window.setTimeout(() => tv.classList.remove('is-hit'), 500); }); return; }
+      await send(selected);
+    };
+
+    const setOnline = (on: boolean) => {
+      online = on;
+      net.checked = on;
+      netLabel.textContent = (on ? netLabel.dataset['on'] : netLabel.dataset['off']) ?? '';
+      board.classList.toggle('is-offline', !on);
+      stateText.textContent = (on ? state.dataset['on'] : state.dataset['off']) ?? '';
+      state.toggleAttribute('data-offline', !on);
+      if (on && queued) { const q = queued; queued = null; window.setTimeout(() => send(q), 350); }
+      else if (on) setStatus('live');
+    };
+
+    const stopAuto = () => { auto = false; };
+    phone.addEventListener('pointerdown', stopAuto);
+    phone.addEventListener('keydown', stopAuto);
+
+    // native radios give arrow-key movement and one tab stop for free
+    radios.forEach((r) => r.addEventListener('change', () => { if (r.checked) selected = r.value; }));
+    publishBtn.addEventListener('click', publish);
+    net.addEventListener('change', () => setOnline(net.checked));
+
+    // play the demo by itself until the visitor touches the phone
+    const io = new IntersectionObserver(([e]) => { inView = !!e?.isIntersecting; syncVideo(); }, { threshold: 0.25 });
+    io.observe(board);
+    document.addEventListener('visibilitychange', syncVideo);
+    if (auto) {
+      window.setInterval(() => {
+        if (!auto || !inView || document.hidden || busy || !online) return;
+        const i = radios.findIndex((r) => r.value === active);
+        const next = radios[(i + 1) % radios.length];
+        if (!next) return;
+        pick(next.value);
+        const item = next.closest('label');
+        item?.classList.add('is-auto');
+        window.setTimeout(() => { item?.classList.remove('is-auto'); publishBtn.classList.add('is-pressed'); }, 650);
+        window.setTimeout(() => { publishBtn.classList.remove('is-pressed'); if (auto) publish(); }, 950);
+      }, 6200);
+    }
+  }
+</script>

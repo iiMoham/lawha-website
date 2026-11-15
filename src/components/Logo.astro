@@ -1,0 +1,22 @@
+---
+// The Lawha mark, designed by the owner (source: ~/Desktop/Selection.svg): a blue tile with three white
+// arcs, like a signal going out to the screens. Colours: tile #2453FF, arcs #FFFFFF.
+// The source's 1px black outline around the tile was an export leftover and is dropped.
+// `inverse` (white tile, blue arcs) is for blue backgrounds such as the footer, where the blue tile would vanish.
+// `arcs` draws the three arcs alone, without the tile, in the current text colour: the owner's navbar logo
+// (source: the later ~/Desktop/Selection.svg, the same arcs cropped to 165.331 × 138.132). `size` is then its height.
+interface Props { size?: number; label?: string; inverse?: boolean; arcs?: boolean }
+const { size = 32, label, inverse = false, arcs: arcsOnly = false } = Astro.props;
+const tile = inverse ? '#ffffff' : '#2453ff';
+const arcs = arcsOnly ? 'currentColor' : inverse ? '#2453ff' : '#ffffff';
+const box = arcsOnly ? '41.416 60.539 165.331 138.132' : '0.5 0.5 247.161 247.161';
+const width = arcsOnly ? Math.round((size * 165.331) / 138.132) : size;
+---
+<svg class:list={['logo', { 'logo-arcs': arcsOnly }]} width={width} height={size} viewBox={box} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : 'true'}>
+  {!arcsOnly && <path d="M47.921 0.5H200.24C226.43 0.5 247.661 21.731 247.661 47.921V200.24C247.661 226.43 226.43 247.661 200.24 247.661H47.921C21.731 247.661 0.5 226.43 0.5 200.24V47.921C0.5 21.731 21.731 0.5 47.921 0.5Z" fill={tile} />}
+  <g fill={arcs}>
+    <path d="M201.212 124.08C192.419 124.08 183.986 120.588 177.769 114.37L155.83 92.431C138.35 74.952 110.011 74.952 92.531 92.431L70.592 114.37C64.374 120.588 55.942 124.08 47.149 124.08C42.063 124.08 39.504 117.941 43.085 114.329L77.669 79.445C102.224 54.677 142.106 54.181 167.27 78.33L205.036 114.572C208.626 118.017 206.187 124.08 201.212 124.08Z" />
+    <path d="M189.805 163.225C182.313 163.225 175.127 160.249 169.83 154.951L151.135 136.256C136.24 121.362 112.091 121.362 97.197 136.256L78.502 154.951C73.204 160.249 66.018 163.225 58.526 163.225C54.192 163.225 52.011 157.994 55.063 154.916L84.532 125.191C105.457 104.086 139.441 103.663 160.883 124.241L193.064 155.123C196.123 158.059 194.045 163.225 189.805 163.225Z" />
+    <path d="M175.603 198.671C169.73 198.671 164.097 196.337 159.944 192.184L145.289 177.529C133.613 165.853 114.682 165.853 103.006 177.529L88.351 192.184C84.198 196.337 78.565 198.671 72.691 198.671C69.294 198.671 67.584 194.569 69.977 192.156L93.078 168.855C109.481 152.31 136.121 151.979 152.931 168.11L178.158 192.319C180.556 194.62 178.927 198.671 175.603 198.671Z" />
+  </g>
+</svg>

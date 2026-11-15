@@ -1,0 +1,115 @@
+---
+// Three TVs above a café counter, each holding one layer per playlist. The hero script switches layers.
+import { Image } from 'astro:assets';
+import { url, type Content } from '../i18n';
+import breakfast from '../assets/media/breakfast.jpg';
+import iced from '../assets/media/iced-latte.jpg';
+import poster from '../assets/media/latte-art-poster.jpg';
+import { getImage } from 'astro:assets';
+
+interface Props { c: Content }
+const { c } = Astro.props;
+const pics = { breakfast, iced } as const;
+const posterImg = await getImage({ src: poster, width: 720, format: 'webp' });
+const first = c.playlists[0]?.id ?? '';
+---
+<span class="board" data-board data-ui data-active={first} aria-hidden="true">
+  <span class="tv tv-a">
+    <span class="screen">
+      {c.playlists.map((p) => (
+        <span class="layer list" data-pl={p.id} data-on={p.id === first ? '' : undefined}>
+          <span class="t">{p.list.title}</span>
+          {p.list.items.map((i) => (
+            <span class="row"><span class="n">{i.name}</span><span class="p nums">{i.price}<small>{c.currency}</small></span></span>
+          ))}
+        </span>
+      ))}
+    </span>
+    <span class="led"></span>
+  </span>
+
+  <span class="tv tv-b">
+    <span class="screen">
+      {c.playlists.map((p) => (
+        <span class="layer pic" data-pl={p.id} data-on={p.id === first ? '' : undefined}>
+          {p.picture.key === 'video' ? (
+            <video class="media" muted loop playsinline preload="none" width="720" height="480" poster={posterImg.src} data-video>
+              <source src={url('/media/latte-art.mp4')} type="video/mp4" />
+            </video>
+          ) : (
+            <Image class="media" src={pics[p.picture.key]} alt="" widths={[400, 720, 1000]} sizes="(max-width: 54rem) 92vw, 40vw" quality={72} {...(p.id === first ? { loading: 'eager', fetchpriority: 'high' } : { loading: 'lazy', fetchpriority: 'low' })} />
+          )}
+          <span class="cap"><span class="cap-t">{p.picture.caption}</span><span class="chip nums">{p.picture.price} <small>{c.currency}</small></span></span>
+        </span>
+      ))}
+      <span class="offline-badge"><span class="dot"></span>{c.boardOffline}</span>
+    </span>
+    <span class="led"></span>
+  </span>
+
+  <span class="tv tv-c">
+    <span class="screen">
+      {c.playlists.map((p) => (
+        <span class={`layer ${p.side.offer ? 'offer' : 'list'}`} data-pl={p.id} data-on={p.id === first ? '' : undefined}>
+          <span class="t">{p.side.title}</span>
+          {p.side.items?.map((i) => (
+            <span class="row"><span class="n">{i.name}</span><span class="p nums">{i.price}<small>{c.currency}</small></span></span>
+          ))}
+          {p.side.offer && <span class="big">{p.side.offer} <small>{c.currency}</small></span>}
+          {p.side.offerNote && <span class="note">{p.side.offerNote}</span>}
+        </span>
+      ))}
+    </span>
+    <span class="led"></span>
+  </span>
+</span>
+
+<style>
+  /* one large picture screen beside two menu screens, the way they hang above a counter */
+  .board { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: clamp(0.5rem, 1vw, 0.875rem); inline-size: 100%; font-family: var(--font-text); font-size: 1rem; letter-spacing: 0; line-height: 1.2; font-weight: 400; }
+  .tv-b { grid-column: 1; grid-row: 1 / span 2; }
+  .tv-a { grid-column: 2; grid-row: 1; aspect-ratio: 16 / 9; }
+  .tv-c { grid-column: 2; grid-row: 2; aspect-ratio: 16 / 9; }
+  .tv { position: relative; display: block; min-width: 0; background: var(--tv); padding: 5px; border-radius: 10px; transition: transform 300ms var(--ease-out); }
+  .tv.is-hit { transform: translateY(-3px); }
+  .screen { position: relative; display: block; height: 100%; overflow: hidden; border-radius: 6px; background: var(--tv-screen); color: var(--tv-ink); container-type: size; }
+  .led { position: absolute; bottom: 1px; inset-inline-start: 50%; width: 4px; height: 2px; border-radius: 2px; background: #ef4444; opacity: 0.8; }
+  .tv.is-hit .led { background: var(--live); }
+
+  .layer { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden; }
+  .layer[data-on] { opacity: 1; visibility: visible; }
+  @media (prefers-reduced-motion: no-preference) {
+    .layer.is-entering { animation: wipe 620ms var(--ease-in-out) both; }
+  }
+  @keyframes wipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+
+  .list { padding: 7cqh 8cqw; gap: 2.5cqh; justify-content: center; }
+  .t { font-family: var(--font-display); font-weight: 700; color: var(--signal); font-size: max(0.8125rem, min(16cqh, 9cqw)); line-height: 1.15; margin-bottom: 2cqh; }
+  :root[lang="en"] .t { letter-spacing: -0.01em; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5em; font-size: max(0.6875rem, min(10.5cqh, 6cqw)); }
+  .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p { font-weight: 700; color: var(--tv-ink); white-space: nowrap; }
+  .p small, .chip small, .big small { font-size: 0.72em; font-weight: 500; margin-inline-start: 0.2em; color: var(--tv-muted); }
+
+  .pic .media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #111522; }
+  .cap { position: absolute; inset-inline: 0; bottom: 0; display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5em; padding: 18cqh 6cqw 7cqh; background: linear-gradient(to top, rgb(5 7 12 / 0.85), rgb(5 7 12 / 0)); } /* taste-skill-ignore: interface fragment, overlay or photo scrim */
+  .cap-t { font-family: var(--font-display); font-weight: 700; font-size: max(0.8125rem, min(13cqh, 7.5cqw)); line-height: 1.15; }
+  .chip { flex: none; background: var(--accent); color: var(--accent-ink); font-weight: 700; padding: 0.15em 0.55em; border-radius: 999px; font-size: max(0.6875rem, min(10cqh, 5.6cqw)); }
+  .chip small { color: rgb(255 255 255 / 0.8); }
+
+  .offer { padding: 9cqh 8cqw; justify-content: center; gap: 4cqh; background: #121a33; }
+  .offer .t { color: var(--tv-ink); margin: 0; }
+  .big { font-family: var(--font-display); font-weight: 700; font-size: max(0.875rem, min(20cqh, 11cqw)); line-height: 1.15; color: var(--signal); }
+  .big small { color: var(--tv-ink); }
+  .note { font-size: max(0.6875rem, min(9.5cqh, 5.4cqw)); color: #c9d3ea; }
+
+  .offline-badge { position: absolute; top: 5cqh; inset-inline-end: 4cqw; display: inline-flex; align-items: center; gap: 0.4em; padding: 0.25em 0.6em; border-radius: 999px; background: rgb(255 255 255 / 0.94); color: var(--ink); font-size: max(0.625rem, min(8.5cqh, 4.6cqw)); font-weight: 500; opacity: 0; transform: translateY(-6px); transition: opacity 300ms ease, transform 300ms var(--ease-out); }
+  .offline-badge .dot { width: 0.55em; height: 0.55em; border-radius: 50%; background: var(--warn); }
+  .board.is-offline .offline-badge { opacity: 1; transform: none; }
+
+  @media (max-width: 54rem) {
+    .board { grid-template-columns: minmax(0, 1fr); }
+    .tv-a, .tv-c { display: none; }
+    .tv-b { grid-row: auto; aspect-ratio: 16 / 9; }
+  }
+</style>

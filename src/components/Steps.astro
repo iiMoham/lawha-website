@@ -1,0 +1,377 @@
+---
+// How it works: four numbered steps. The active step plays its own short scene on the TV + phone beside it,
+// and the steps advance in order (1 → 4, then loop). Clicking a step jumps to it.
+import { Image } from 'astro:assets';
+import QRCode from 'qrcode';
+import type { Content } from '../i18n';
+import Logo from './Logo.astro';
+import breakfast from '../assets/media/breakfast.jpg';
+import iced from '../assets/media/iced-latte.jpg';
+import poster from '../assets/media/latte-art-poster.jpg';
+
+interface Props { c: Content }
+const { c } = Astro.props;
+const s = c.steps;
+const qr = await QRCode.toString(`lawha://pair?code=${s.pairing.code}`, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#0a0d14ff', light: '#00000000' } });
+const code = `${s.pairing.code.slice(0, 3)} ${s.pairing.code.slice(3)}`;
+const pic = c.playlists[0]?.picture;
+
+// Interface copy for the scene (decorative, aria-hidden), kept here like the Features wells.
+const t = c.lang === 'ar'
+  ? {
+      boot: 'جاهز للربط', addScreen: 'إضافة شاشة', aim: 'وجّه الكاميرا نحو الرمز', paired: 'تم الربط',
+      screen: 'شاشة الكاونتر', upload: 'رفع الملفات', waiting: 'بانتظار المحتوى', ready: 'جاهز',
+      files: [{ name: 'قائمة الفطور', kind: 'صورة' }, { name: 'آيس لاتيه', kind: 'صورة' }, { name: 'فن اللاتيه', kind: 'فيديو' }],
+      publish: 'انشر', published: 'تم النشر',
+    }
+  : {
+      boot: 'Ready to pair', addScreen: 'Add screen', aim: 'Point the camera at the code', paired: 'Paired',
+      screen: 'Counter screen', upload: 'Uploading', waiting: 'Waiting for content', ready: 'Ready',
+      files: [{ name: 'Breakfast menu', kind: 'Photo' }, { name: 'Iced latte', kind: 'Photo' }, { name: 'Latte art', kind: 'Video' }],
+      publish: 'Publish', published: 'Published',
+    };
+const thumbs = [breakfast, iced, poster];
+const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="true"><path d="M3.5 8.4l2.9 2.9 6.1-6.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+---
+<section class="steps wrap" id="how" aria-labelledby="how-h">
+  <header class="sec-head" data-reveal>
+    <h2 class="sec-title" id="how-h">{s.heading}</h2>
+  </header>
+
+  <div class="how" data-how>
+    <ol class="list">
+      {s.items.map((it, i) => (
+        <li class="step" data-item={i + 1} data-on={i === 0 ? '' : undefined} style={`--i:${i}`} data-reveal>
+          <h3 class="s-line">
+            <button type="button" class="s-btn" data-go={i + 1} aria-current={i === 0 ? 'step' : undefined}>
+              <span class="num nums" aria-hidden="true">{i + 1}</span>
+              <span>{it.line}</span>
+            </button>
+          </h3>
+          <p class="note" set:html={it.note} />
+          <span class="prog" aria-hidden="true"><i></i></span>
+        </li>
+      ))}
+    </ol>
+
+    <div class="scene-wrap" data-reveal style="--i:1">
+      <div class="scene" data-scene data-step="1" data-ui aria-hidden="true">
+        <!-- the TV and its player box -->
+        <div class="rig">
+        <div class="tv">
+          <div class="scr">
+            <div class="ly ly-boot">
+              <Logo size={34} />
+              <span class="b-name">{s.pairing.app}</span>
+              <span class="b-sub"><span class="dot"></span>{t.boot}</span>
+            </div>
+
+            <div class="ly ly-pair">
+              <div class="p-top"><Logo size={18} /><span>{s.pairing.app}</span></div>
+              <div class="p-body">
+                <div>
+                  <p class="p-ins">{s.pairing.instruction}</p>
+                  <p class="p-code" dir="ltr">{code}</p>
+                </div>
+                <div class="p-qr" set:html={qr} />
+              </div>
+              <div class="p-ok"><span class="ok-ic" set:html={check} /><b>{t.paired}</b><span>{t.screen}</span></div>
+            </div>
+
+            <div class="ly ly-wait">
+              <div class="w-top"><span class="dot"></span><b>{t.screen}</b><span class="w-sub">{t.waiting}</span></div>
+              <div class="w-slots">
+                {thumbs.map((src, i) => (
+                  <span class="slot" style={`--k:${i}`}><Image src={src} alt="" widths={[240]} sizes="10rem" class="slot-img" loading="lazy" /></span>
+                ))}
+              </div>
+            </div>
+
+            <div class="ly ly-menu">
+              <Image src={breakfast} alt="" widths={[480, 800]} sizes="(max-width: 54rem) 80vw, 36vw" class="m-img" loading="lazy" />
+              <span class="m-cap"><b>{pic?.caption}</b><span class="m-chip nums">{pic?.price} <small>{c.currency}</small></span></span>
+            </div>
+          </div>
+        </div>
+        <div class="cable"><span></span></div>
+        <div class="box"><span class="led"></span></div>
+        </div>
+
+        <!-- the owner's phone -->
+        <div class="phone">
+          <div class="ph">
+            <div class="pl pl-idle"><Logo size={30} /><span>{c.lang === 'ar' ? 'لوحة' : 'Lawha'}</span></div>
+
+            <div class="pl pl-scan">
+              <b class="ph-title">{t.addScreen}</b>
+              <div class="vf">
+                <span class="vf-qr" set:html={qr} />
+                <span class="vf-c"></span>
+                <span class="vf-line"></span>
+              </div>
+              <span class="ph-hint">{t.aim}</span>
+              <span class="ph-ok"><span class="ok-ic" set:html={check} />{t.paired}</span>
+            </div>
+
+            <div class="pl pl-up">
+              <b class="ph-title">{t.upload}</b>
+              {t.files.map((f, i) => (
+                <span class="f" style={`--k:${i}`}>
+                  <Image src={thumbs[i]!} alt="" widths={[96]} sizes="3rem" class="f-img" loading="lazy" />
+                  <span class="f-txt"><span class="f-n">{f.name}</span><span class="bar"><i></i></span></span>
+                  <span class="f-ok" set:html={check} />
+                </span>
+              ))}
+            </div>
+
+            <div class="pl pl-pub">
+              <b class="ph-title">{t.files[0]?.name}</b>
+              <Image src={breakfast} alt="" widths={[240]} sizes="8rem" class="pub-img" loading="lazy" />
+              <span class="pub-to"><span class="dot"></span>{t.screen}</span>
+              <span class="pub-btn">{t.publish}</span>
+              <span class="pub-ok"><span class="ok-ic" set:html={check} />{t.published}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .steps { padding-block: clamp(1rem, 3vw, 2.5rem) var(--section); }
+  .how { --dur: 5600ms; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); align-items: center; }
+
+  /* ---------- the numbered steps ---------- */
+  .list { grid-column: 1 / span 5; display: flex; flex-direction: column; gap: clamp(1.25rem, 2.4vw, 2rem); }
+  .step { position: relative; }
+  .s-line { font-size: clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem); line-height: var(--lh-head); font-weight: 700; }
+  .s-btn {
+    display: flex; align-items: flex-start; gap: 0.85rem; inline-size: 100%; min-block-size: 2.75rem; padding: 0; border: 0; background: none;
+    font: inherit; color: var(--muted); text-align: start; text-wrap: balance; cursor: pointer; transition: color var(--t-ui) ease;
+  }
+  .num {
+    flex: none; display: grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; margin-block-start: -0.05em; border-radius: 50%;
+    border: 2px solid currentColor; font-size: 1rem; font-weight: 700; line-height: 1;
+    transition: background-color var(--t-ui) ease, border-color var(--t-ui) ease, color var(--t-ui) ease;
+  }
+  .note { margin-block-start: 0.35rem; padding-inline-start: 3.1rem; max-width: 46ch; color: var(--muted); font-size: var(--step-body); }
+  .prog { display: block; margin-block-start: 0.85rem; margin-inline-start: 3.1rem; block-size: 3px; border-radius: 3px; background: #dfe3ea; overflow: hidden; opacity: 0; transition: opacity var(--t-ui) ease; }
+  .prog i { display: block; block-size: 100%; background: var(--accent); scale: 0 1; transform-origin: left; }
+  :global([dir="rtl"]) .prog i { transform-origin: right; }
+
+  .step[data-on] .s-btn { color: var(--ink); }
+  .step[data-on] .num { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .step[data-done] .num { border-color: var(--accent); color: var(--accent); }
+  .step[data-on] .prog { opacity: 1; }
+  .how[data-playing] .step[data-on] .prog i { animation: fill var(--dur) linear both; }
+  .how[data-paused] .step[data-on] .prog i { animation-play-state: paused; }
+  @media (hover: hover) and (pointer: fine) { .s-btn:hover { color: var(--ink); } }
+
+  /* ---------- the scene: TV + player box on one side, the phone on the other ---------- */
+  .scene-wrap { grid-column: 6 / -1; padding: clamp(1rem, 2.4vw, 2rem); border-radius: calc(var(--radius) * 1.5); background: var(--surface); }
+  .scene {
+    container-type: inline-size; position: relative;
+    display: grid; grid-template-columns: minmax(0, 1fr) 27%; column-gap: 6%; align-items: center;
+  }
+  .rig { display: flex; flex-direction: column; align-items: center; }
+  .tv { align-self: stretch; aspect-ratio: 16 / 9; padding: 1.1cqi; border-radius: 1.8cqi; background: var(--tv); }
+  .scr { position: relative; block-size: 100%; border-radius: 1cqi; overflow: hidden; background: var(--night); color: var(--tv-ink); container-type: inline-size; }
+  .cable { inline-size: 0.8cqi; block-size: 4cqi; }
+  .cable span { display: block; block-size: 100%; border-radius: 1cqi; background: #2b3140; transform-origin: bottom; }
+  .box { position: relative; inline-size: 16cqi; block-size: 4.2cqi; border-radius: 1.2cqi; background: var(--ink); }
+  .led { position: absolute; inset-block-start: 50%; inset-inline-end: 1.6cqi; inline-size: 1cqi; block-size: 1cqi; margin-block-start: -0.5cqi; border-radius: 50%; background: var(--live); }
+
+  .phone { aspect-ratio: 9 / 18; padding: 1cqi; border-radius: 4.2cqi; background: var(--ink); }
+  .ph { position: relative; block-size: 100%; border-radius: 3.3cqi; overflow: hidden; background: #fff; color: var(--ink); container-type: inline-size; }
+
+  .ly, .pl { position: absolute; inset: 0; opacity: 0; }
+  .dot { display: inline-block; flex: none; inline-size: 0.5em; block-size: 0.5em; border-radius: 50%; background: var(--live); }
+  .ok-ic { display: inline-grid; place-items: center; flex: none; inline-size: 1.4em; block-size: 1.4em; padding: 0.2em; border-radius: 50%; background: var(--live); color: #fff; }
+
+  /* TV layers (units: % of the screen width) */
+  .ly-boot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.4cqi; text-align: center; }
+  .ly-boot :global(.logo) { inline-size: 11cqi; block-size: 11cqi; }
+  .b-name { font-weight: 700; font-size: max(0.75rem, 5cqi); }
+  .b-sub { display: inline-flex; align-items: center; gap: 0.5em; font-size: max(0.6875rem, 3.4cqi); color: var(--tv-muted); }
+
+  .ly-pair { display: flex; flex-direction: column; padding: 5cqi 6cqi; }
+  .p-top { display: flex; align-items: center; gap: 0.5em; font-weight: 700; font-size: max(0.6875rem, 4cqi); }
+  .p-body { flex: 1; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6cqi; }
+  .p-ins { font-size: max(0.6875rem, 3.6cqi); line-height: 1.45; max-width: 26ch; }
+  .p-code { font-weight: 700; font-size: max(1rem, 10cqi); letter-spacing: 0.1em; line-height: 1.2; margin-block-start: 1.6cqi; color: var(--signal); font-variant-numeric: tabular-nums; }
+  .p-qr { width: 28cqi; aspect-ratio: 1; padding: 1.6cqi; border-radius: 1cqi; background: #fff; }
+  .p-qr :global(svg), .vf-qr :global(svg) { display: block; width: 100%; height: 100%; }
+  .p-ok { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqi; background: var(--night); font-size: max(0.75rem, 5.2cqi); opacity: 0; }
+  .p-ok .ok-ic { font-size: 1.6em; }
+  .p-ok span:last-child { font-size: 0.7em; color: var(--tv-muted); }
+
+  .ly-wait { display: flex; flex-direction: column; justify-content: center; gap: 5cqi; padding: 6cqi; }
+  .w-top { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5em 0.6em; font-size: max(0.6875rem, 4.2cqi); }
+  .w-sub { color: var(--tv-muted); font-size: 0.85em; }
+  .w-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3cqi; }
+  .slot { aspect-ratio: 4 / 3; border-radius: 1.4cqi; border: 2px dashed #2b3140; overflow: hidden; }
+  .slot :global(.slot-img) { width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+
+  .ly-menu { clip-path: inset(0 0 100% 0); }
+  .ly-menu :global(.m-img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .m-cap { position: absolute; inset-inline: 0; inset-block-end: 0; display: flex; align-items: center; justify-content: space-between; gap: 1em; padding: 3cqi 4cqi; font-size: max(0.75rem, 4.6cqi); background: linear-gradient(transparent, rgb(5 7 11 / 0.75)); } /* taste-skill-ignore: photo scrim */
+  .m-chip { padding: 0.25em 0.7em; border-radius: var(--pill); background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .m-chip small { font-size: 0.75em; font-weight: 500; }
+
+  /* Phone layers (units: % of the phone screen width) */
+  .pl { display: flex; flex-direction: column; gap: 5cqi; padding: 12cqi 8cqi 8cqi; font-size: max(0.6875rem, 8cqi); }
+  .ph-title { font-size: max(0.75rem, 9cqi); }
+  .pl-idle { align-items: center; justify-content: center; gap: 6cqi; color: var(--muted); font-weight: 500; }
+  .pl-idle :global(.logo) { inline-size: 26cqi; block-size: 26cqi; }
+
+  .vf { position: relative; aspect-ratio: 1; border-radius: 6cqi; background: var(--night-2); display: grid; place-items: center; overflow: hidden; }
+  .vf-qr { inline-size: 54%; aspect-ratio: 1; padding: 4cqi; border-radius: 3cqi; background: #fff; }
+  .vf-c { position: absolute; inset: 12%; background:
+    linear-gradient(var(--signal), var(--signal)) top left / 22% 2px, linear-gradient(var(--signal), var(--signal)) top left / 2px 22%,
+    linear-gradient(var(--signal), var(--signal)) top right / 22% 2px, linear-gradient(var(--signal), var(--signal)) top right / 2px 22%,
+    linear-gradient(var(--signal), var(--signal)) bottom left / 22% 2px, linear-gradient(var(--signal), var(--signal)) bottom left / 2px 22%,
+    linear-gradient(var(--signal), var(--signal)) bottom right / 22% 2px, linear-gradient(var(--signal), var(--signal)) bottom right / 2px 22%;
+    background-repeat: no-repeat; }
+  .vf-line { position: absolute; inset-inline: 14%; inset-block-start: 14%; block-size: 2px; background: var(--accent); box-shadow: 0 0 10px 2px rgb(36 83 255 / 0.6); opacity: 0; } /* taste-skill-ignore: interface fragment */
+  .ph-hint { color: var(--muted); font-size: max(0.6875rem, 7cqi); line-height: 1.35; }
+  .ph-ok, .pub-ok { display: inline-flex; align-items: center; gap: 0.45em; font-weight: 700; color: #15803d; opacity: 0; }
+
+  .f { display: grid; grid-template-columns: 22cqi minmax(0, 1fr) auto; align-items: center; gap: 4cqi; }
+  .f :global(.f-img) { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 3cqi; }
+  .f-txt { display: flex; flex-direction: column; gap: 2.4cqi; min-inline-size: 0; }
+  .f-n { font-size: max(0.6875rem, 7cqi); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { display: block; block-size: 3px; border-radius: 3px; background: #dfe3ea; overflow: hidden; }
+  .bar i { display: block; block-size: 100%; background: var(--accent); scale: 0 1; transform-origin: left; }
+  :global([dir="rtl"]) .bar i { transform-origin: right; }
+  .f-ok { inline-size: 10cqi; block-size: 10cqi; padding: 1.6cqi; border-radius: 50%; background: var(--live); color: #fff; opacity: 0; }
+
+  .pl-pub :global(.pub-img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4cqi; }
+  .pub-to { display: inline-flex; align-items: center; gap: 0.5em; color: var(--muted); font-size: max(0.6875rem, 7cqi); }
+  .pub-btn { margin-block-start: auto; display: grid; place-items: center; min-block-size: 18cqi; border-radius: var(--pill); background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+
+  /* ---------- what each step shows ---------- */
+  /* Final states: every element ends visible through `animation-fill-mode: both`, so reduced motion simply skips to them. */
+  .scene { --a: var(--ease-out); }
+  .scene[data-step="1"] .box { animation: plug 700ms var(--a) both; }
+  .scene[data-step="1"] .cable span { animation: grow 400ms var(--a) 650ms both; }
+  .scene[data-step="1"] .led { animation: led 300ms ease 1050ms both; }
+  .scene[data-step="1"] .ly-boot { animation: show 600ms ease 1300ms both; }
+  .scene[data-step="1"] .pl-idle { animation: show 300ms ease both; }
+  .scene[data-step="1"] .phone { opacity: 0.45; transition: opacity 400ms ease; }
+
+  .scene[data-step="2"] .ly-pair { animation: show 300ms ease both; }
+  .scene[data-step="2"] .pl-scan { animation: show 300ms ease both; }
+  .scene[data-step="2"] .vf-line { animation: scan 900ms var(--ease-in-out) 300ms 2 alternate both; }
+  .scene[data-step="2"] .ph-ok { animation: pop 400ms var(--a) 2200ms both; }
+  .scene[data-step="2"] .ph-hint { animation: hide 200ms ease 2100ms both; }
+  .scene[data-step="2"] .p-ok { animation: pop 450ms var(--a) 2450ms both; }
+
+  .scene[data-step="3"] .ly-wait { animation: show 300ms ease both; }
+  .scene[data-step="3"] .pl-up { animation: show 300ms ease both; }
+  .scene[data-step="3"] .bar i { animation: fill 1300ms var(--ease-in-out) calc(400ms + var(--k) * 450ms) both; }
+  .scene[data-step="3"] .f-ok { animation: pop 350ms var(--a) calc(1700ms + var(--k) * 450ms) both; }
+  .scene[data-step="3"] .slot { animation: solid 1ms linear calc(1750ms + var(--k) * 450ms) both; }
+  .scene[data-step="3"] .slot :global(.slot-img) { animation: pop 400ms var(--a) calc(1750ms + var(--k) * 450ms) both; }
+
+  .scene[data-step="4"] .ly-wait { opacity: 1; }
+  .scene[data-step="4"] .ly-wait .slot { border-style: solid; }
+  .scene[data-step="4"] .ly-wait :global(.slot-img) { opacity: 1; }
+  .scene[data-step="4"] .pl-pub { animation: show 300ms ease both; }
+  .scene[data-step="4"] .pub-btn { animation: press 360ms ease 700ms both; }
+  .scene[data-step="4"] .pub-ok { animation: pop 400ms var(--a) 1100ms both; }
+  .scene[data-step="4"] .ly-menu { opacity: 1; animation: wipe 800ms var(--ease-in-out) 1150ms both; }
+
+  @keyframes show { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hide { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes plug { from { opacity: 0; translate: 0 70%; } to { opacity: 1; translate: 0 0; } }
+  @keyframes grow { from { scale: 1 0; } to { scale: 1 1; } }
+  @keyframes led { from { background: #3a4150; } to { background: var(--live); } }
+  @keyframes scan { from { opacity: 1; translate: 0 0; } to { opacity: 1; translate: 0 calc(72cqi * 0.84); } }
+  @keyframes pop { from { opacity: 0; scale: 0.85; } to { opacity: 1; scale: 1; } }
+  @keyframes fill { from { scale: 0 1; } to { scale: 1 1; } }
+  @keyframes solid { to { border-style: solid; border-color: transparent; } }
+  @keyframes press { 0%, 100% { scale: 1; background: var(--accent); } 45% { scale: 0.92; background: var(--accent-strong); } }
+  @keyframes wipe { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene *, .scene { animation-duration: 1ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+    .scene[data-step="2"] .vf-line { animation: none !important; }
+    .prog { display: none; }
+  }
+
+  @media (max-width: 64rem) {
+    .list { grid-column: 1 / span 6; }
+    .scene-wrap { grid-column: 7 / -1; }
+    .note { display: none; }
+    .step[data-on] .note { display: block; }
+  }
+  @media (max-width: 54rem) {
+    .how { display: flex; flex-direction: column-reverse; align-items: stretch; gap: 2rem; }
+    .scene-wrap { inline-size: 100%; }
+  }
+  @media (max-width: 40rem) {
+    .scene { grid-template-columns: minmax(0, 1fr) 36%; column-gap: 5%; }
+  }
+</style>
+
+<script>
+  const how = document.querySelector<HTMLElement>('[data-how]');
+  const scene = how?.querySelector<HTMLElement>('[data-scene]');
+  if (how && scene) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const items = [...how.querySelectorAll<HTMLElement>('[data-item]')];
+    const btns = [...how.querySelectorAll<HTMLButtonElement>('[data-go]')];
+    const total = items.length;
+    // the minifier may rewrite 5600ms as 5.6s, so read the unit
+    const raw = getComputedStyle(how).getPropertyValue('--dur').trim();
+    const dur = (raw.endsWith('ms') ? parseFloat(raw) : parseFloat(raw) * 1000) || 5600;
+    let step = 1;
+    let timer = 0;
+    let started = 0;
+    let left = dur;
+    let inView = false;
+
+    const show = (n: number) => {
+      step = n;
+      // re-trigger the scene's keyframes even when the same step is shown again
+      scene.removeAttribute('data-step');
+      void scene.offsetWidth;
+      scene.dataset['step'] = String(n);
+      items.forEach((li, i) => {
+        li.toggleAttribute('data-on', i + 1 === n);
+        li.toggleAttribute('data-done', i + 1 < n);
+        const prog = li.querySelector<HTMLElement>('.prog i');
+        if (prog) { prog.style.animation = 'none'; void prog.offsetWidth; prog.style.animation = ''; }
+      });
+      btns.forEach((b, i) => { if (i + 1 === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+    };
+
+    const stop = () => { window.clearTimeout(timer); timer = 0; };
+    const run = (ms: number) => {
+      stop();
+      if (reduce || !inView || document.hidden) return;
+      started = performance.now();
+      left = ms;
+      how.setAttribute('data-playing', '');
+      how.removeAttribute('data-paused');
+      timer = window.setTimeout(() => { show((step % total) + 1); run(dur); }, ms);
+    };
+    const pause = () => {
+      if (!timer) return;
+      left = Math.max(0, left - (performance.now() - started));
+      stop();
+      how.setAttribute('data-paused', '');
+    };
+
+    btns.forEach((b, i) => b.addEventListener('click', () => { show(i + 1); run(dur); }));
+
+    let first = true;
+    new IntersectionObserver(([e]) => {
+      inView = !!e?.isIntersecting;
+      if (!inView) { pause(); return; }
+      if (first) { first = false; show(1); run(dur); } else run(left);
+    }, { threshold: 0.4 }).observe(scene);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); else if (inView) run(left); });
+  }
+</script>
