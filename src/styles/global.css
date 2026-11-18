@@ -131,6 +131,23 @@ p { max-width: 62ch; }
 .ghost-input { appearance: none; position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 label:has(> .ghost-input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 3px; }
 
+/* ---------- the signal: the logo's arcs as a status mark (Signal.astro) ----------
+   --sig-faint is how much of an unlit arc still shows. "send" lights the arcs from the source outwards, like the
+   logo going out; reduced motion shows it full instead. Keyframes are global so any component can borrow them. */
+.signal { --sig-faint: 0.22; display: inline-block; flex: none; overflow: visible; vertical-align: -0.1em; }
+.signal .a { transition: opacity var(--t-ui) ease; }
+.signal[data-signal="weak"] :is(.a2, .a3),
+.signal[data-level="1"] :is(.a2, .a3),
+.signal[data-level="2"] .a3 { opacity: var(--sig-faint); }
+@keyframes sig-send { 0%, 100% { opacity: var(--sig-faint, 0.22); } 30%, 55% { opacity: 1; } }
+@keyframes sig-rx { 0% { opacity: var(--sig-faint, 0.22); } 40%, 100% { opacity: 1; } }
+@keyframes sig-wave { 0%, 100% { opacity: 1; } 35% { opacity: var(--sig-faint, 0.22); } }
+@media (prefers-reduced-motion: no-preference) {
+  .signal[data-signal="send"] .a { animation: sig-send 1.1s var(--ease-in-out) infinite both; }
+  .signal[data-signal="send"] .a2 { animation-delay: 0.16s; }
+  .signal[data-signal="send"] .a3 { animation-delay: 0.32s; }
+}
+
 /* ---------- motion: entrances ----------
    Where scroll-driven animations exist, entrances run on a view() timeline (no script).
    Elsewhere Base.astro adds .no-sda and an IntersectionObserver sets .is-in once.

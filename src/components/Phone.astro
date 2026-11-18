@@ -3,18 +3,17 @@
 import { getImage } from 'astro:assets';
 import type { Content } from '../i18n';
 import Logo from './Logo.astro';
-import breakfast from '../assets/media/breakfast.jpg';
-import coffee from '../assets/media/latte-art-poster.jpg';
-import iced from '../assets/media/iced-latte.jpg';
+import Signal from './Signal.astro';
+import shakshuka from '../assets/media/shakshuka.jpg';
+import burger from '../assets/media/burger-meal.jpg';
+import cake from '../assets/media/coffee-cake.jpg';
 
 interface Props { c: Content }
 const { c } = Astro.props;
 const p = c.phone;
-const thumbs: Record<string, string> = {
-  breakfast: (await getImage({ src: breakfast, width: 112, height: 112, fit: 'cover', format: 'webp' })).src,
-  coffee: (await getImage({ src: coffee, width: 112, height: 112, fit: 'cover', format: 'webp' })).src,
-  iced: (await getImage({ src: iced, width: 112, height: 112, fit: 'cover', format: 'webp' })).src,
-};
+const pics = { shakshuka, burger, cake } as const;
+const thumbs: Record<string, string> = Object.fromEntries(await Promise.all(c.playlists.map(async (pl) =>
+  [pl.id, (await getImage({ src: pics[pl.offer.key], width: 112, height: 112, fit: 'cover', format: 'webp' })).src])));
 const first = c.playlists[0]?.id ?? '';
 ---
 <div class="phone" data-ui data-phone>
@@ -26,7 +25,7 @@ const first = c.playlists[0]?.id ?? '';
         <span class="ph-branch">{p.branch}</span>
       </div>
     </div>
-    <p class="ph-state" data-state data-on={p.screens} data-off={p.screensOffline}><span class="dot"></span><span data-state-text>{p.screens}</span></p>
+    <p class="ph-state" data-state data-on={p.screens} data-off={p.screensOffline}><Signal size={13} /><span data-state-text>{p.screens}</span></p>
 
     <fieldset class="ph-list">
       <legend class="ph-q">{p.choose}</legend>
@@ -41,7 +40,7 @@ const first = c.playlists[0]?.id ?? '';
 
     <button type="button" class="ph-publish" data-publish>{p.publish}</button>
     <p class="ph-status" aria-live="polite" data-status data-live={p.live} data-sending={p.sending} data-queued={p.queued}>
-      <span class="dot"></span><span data-status-text>{p.live}</span>
+      <Signal size={13} /><span data-status-text>{p.live}</span>
     </p>
 
     <label class="ph-net">
@@ -60,8 +59,10 @@ const first = c.playlists[0]?.id ?? '';
   .ph-cafe { font-weight: 700; font-size: 1rem; }
   .ph-branch { font-size: 0.8125rem; color: var(--muted); }
   .ph-state, .ph-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.84375rem; color: var(--muted); max-width: none; }
-  .dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: var(--live); flex: none; }
-  .ph-state[data-offline] .dot { background: var(--warn); }
+  /* the logo's arcs as the app's own status mark: green and full when live, faint outer arcs when offline */
+  .ph-state :global(.signal), .ph-status :global(.signal) { color: var(--live); transition: color var(--t-ui) ease; }
+  .ph-state[data-offline] :global(.signal) { color: var(--warn); }
+  .ph-state[data-offline] :global(.signal :is(.a2, .a3)) { opacity: var(--sig-faint); }
   .ph-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.25rem 0 0; padding: 0; border: 0; min-inline-size: 0; }
   .ph-q { padding: 0; margin-block-end: 0.25rem; font-weight: 700; font-size: 0.9375rem; }
   .ph-item { display: flex; align-items: center; gap: 0.75rem; inline-size: 100%; padding: 0.5rem; border-radius: 1rem; background: #fff; outline: 1.5px solid var(--ph-line); outline-offset: -1.5px; cursor: pointer; transition: outline-color var(--t-ui) ease, background-color var(--t-ui) ease, scale var(--t-press) var(--ease-out); }
@@ -79,10 +80,15 @@ const first = c.playlists[0]?.id ?? '';
   .ph-publish { min-block-size: 3.125rem; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 500; font-size: 1rem; transition: scale var(--t-press) var(--ease-out), background-color var(--t-hover) ease; }
   .ph-publish:active, .ph-publish.is-pressed { scale: 0.97; background: var(--accent-strong); }
   .ph-status { justify-content: center; min-block-size: 1.25rem; }
-  .ph-status[data-mode="sending"] .dot { background: var(--accent); }
-  @media (prefers-reduced-motion: no-preference) { .ph-status[data-mode="sending"] .dot { animation: blink 700ms ease-in-out infinite alternate; } }
-  .ph-status[data-mode="queued"] .dot { background: var(--warn); }
-  @keyframes blink { to { opacity: 0.25; } }
+  /* publishing: the arcs go out one after another; waiting for the internet: only the inner arc */
+  .ph-status[data-mode="sending"] :global(.signal) { color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) {
+    .ph-status[data-mode="sending"] :global(.signal .a) { animation: sig-send 0.9s var(--ease-in-out) infinite both; }
+    .ph-status[data-mode="sending"] :global(.signal .a2) { animation-delay: 0.14s; }
+    .ph-status[data-mode="sending"] :global(.signal .a3) { animation-delay: 0.28s; }
+  }
+  .ph-status[data-mode="queued"] :global(.signal) { color: var(--warn); }
+  .ph-status[data-mode="queued"] :global(.signal :is(.a2, .a3)) { opacity: var(--sig-faint); }
   .ph-net { display: flex; align-items: center; gap: 0.625rem; min-block-size: 2.75rem; padding: 0.5rem 0.25rem 0; font-size: 0.875rem; cursor: pointer; border-block-start: 1.5px solid var(--ph-line); }
   .ph-net-l { flex: 1; font-weight: 500; }
   .ph-net-v { color: var(--muted); font-size: 0.8125rem; }

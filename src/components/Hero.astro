@@ -1,7 +1,8 @@
 ---
 import MenuBoard from './MenuBoard.astro';
 import Phone from './Phone.astro';
-import { mailto, type Content } from '../i18n';
+import Signal from './Signal.astro';
+import { startHref, type Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
 const h = c.hero;
@@ -16,7 +17,7 @@ const firstLabel = c.playlists[0]?.label ?? '';
     <div class="copy" data-rise style="--i:1">
       <p class="lead">{h.lead}</p>
       <div class="actions">
-        <a class="button" href={mailto(c)}>{h.cta} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="button" href={startHref(c)}>{h.cta} <span class="arrow" aria-hidden="true">→</span></a>
         <a class="link more" href="#pricing">{h.secondary}</a>
       </div>
     </div>
@@ -33,7 +34,7 @@ const firstLabel = c.playlists[0]?.label ?? '';
       </div>
     </div>
   </div>
-  <span class="packet" aria-hidden="true"></span>
+  <span class="packet" aria-hidden="true"><Signal size={22} state="send" /></span>
 </section>
 
 <style>
@@ -86,7 +87,12 @@ const firstLabel = c.playlists[0]?.label ?? '';
   .s-now strong { color: var(--ink); font-weight: 500; }
   .s-now .dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: var(--live); }
 
-  .packet { position: absolute; top: 0; left: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 6px rgb(36 83 255 / 0.2); opacity: 0; pointer-events: none; z-index: 5; } /* taste-skill-ignore: interface fragment, overlay or photo scrim */
+  /* the publish signal: the logo itself leaves the phone and flies to the screens, facing where it goes */
+  .packet { position: absolute; top: 0; left: 0; display: grid; place-items: center; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); opacity: 0; pointer-events: none; z-index: 5; }
+  .packet :global(.signal) { display: block; margin-block-start: -2px; }
+  .packet[data-weak] { background: var(--warn); color: var(--ink); }
+  .packet[data-weak] :global(.signal .a) { animation: none; }
+  .packet[data-weak] :global(.signal :is(.a2, .a3)) { opacity: var(--sig-faint); }
 
   /* narrower: phone first, the screens right under the publish button */
   @media (max-width: 54rem) {
@@ -175,12 +181,12 @@ const firstLabel = c.playlists[0]?.label ?? '';
       radios.forEach((r) => { r.checked = r.value === id; });
     };
 
-    const syncVideo = () => {
-      board.querySelectorAll<HTMLVideoElement>('video[data-video]').forEach((v) => {
-        const layer = v.closest('.layer');
-        const show = !!layer?.hasAttribute('data-on') && inView && !reduce && !document.hidden;
-        if (show) { if (v.preload === 'none') v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
-      });
+    // a screen receiving: it lifts, its LED turns green and the arcs in its corner light up from the inside out
+    const ping = (tv: HTMLElement) => {
+      tv.classList.add('is-hit', 'is-rx');
+      window.setTimeout(() => tv.classList.remove('is-hit'), 500);
+      window.clearTimeout(Number(tv.dataset['rx']));
+      tv.dataset['rx'] = String(window.setTimeout(() => tv.classList.remove('is-rx'), 1500));
     };
 
     const switchBoard = (id: string) => {
@@ -202,9 +208,7 @@ const firstLabel = c.playlists[0]?.label ?? '';
               window.setTimeout(() => { if (board.dataset['active'] !== layer.dataset['pl']) layer.removeAttribute('data-on'); }, reduce ? 0 : 640);
             }
           });
-          tv.classList.add('is-hit');
-          window.setTimeout(() => tv.classList.remove('is-hit'), 500);
-          if (i === tvs.length - 1) syncVideo();
+          ping(tv);
         }, reduce ? 0 : i * 140);
       });
     };
@@ -224,8 +228,13 @@ const firstLabel = c.playlists[0]?.label ?? '';
         const t = (k / 24) * end;
         const x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1;
         const y = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1;
-        frames.push({ transform: `translate(${x}px, ${y}px) scale(${toBoard ? 1 : 1 - t})`, opacity: k === 0 ? 0 : (toBoard ? 1 : 1 - t) });
+        // the arcs open upwards, so turn them to face along the curve's direction of travel
+        const dx = 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx);
+        const dy = 2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy);
+        const turn = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+        frames.push({ transform: `translate(${x}px, ${y}px) rotate(${turn}deg) scale(${toBoard ? 1 : 1 - t * 0.6})`, opacity: k === 0 ? 0 : (toBoard ? 1 : 1 - t) });
       }
+      packet.toggleAttribute('data-weak', !toBoard);
       const anim = packet.animate(frames, { duration: toBoard ? 760 : 620, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' });
       return anim.finished.then(() => { packet.style.opacity = '0'; }).catch(() => {});
     };
@@ -248,7 +257,7 @@ const firstLabel = c.playlists[0]?.label ?? '';
         busy = false;
         return;
       }
-      if (selected === active) { setStatus('live'); tvs.forEach((tv) => { tv.classList.add('is-hit'); window.setTimeout(() => tv.classList.remove('is-hit'), 500); }); return; }
+      if (selected === active) { setStatus('live'); tvs.forEach(ping); return; }
       await send(selected);
     };
 
@@ -273,9 +282,8 @@ const firstLabel = c.playlists[0]?.label ?? '';
     net.addEventListener('change', () => setOnline(net.checked));
 
     // play the demo by itself until the visitor touches the phone
-    const io = new IntersectionObserver(([e]) => { inView = !!e?.isIntersecting; syncVideo(); }, { threshold: 0.25 });
+    const io = new IntersectionObserver(([e]) => { inView = !!e?.isIntersecting; }, { threshold: 0.25 });
     io.observe(board);
-    document.addEventListener('visibilitychange', syncVideo);
     if (auto) {
       window.setInterval(() => {
         if (!auto || !inView || document.hidden || busy || !online) return;

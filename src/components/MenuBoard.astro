@@ -1,16 +1,17 @@
 ---
 // Three TVs above a café counter, each holding one layer per playlist. The hero script switches layers.
 import { Image } from 'astro:assets';
-import { url, type Content } from '../i18n';
-import breakfast from '../assets/media/breakfast.jpg';
-import iced from '../assets/media/iced-latte.jpg';
-import poster from '../assets/media/latte-art-poster.jpg';
-import { getImage } from 'astro:assets';
+import type { Content } from '../i18n';
+import Signal from './Signal.astro';
+import shakshuka from '../assets/media/shakshuka.jpg';
+import burger from '../assets/media/burger-meal.jpg';
+import cake from '../assets/media/coffee-cake.jpg';
 
 interface Props { c: Content }
 const { c } = Astro.props;
-const pics = { breakfast, iced } as const;
-const posterImg = await getImage({ src: poster, width: 720, format: 'webp' });
+const pics = { shakshuka, burger, cake } as const;
+// where each photo's dish sits, so the crop keeps it in the photo half of the screen
+const focus = { shakshuka: '50% 60%', burger: '30% 55%', cake: '100% 55%' } as const;
 const first = c.playlists[0]?.id ?? '';
 ---
 <span class="board" data-board data-ui data-active={first} aria-hidden="true">
@@ -25,25 +26,28 @@ const first = c.playlists[0]?.id ?? '';
         </span>
       ))}
     </span>
+    <span class="rx"><Signal size={12} /></span>
     <span class="led"></span>
   </span>
 
   <span class="tv tv-b">
     <span class="screen">
       {c.playlists.map((p) => (
-        <span class="layer pic" data-pl={p.id} data-on={p.id === first ? '' : undefined}>
-          {p.picture.key === 'video' ? (
-            <video class="media" muted loop playsinline preload="none" width="720" height="480" poster={posterImg.src} data-video>
-              <source src={url('/media/latte-art.mp4')} type="video/mp4" />
-            </video>
-          ) : (
-            <Image class="media" src={pics[p.picture.key]} alt="" widths={[400, 720, 1000]} sizes="(max-width: 54rem) 92vw, 40vw" quality={72} {...(p.id === first ? { loading: 'eager', fetchpriority: 'high' } : { loading: 'lazy', fetchpriority: 'low' })} />
-          )}
-          <span class="cap"><span class="cap-t">{p.picture.caption}</span><span class="chip nums">{p.picture.price} <small>{c.currency}</small></span></span>
+        <span class="layer deal" data-pl={p.id} data-on={p.id === first ? '' : undefined}>
+          <Image class="media" src={pics[p.offer.key]} alt="" widths={[400, 720, 1000]} sizes="(max-width: 54rem) 60vw, 26vw" quality={74}
+            style={`object-position:${focus[p.offer.key]}`} {...(p.id === first ? { loading: 'eager', fetchpriority: 'high' } : { loading: 'lazy', fetchpriority: 'low' })} />
+          <span class="panel">
+            <span class="d-tag">{p.offer.tag}</span>
+            <span class="d-title">{p.offer.title}</span>
+            <span class="d-items">{p.offer.items.map((x, i) => <span class="d-item">{i > 0 && <b class="plus">+</b>}{x}</span>)}</span>
+            <span class="d-price"><span class="now nums">{p.offer.price}<small>{c.currency}</small></span><s class="was nums">{p.offer.was}</s></span>
+            <span class="d-note">{p.offer.note}</span>
+          </span>
         </span>
       ))}
       <span class="offline-badge"><span class="dot"></span>{c.boardOffline}</span>
     </span>
+    <span class="rx"><Signal size={12} /></span>
     <span class="led"></span>
   </span>
 
@@ -60,6 +64,7 @@ const first = c.playlists[0]?.id ?? '';
         </span>
       ))}
     </span>
+    <span class="rx"><Signal size={12} /></span>
     <span class="led"></span>
   </span>
 </span>
@@ -75,6 +80,15 @@ const first = c.playlists[0]?.id ?? '';
   .screen { position: relative; display: block; height: 100%; overflow: hidden; border-radius: 6px; background: var(--tv-screen); color: var(--tv-ink); container-type: size; }
   .led { position: absolute; bottom: 1px; inset-inline-start: 50%; width: 4px; height: 2px; border-radius: 2px; background: #ef4444; opacity: 0.8; }
   .tv.is-hit .led { background: var(--live); }
+  /* received: the logo's arcs appear in the screen's corner and light up from the inner arc out, then go */
+  .rx { position: absolute; z-index: 3; inset-block-start: 11px; inset-inline-end: 11px; display: grid; place-items: center; inline-size: 26px; block-size: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); opacity: 0; scale: 0.6; transition: opacity 360ms ease, scale 420ms var(--ease-out); }
+  .rx :global(.signal) { display: block; }
+  .tv.is-rx .rx { opacity: 1; scale: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .tv.is-rx .rx :global(.a) { animation: sig-rx 420ms var(--ease-out) both; }
+    .tv.is-rx .rx :global(.a2) { animation-delay: 120ms; }
+    .tv.is-rx .rx :global(.a3) { animation-delay: 240ms; }
+  }
 
   .layer { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden; }
   .layer[data-on] { opacity: 1; visibility: visible; }
@@ -91,11 +105,22 @@ const first = c.playlists[0]?.id ?? '';
   .p { font-weight: 700; color: var(--tv-ink); white-space: nowrap; }
   .p small, .chip small, .big small { font-size: 0.72em; font-weight: 500; margin-inline-start: 0.2em; color: var(--tv-muted); }
 
-  .pic .media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #111522; }
-  .cap { position: absolute; inset-inline: 0; bottom: 0; display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5em; padding: 18cqh 6cqw 7cqh; background: linear-gradient(to top, rgb(5 7 12 / 0.85), rgb(5 7 12 / 0)); } /* taste-skill-ignore: interface fragment, overlay or photo scrim */
-  .cap-t { font-family: var(--font-display); font-weight: 700; font-size: max(0.8125rem, min(13cqh, 7.5cqw)); line-height: 1.15; }
-  .chip { flex: none; background: var(--accent); color: var(--accent-ink); font-weight: 700; padding: 0.15em 0.55em; border-radius: 999px; font-size: max(0.6875rem, min(10cqh, 5.6cqw)); }
-  .chip small { color: rgb(255 255 255 / 0.8); }
+  /* the big screen: a combo offer as real menu boards sell it. Photo on one side, a solid panel with
+     what's in the combo, the price and the old price on the other. Sizes follow the screen (container units). */
+  .deal { flex-direction: row; }
+  .deal .media { position: absolute; inset-block: 0; inset-inline-end: 0; inline-size: 56%; block-size: 100%; object-fit: cover; background: #111522; }
+  .panel { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 3.2cqh; inline-size: 44%; block-size: 100%; padding: 6cqh 4.5cqw; background: var(--tv-screen); }
+  .d-tag { align-self: flex-start; padding: 0.2em 0.65em; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: max(0.625rem, min(5.2cqh, 2.6cqw)); }
+  .d-title { font-family: var(--font-display); font-weight: 700; color: var(--tv-ink); font-size: max(0.9375rem, min(11cqh, 5.4cqw)); line-height: 1.15; }
+  :root[lang="en"] .d-title { letter-spacing: -0.01em; }
+  .d-items { display: flex; flex-direction: column; gap: 0.9cqh; color: #c9d3ea; font-size: max(0.625rem, min(5.4cqh, 2.7cqw)); }
+  .d-item { display: flex; align-items: baseline; gap: 0.4em; }
+  .plus { color: var(--signal); font-weight: 700; }
+  .d-price { display: flex; align-items: baseline; gap: 0.5em; margin-block-start: 1cqh; }
+  .now { padding: 0.1em 0.5em; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: max(0.9375rem, min(11cqh, 5.6cqw)); line-height: 1.25; }
+  .now small { font-size: 0.5em; font-weight: 500; margin-inline-start: 0.25em; color: rgb(255 255 255 / 0.85); }
+  .was { color: var(--tv-muted); font-size: max(0.6875rem, min(6cqh, 3cqw)); text-decoration-thickness: 0.08em; }
+  .d-note { color: var(--tv-muted); font-size: max(0.5625rem, min(4.4cqh, 2.2cqw)); }
 
   .offer { padding: 9cqh 8cqw; justify-content: center; gap: 4cqh; background: #121a33; }
   .offer .t { color: var(--tv-ink); margin: 0; }

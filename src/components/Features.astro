@@ -4,6 +4,7 @@
 // All controls are native (range, switch, buttons). Emoji are plain characters, so each platform draws its own
 // (Apple's on iPhone and Mac).
 import type { Content } from '../i18n';
+import Signal from './Signal.astro';
 interface Props { c: Content }
 const { c } = Astro.props;
 const f = c.features;
@@ -102,9 +103,11 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
                     <span class="pill nums"><span class="dot"></span><span data-clock>{fmt(startMin)}</span></span>
                     <span class="hint" data-hint>{t.dragHint}</span>
                   </div>
-                  <div class="track">
-                    {t.blocks.map((b, k) => <span class="seg" data-seg={k} data-on={k === 0 ? '' : undefined} style={`flex-grow:${b.to - b.from}`} aria-hidden="true"></span>)}
-                    <input class="range" type="range" min="0" max="1080" step="10" value={startMin} aria-label={t.timeLabel} aria-valuetext={fmt(startMin)} data-range />
+                  <div class="track" style={`--p:${startMin / 1080}`} data-track>
+                    {t.blocks.map((b, k) => <span class="seg" data-seg={k} data-from={b.from} data-to={b.to} data-on={k === 0 ? '' : undefined}
+                      style={`flex-grow:${b.to - b.from};--f:${Math.min(1, Math.max(0, (startMin - b.from) / (b.to - b.from)))}`} aria-hidden="true"></span>)}
+                    <span class="knob" aria-hidden="true"></span>
+                    <input class="range" type="range" min="0" max="1080" step="1" value={startMin} aria-label={t.timeLabel} aria-valuetext={fmt(startMin)} data-range />
                   </div>
                   <div class="labels" aria-hidden="true">
                     {t.blocks.map((b, k) => <span class="lab" data-lab={k} data-on={k === 0 ? '' : undefined} style={`flex-grow:${b.to - b.from}`}><b>{b.emoji} {b.name}</b><span>{b.time}</span></span>)}
@@ -128,14 +131,14 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
               <div class="off" data-offline-card>
                 <div class="mini-tv" aria-hidden="true">
                   <div class="mini-scr">
-                    <span class="badge" data-badge><span class="dot"></span><span data-badge-text>{t.online}</span></span>
+                    <span class="badge" data-badge><Signal size={11} /><span data-badge-text>{t.online}</span></span>
                     <span class="mini-t">{firstBlock.emoji} {firstBlock.name}</span>
                     {firstBlock.items.map(([e, n, p], k) => <span class="mini-r" style={`--k:${k}`}><span><span class="emo">{e}</span> {n}</span><span class="nums">{p}</span></span>)}
                   </div>
                 </div>
                 <span class="hint" data-hint>{t.netHint}</span>
                 <label class="net">
-                  <span>📶 {t.net}</span>
+                  <span class="net-l"><Signal size={14} /> {t.net}</span>
                   <span class="net-state" data-net-state aria-hidden="true">{t.netOn}</span>
                   <input type="checkbox" role="switch" class="switch" checked data-feat-net data-on-label={t.netOn} data-off-label={t.netOff} data-online={t.online} data-offline={t.offline} />
                 </label>
@@ -158,7 +161,7 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
                 <span class="b-head" aria-live="polite"><span data-b-status>{t.published}</span> <span class="nums b-count" data-b-count>{total}/{total}</span></span>
                 <ul class="b-list">
                   {t.branches.map((b) => (
-                    <li class="b-row" data-n={b.n} data-done=""><span>📍 {b.name}</span><span class="b-n"><span>{b.label}</span><span class="b-ic" aria-hidden="true"><span class="b-wait">⏳</span><span class="b-ok">✅</span></span></span></li>
+                    <li class="b-row" data-n={b.n} data-done=""><span>📍 {b.name}</span><span class="b-n"><span>{b.label}</span><span class="b-ic" aria-hidden="true"><Signal size={14} /></span></span></li>
                   ))}
                 </ul>
                 <button type="button" class="act act-light" data-publish>{t.publish}</button>
@@ -226,16 +229,26 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
   .sched-main { display: flex; flex-direction: column; gap: 0.875rem; min-inline-size: 0; }
   .sched-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
   .pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.65rem; border-radius: var(--pill); background: #fff; font-weight: 500; }
-  .track { position: relative; display: flex; gap: 4px; block-size: 2.75rem; }
-  .seg { flex-basis: 0; border-radius: 8px; background: #dfe3ea; transition: background-color var(--t-ui) ease; }
-  .seg[data-on] { background: var(--accent); }
+  /* the day as one bar: each block fills continuously up to the current time (--f, 0–1, set per frame), and a round
+     handle rides on top at --p. The native range sits over it, invisible, so drag, keys and screen readers stay real.
+     The handle's travel matches the native thumb's (its centre moves from half a knob in to half a knob from the end). */
+  .track { --knob: 1.75rem; position: relative; display: flex; align-items: center; gap: 4px; block-size: 2.75rem; }
+  .seg { position: relative; flex-basis: 0; block-size: 0.875rem; border-radius: 999px; background: #dfe3ea; overflow: hidden; }
+  .seg::after { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: 100%; border-radius: inherit; background: var(--accent);
+    transform: scaleX(var(--f, 0)); transform-origin: left center; }
+  :root[dir="rtl"] .seg::after { transform-origin: right center; }
+  .knob { position: absolute; inset-block-start: 50%; inset-inline-start: calc(var(--knob) / 2 + var(--p, 0) * (100% - var(--knob))); inline-size: var(--knob); block-size: var(--knob);
+    margin-inline-start: calc(var(--knob) / -2); margin-block-start: calc(var(--knob) / -2); border-radius: 50%; background: #fff; border: 6px solid var(--accent); pointer-events: none;
+    transition: transform var(--t-press) var(--ease-out); }
+  .track:has(.range:active) .knob { transform: scale(1.12); }
   .range { position: absolute; inset: -0.5rem 0; inline-size: 100%; block-size: calc(100% + 1rem); margin: 0; appearance: none; -webkit-appearance: none; background: transparent; cursor: grab; touch-action: pan-y; }
   .range:active { cursor: grabbing; }
   .range::-webkit-slider-runnable-track { block-size: 100%; background: transparent; }
   .range::-moz-range-track { block-size: 100%; background: transparent; }
-  .range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; inline-size: 14px; block-size: 3.75rem; margin-block-start: 0; border-radius: 7px; background: var(--ink); border: 3px solid #fff; cursor: grab; }
-  .range::-moz-range-thumb { inline-size: 8px; block-size: 3.5rem; border-radius: 7px; background: var(--ink); border: 3px solid #fff; cursor: grab; }
-  .range:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+  .range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; inline-size: var(--knob); block-size: 100%; opacity: 0; cursor: grab; }
+  .range::-moz-range-thumb { inline-size: var(--knob); block-size: 100%; opacity: 0; border: 0; cursor: grab; }
+  .range:focus-visible { outline: none; }
+  .track:has(.range:focus-visible) .knob { outline: 3px solid var(--accent); outline-offset: 3px; }
   .labels { display: flex; gap: 4px; }
   .lab { flex-basis: 0; display: flex; flex-direction: column; color: var(--muted); min-inline-size: 0; }
   .lab b { color: var(--ink); transition: color var(--t-ui) ease; }
@@ -258,7 +271,12 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
   .mini-r { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.1rem 0.35rem; margin-inline: -0.35rem; border-radius: 4px; }
   .badge { position: absolute; inset-block-start: 0.5rem; inset-inline-end: 0.5rem; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.94); color: var(--ink); font-size: 0.6875rem; font-weight: 500; transition: background-color var(--t-ui) ease; }
   .off[data-cut] .badge { background: #fff4e0; }
-  .off[data-cut] .badge .dot { background: var(--warn); }
+  /* the logo's arcs as the signal: full when online; cut the internet and only the inner arc stays, the screen keeps playing */
+  .badge :global(.signal) { color: var(--live); }
+  .net-l { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .net-l :global(.signal) { color: var(--signal); }
+  .off[data-cut] :is(.badge, .net-l) :global(.signal) { color: var(--warn); }
+  .off[data-cut] :is(.badge, .net-l) :global(.signal :is(.a2, .a3)) { opacity: var(--sig-faint); }
   .net { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; inline-size: min(100%, 15rem); min-block-size: 2.75rem; padding: 0.25rem 0.5rem 0.25rem 0.9rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.08); cursor: pointer; font-weight: 500; }
   :root[dir="rtl"] .net { padding: 0.25rem 0.9rem 0.25rem 0.5rem; }
   .net-state { margin-inline-start: auto; color: var(--card-muted); font-size: 0.8125rem; }
@@ -283,9 +301,18 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
   .b-row { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.4rem 0.7rem; border-radius: 10px; background: rgb(255 255 255 / 0.14); transition: background-color var(--t-ui) ease; }
   .b-row[data-done] { background: rgb(255 255 255 / 0.22); }
   .b-n { display: inline-flex; align-items: center; gap: 0.45rem; opacity: 0.9; }
-  .b-ic { display: inline-grid; inline-size: 1.25em; }
-  .b-ic > span { grid-area: 1 / 1; transition: opacity 200ms ease, scale 260ms var(--ease-out); }
-  .b-row:not([data-done]) .b-ok, .b-row[data-done] .b-wait { opacity: 0; scale: 0.5; }
+  /* each branch shows the publish going out to it (arcs lighting in turn), then a full signal once it has the menu */
+  .b-ic { display: inline-grid; place-items: center; inline-size: 1.25em; }
+  .b-row:not([data-done]) .b-ic :global(.signal) { --sig-faint: 0.3; }
+  .b-row:not([data-done]) .b-ic :global(.signal .a) { opacity: var(--sig-faint); }
+  @media (prefers-reduced-motion: no-preference) {
+    .b-row:not([data-done]) .b-ic :global(.signal .a) { animation: sig-send 0.9s var(--ease-in-out) infinite both; }
+    .b-row:not([data-done]) .b-ic :global(.signal .a2) { animation-delay: 0.14s; }
+    .b-row:not([data-done]) .b-ic :global(.signal .a3) { animation-delay: 0.28s; }
+    .b-row[data-tick] .b-ic :global(.signal .a) { animation: sig-rx 420ms var(--ease-out) both; }
+    .b-row[data-tick] .b-ic :global(.signal .a2) { animation-delay: 100ms; }
+    .b-row[data-tick] .b-ic :global(.signal .a3) { animation-delay: 200ms; }
+  }
   .branches .act { margin-block-start: 0.35rem; }
 
   /* ---------- team: pick a member, see what they can open ---------- */
@@ -371,9 +398,19 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
       const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
       return `${h12}:${String(mins % 60).padStart(2, '0')} ${h24 < 12 ? am : pm}`;
     };
+    const track = sched.querySelector<HTMLElement>('[data-track]')!;
     let block = 0;
+    // m may be fractional while the day plays itself, so the fill and the handle glide; the clock shows whole 5-minute steps
+    const paint = (m: number) => {
+      track.style.setProperty('--p', String(m / 1080));
+      segs.forEach((el) => {
+        const from = Number(el.dataset['from']), to = Number(el.dataset['to']);
+        el.style.setProperty('--f', String(Math.min(1, Math.max(0, (m - from) / (to - from)))));
+      });
+    };
     const update = (m: number) => {
-      const txt = fmt(m);
+      paint(m);
+      const txt = fmt(Math.floor(m / 5) * 5);
       clock.textContent = txt;
       range.setAttribute('aria-valuetext', txt);
       const k = Math.max(0, menus.findIndex((el) => m >= Number(el.dataset['from']) && m < Number(el.dataset['to'])));
@@ -394,13 +431,26 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
     range.addEventListener('input', () => update(Number(range.value)));
     ['pointerdown', 'keydown', 'focus'].forEach((ev) => range.addEventListener(ev, stopAuto));
     whileVisible(sched, (v) => { visible = v; });
-    // the day plays by itself (10 minutes every 90ms) until the visitor takes the handle
-    window.setInterval(() => {
-      if (!auto || !visible || document.hidden) return;
-      const v = (Number(range.value) + 10) % 1090;
-      range.value = String(v);
-      update(v);
-    }, 90);
+    // the day plays by itself (a whole day in 12 seconds, one frame at a time) until the visitor takes the handle;
+    // at midnight it rests a moment, then starts the next morning
+    let now = Number(range.value);
+    let last = 0;
+    let rest = 0;
+    const tick = (ts: number) => {
+      const dt = last ? Math.min(64, ts - last) : 0;
+      last = ts;
+      if (auto && visible && !document.hidden) {
+        if (rest > 0) { rest -= dt; if (rest <= 0) now = 0; }
+        else {
+          now = Math.min(1080, now + dt * 0.09);
+          if (now === 1080) rest = 900;
+          range.value = String(Math.round(now));
+          update(now);
+        }
+      }
+      if (auto) requestAnimationFrame(tick);
+    };
+    if (auto) requestAnimationFrame(tick);
   }
 
   // ---------- offline ----------

@@ -13,7 +13,7 @@ update this guide in the same change.
   The owner controls the TV menu screens in the shop from their phone: pick a menu, publish, and the screens change in seconds.
 - **Who the site is for:** café and restaurant owners and managers. They are not technical. They care about:
   "does it work with my TV", "what does it cost for my number of screens", "what happens if the internet drops".
-- **The one job of the page:** get the visitor to start (all "Start" buttons open a `mailto:` for now).
+- **The one job of the page:** get the visitor to start. Every "Start" button opens the «ابدأ مع لوحة» form (`/start/`, `/en/start/`, see §7.10); the team then calls them.
 - **Languages:** Arabic is primary (`/`, `dir="rtl"`), English is secondary (`/en/`, `dir="ltr"`).
   Both pages are the same components fed by different copy.
 
@@ -125,7 +125,7 @@ Fallbacks: IBM Plex Sans Arabic, Geeza Pro, system-ui. Headings use weight 700 (
   A blue rounded tile (`#2453FF`) with three white arcs, like a signal going out to the screens. Always next to the word «لوحة» / "Lawha" in Wafeq Bold.
   - Use the mark exactly as supplied. Don't redraw, recolour, add an outline or rotate the arcs. (The source's 1px black outline was an export leftover and is dropped.)
   - On blue backgrounds (the footer) use `<Logo inverse />`: a white tile with blue arcs, because the blue tile disappears on blue.
-  - In the navbar use `<Logo arcs />`: the three arcs alone, no tile, in the text colour (white on the dark capsule). The tile version is the app icon, not the navbar logo.
+  - In the navbar use the three arcs alone (`<Signal class="logo" />`, the same shape as `<Logo arcs />`), no tile, in the text colour (white on the dark capsule). The tile version is the app icon, not the navbar logo.
     The brand sits 1.5rem (1rem on phones) in from the capsule's start edge.
   - The favicon is the same mark; the arcs stay readable at 16px.
 - **`.button`:** pill, min-height 3.25rem (52px), accent background, white text, weight 500. Pressed `scale(0.97)`; hover `--accent-strong`.
@@ -135,7 +135,20 @@ Fallbacks: IBM Plex Sans Arabic, Geeza Pro, system-ui. Headings use weight 700 (
   In RTL the knob travels the other way. Forced-colours fallback included.
 - **Segmented choice** (billing period, announcement duration): real `<input type="radio" class="ghost-input">` inside `<label>`s.
   The checked label gets the ink background via `label:has(:checked)`. Focus ring via `label:has(> .ghost-input:focus-visible)`.
-- **Status dots:** 0.5rem circles; `--live` green = live/online/ready, `--warn` amber = offline/queued, red `#ef4444` = screen down.
+- **The signal (`Signal.astro`): the logo is the product's status mark.** The three arcs draw a signal going from the phone to the screens, so wherever the site sends, receives or loses something, it uses them instead of a dot or an emoji. Arcs are `.a1` (inner, the source) → `.a3` (outer); `Logo.astro`'s arcs carry the same classes.
+  - States: `full` (connected, live, received) · `send` (arcs light one after another outwards, looping: publishing, sending) · `weak` (inner arc only: offline, the screen plays what it saved) · `level="1|2|3"` (how far the signal reaches). Unlit arcs stay at `--sig-faint` (0.22). Keyframes `sig-send`, `sig-rx` (light once, inner first) and `sig-wave` (dip and return) live in `global.css`.
+  - Colour follows meaning: `--accent` while sending, `--live` when live, `--warn` when offline, white on blue fields.
+  - Where it is used, and why there:
+    - Navbar logo: switches on (inner arc first) when the page opens; a wave on hover.
+    - Hero demo: pressing Publish sends the logo itself, on a blue disc, along a curve to the TVs, turned to face its direction of travel; each TV then lights the arcs in its corner. The phone's status line uses the mark (sending → live; amber and weak when queued offline), as does "3 screens connected".
+    - How it works: in step 1 the TV boots on the logo and its arcs light up; in step 4 the arcs beside the screen's name go out just before the menu lands.
+    - Features: the offline card's internet switch and TV badge fall to the inner arc when the internet is cut; each branch in "publish to every branch" shows its arcs going out, then full.
+    - Pricing: each plan's name carries 1, 2 or 3 lit arcs (one branch → three → all); the calculator's mark follows the slider.
+    - Start form: the submit arrow becomes the sending arcs; the thank-you panel shows the logo tile, its arcs lighting as the request "arrives".
+    - Footer: "Back to top" uses the arcs as its arrow (they already point up).
+  - Not in the closing section: a large version there was tried and removed by the owner.
+  - Don't use it as decoration with no signal meaning (no backgrounds, no bullets, no dividers), and never rotate it except while it is travelling in the hero.
+- **Status dots:** 0.5rem circles where the signal doesn't fit; `--live` green = live/online/ready, `--warn` amber = offline/queued, red `#ef4444` = screen down.
 - **Tick:** a 1.375rem circle with a check SVG; light blue on light cards, solid blue on the dark popular card.
 - **Hit targets:** every interactive control is at least 44×44px (2.75rem).
 - **Focus:** always visible, `outline: 3px solid var(--accent); outline-offset: 3px` (light outline on dark/blue fields). Never remove it.
@@ -180,7 +193,7 @@ All copy lives in `src/i18n.ts` (`content.ar`, `content.en`; the `Content` type 
     - "What's on now?" as a native radio group of three playlists (thumbnail, name, meta).
     - A full-width "Publish to 3 screens" button and a status line (live, sending, or "queued until internet returns").
     - The "Café internet" switch.
-  - Board column: `MenuBoard.astro`, three TVs. A large picture TV (photo or the latte-art video, caption plus price chip) beside two stacked 16:9 menu-list TVs. Under it, «يُعرض الآن: …» / "Now showing: …" updates on publish.
+  - Board column: `MenuBoard.astro`, three TVs. A large offer TV beside two stacked 16:9 menu-list TVs. The offer TV is a real menu-board combo screen: a professional dish photo on one half, a solid panel on the other with tag, combo name, what's included (+ items), price chip and struck-through old price, and the hours (`offer` in each playlist in `i18n.ts`). One offer per playlist: breakfast shakshuka combo, burger meal, latte and cake. No video and no phone snapshots: owner asked for studio-quality food photos. Under it, «يُعرض الآن: …» / "Now showing: …" updates on publish.
 - **Behaviour:**
   1. On publish, a small blue dot flies along a curve from the button to the board (Web Animations API).
   2. The TVs then wipe to the new playlist one after another, 140ms apart.
@@ -283,6 +296,15 @@ Designed to sell; keep it rich, not plain.
   - Bottom row: legal and social links, a `<details>` with the photo and video credits (from `src/assets/media/credits.json`), and the city/year.
 - All contact details are placeholders (`hello@lawha.app`, `+966 50 000 0000`, `CR 0000000000`, `#` links).
 
+### 7.10 Start page (`Start.astro`, `pages/start/`, `pages/en/start/`)
+- Where every "Start" button leads (`startHref(c, plan?)` in `i18n.ts`). The pricing cards add `?plan=starter|growth|chain`, which preselects the screens answer.
+- Start side (cols 1–5, sticky on desktop): «خلّنا نجهّز شاشاتك», one line on the promise (a call within one working day), then «وش اللي بيصير بعدها؟» as three numbered steps and «بلا عقود».
+- End side (cols 7–12): a white card with the form. Required: name, mobile, business name, type of business (chips), number of screens (chips matching the plans, plus «ما أدري للحين»). Optional, and labelled «اختياري»: city, e-mail, notes.
+- Mobile numbers: Arabic-Indic digits, spaces and `+966` / `00966` prefixes are accepted and tidied to `05xxxxxxxx`.
+- Errors appear only after the first send attempt, under each field in red, with focus moved to the first one; they clear as the visitor types.
+- Sending: JSON to `formsubmit.co/ajax/<LEADS_EMAIL>`; the e-mail always uses the Arabic labels. Success swaps the form for a thank-you panel with the number we will call; failure shows the phone number to call instead. Without script the form posts normally and FormSubmit returns to `?sent=1`. A hidden `_honey` field catches bots.
+- The navbar on this page has no "Start" button (the form is open); its section links lead back to the home page, and the language switch goes to the other language's form.
+
 ## 8. Motion
 
 - **Tokens:** `--ease-out`, `--ease-in-out`; durations `--t-press` 140ms, `--t-hover` 180ms, `--t-ui` 240ms, `--t-reveal` 800ms.
@@ -297,8 +319,8 @@ Designed to sell; keep it rich, not plain.
 ## 9. Imagery
 
 - Real, CC0 photographs and one CC0 clip of the café world: breakfast, coffee, iced drinks, dates, latte art.
-  - Files: `src/assets/media/*.jpg` and `public/media/latte-art.mp4`. Sources and licences: `src/assets/media/credits.json`.
-  - The footer lists only media shown on the page (`onPage` in `Footer.astro`: breakfast, iced latte, the latte-art clip).
+  - Files: `src/assets/media/*.jpg` (offer photos: `shakshuka.jpg`, `burger-meal.jpg`, `coffee-cake.jpg`, all CC0 Unsplash shoots via Wikimedia Commons). Sources and licences: `src/assets/media/credits.json`.
+  - The footer lists only media shown on the page (`onPage` in `Footer.astro`: the three offer photos).
     `coffee-tray`, `dates`, `hot-coffee` and `iced-black` are no longer used but are kept with their records. Add a file to `onPage` if you use it again.
 - Images go through Astro `<Image>` (responsive `widths`/`sizes`, webp).
   - The hero's first TV image is the LCP: `loading="eager" fetchpriority="high"`.
@@ -368,7 +390,7 @@ Designed to sell; keep it rich, not plain.
 
 - Replace placeholders: prices and plan limits, contact details, CR number, social/legal links, domain (`lawha.app` in `astro.config.mjs`), the sample café «بُن الحي», menus, branch and team names.
 - Confirm the Wafeq font licence allows web embedding before launch.
-- The "Start" buttons are `mailto:` links; swap them for the real sign-up flow when it exists.
+- The start form emails `LEADS_EMAIL` (`src/i18n.ts`) through FormSubmit. Set the real inbox, then click FormSubmit's one-time activation e-mail; until then requests are not delivered.
 - Not yet set up from the owner's tooling rules: `oxlint`, `oxfmt`, `vitest` (no unit-testable logic exists yet).
 
 ## 15. File map
@@ -379,7 +401,6 @@ site/
   DESIGN_GUIDE.md         this file
   public/
     favicon.svg           logo mark (owner-designed: blue tile, three white arcs)
-    media/latte-art.mp4   hero video (CC0)
   src/
     i18n.ts               all copy, ar + en (Content type = shape of ar)
     qrcode.d.ts           types for the build-time QR generator
@@ -387,6 +408,7 @@ site/
     layouts/Base.astro    <head>, meta, hreflang, motion feature detection
     pages/index.astro     Arabic page
     pages/en/index.astro  English page
+    pages/start/, pages/en/start/   «ابدأ مع لوحة» form pages
     components/
       Page.astro          section order
       Nav.astro           floating capsule header: sliding pill, scroll spy, reading line, popover menu
@@ -399,8 +421,10 @@ site/
       Pricing.astro       calculator, plans, reassurance
       Faq.astro           questions and answers
       Cta.astro           closing section
+      Start.astro         the start form: fields, checks, sending to FormSubmit, thank-you panel
       Footer.astro        contact, links, credits
       Logo.astro          logo SVG (`arcs` = navbar logo, `inverse` = blue backgrounds)
+      Signal.astro        the logo's arcs as a status mark: full / send / weak / level (§6)
     assets/fonts/         Wafeq woff2 (Regular, Medium, Bold)
     assets/media/         photos + credits.json
 ```

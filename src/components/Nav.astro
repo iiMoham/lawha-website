@@ -6,18 +6,23 @@
 // One navigation list at every width. Script measures whether the row fits; when it does not, the list
 // becomes a native popover opened by the menu button (no hard-coded breakpoint, so translations and text
 // scaling move the point by themselves). Without script the collapsed popover layout is used.
-import Logo from './Logo.astro';
-import { mailto, url, type Content } from '../i18n';
-interface Props { c: Content }
-const { c } = Astro.props;
+import Signal from './Signal.astro';
+import { startHref, url, type Content } from '../i18n';
+// `page`: on the start (form) page the section links lead back to the home page, the language switch goes to the
+// other language's form, and the «start» button is dropped because the form is already open.
+interface Props { c: Content; page?: 'home' | 'start' }
+const { c, page = 'home' } = Astro.props;
 const n = c.nav;
+const home = c.lang === 'ar' ? '/' : '/en/';
+const linkHref = (h: string) => (page === 'home' ? h : url(home + h));
+const switchHref = page === 'home' ? url(n.switchHref) : url(`${n.switchHref}start/`);
 const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
 ---
 <header class="site-header wrap" data-header>
   <div class="capsule">
     <div class="header-inner">
-      <a class="brand" href={url(c.lang === 'ar' ? '/' : '/en/')}>
-        <Logo arcs size={24} />
+      <a class="brand" href={url(home)}>
+        <Signal size={24} class="logo" />
         <span class="brand-name">{n.brand}</span>
       </a>
       <nav class="site-nav" aria-label={n.menu}>
@@ -28,13 +33,13 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
         <ul id="site-menu" class="site-menu" popover="auto" data-menu>
           <li class="pill" aria-hidden="true"></li>
           {n.links.map((l) => (
-            <li><a class="nav-link" href={l.href}><span>{l.label}</span><span class="go" aria-hidden="true">→</span></a></li>
+            <li><a class="nav-link" href={linkHref(l.href)}><span>{l.label}</span><span class="go" aria-hidden="true">→</span></a></li>
           ))}
         </ul>
       </nav>
       <div class="actions">
-        <a class="lang" href={url(n.switchHref)} hreflang={n.switchLang} lang={n.switchLang} aria-label={n.switchLabel} title={n.switchLabel}>{langShort}</a>
-        <a class="button nav-cta" href={mailto(c)}>{n.cta} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="lang" href={switchHref} hreflang={n.switchLang} lang={n.switchLang} aria-label={n.switchLabel} title={n.switchLabel}>{langShort}</a>
+        {page === 'home' && <a class="button nav-cta" href={startHref(c)}>{n.cta} <span class="arrow" aria-hidden="true">→</span></a>}
       </div>
     </div>
     <span class="progress" aria-hidden="true"></span>
@@ -54,7 +59,16 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
 
   .brand { display: inline-flex; align-items: center; gap: 0.6rem; padding-inline-end: 0.25rem; text-decoration: none; color: inherit; font-family: var(--font-display); font-weight: 700; font-size: 1.45rem; line-height: 1; }
   :root[lang="en"] .brand { font-size: 1.3rem; letter-spacing: -0.01em; }
-  .brand :global(.logo) { transition: rotate var(--t-ui) var(--ease-out); }
+  /* the logo is a signal: it switches on, inner arc first, when the page opens, and sends a wave on hover */
+  .brand :global(.logo) { display: block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .brand :global(.logo .a) { animation: sig-rx 520ms var(--ease-out) both; animation-delay: 260ms; }
+    .brand :global(.logo .a2) { animation-delay: 400ms; }
+    .brand :global(.logo .a3) { animation-delay: 540ms; }
+    .brand:is(:hover, :focus-visible) :global(.logo .a) { animation: sig-wave 640ms var(--ease-in-out) both; animation-delay: 0ms; }
+    .brand:is(:hover, :focus-visible) :global(.logo .a2) { animation-delay: 110ms; }
+    .brand:is(:hover, :focus-visible) :global(.logo .a3) { animation-delay: 220ms; }
+  }
   .site-nav { margin-inline-start: auto; }
   .actions { display: flex; align-items: center; gap: 0.5rem; }
 
@@ -130,7 +144,6 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
   .site-header.is-scrolled .header-inner { min-block-size: 3.5rem; }
 
   @media (hover: hover) and (pointer: fine) {
-    .brand:hover :global(.logo) { rotate: -8deg; }
     .lang:hover { background: var(--night-ink); color: var(--ink); }
     .menu-button:hover { background: #222838; }
     .nav-cta:hover .arrow { translate: 3px 0; }
@@ -217,7 +230,7 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
 
     // ---- scroll spy: the section crossing the upper third of the viewport ----
     const sections = links
-      .map((a) => ({ a, el: document.querySelector<HTMLElement>(a.hash) }))
+      .map((a) => ({ a, el: a.pathname === location.pathname && a.hash ? document.querySelector<HTMLElement>(a.hash) : null }))
       .filter((x): x is { a: HTMLAnchorElement; el: HTMLElement } => !!x.el);
     const visible = new Set<HTMLElement>();
     const spy = new IntersectionObserver((entries) => {

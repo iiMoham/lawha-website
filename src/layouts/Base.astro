@@ -2,8 +2,9 @@
 import '../styles/global.css';
 import { url, type Content } from '../i18n';
 
-interface Props { c: Content }
-const { c } = Astro.props;
+// `page` is the path after the language root ('' for home, 'start/' for the form); title and description override the home ones.
+interface Props { c: Content; page?: string; title?: string; description?: string }
+const { c, page = '', title = c.title, description = c.description } = Astro.props;
 const site = Astro.site ? new URL(url('/'), Astro.site).toString() : '';
 ---
 <!doctype html>
@@ -12,15 +13,15 @@ const site = Astro.site ? new URL(url('/'), Astro.site).toString() : '';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="text-scale" content="scale" />
-    <title>{c.title}</title>
-    <meta name="description" content={c.description} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
     <meta name="theme-color" content="#f7f8fa" />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
-    <link rel="alternate" hreflang="ar" href={`${site}`} />
-    <link rel="alternate" hreflang="en" href={`${site}en/`} />
-    <link rel="alternate" hreflang="x-default" href={`${site}`} />
-    <meta property="og:title" content={c.title} />
-    <meta property="og:description" content={c.description} />
+    <link rel="alternate" hreflang="ar" href={`${site}${page}`} />
+    <link rel="alternate" hreflang="en" href={`${site}en/${page}`} />
+    <link rel="alternate" hreflang="x-default" href={`${site}${page}`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
     <meta property="og:locale" content={c.lang === 'ar' ? 'ar_SA' : 'en_US'} />
     <script is:inline>
       document.documentElement.classList.add('js');

@@ -1,14 +1,15 @@
 ---
 // Contact as the headline. All contact details are PLACEHOLDERS.
 import Logo from './Logo.astro';
+import Signal from './Signal.astro';
 import credits from '../assets/media/credits.json';
 import type { Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
 const f = c.footer;
 type Credit = { file: string; title: string; creator?: string; license?: string; licenseUrl?: string; page: string; via?: string };
-// credits.json keeps every sourced file; only credit what the page shows (MenuBoard photos + the latte-art clip).
-const onPage = ['breakfast.jpg', 'iced-latte.jpg', 'latte-art.webm'];
+// credits.json keeps every sourced file; only credit what the page shows (the hero's offer photos, also used in How it works).
+const onPage = ['shakshuka.jpg', 'burger-meal.jpg', 'coffee-cake.jpg'];
 const list = (credits as Credit[]).filter((x) => onPage.some((f) => x.file.endsWith(f))).map((x) => ({ ...x, title: x.title.length > 70 ? `${x.title.slice(0, 68).trim()}…` : x.title }));
 ---
 <footer class="footer">
@@ -20,7 +21,7 @@ const list = (credits as Credit[]).filter((x) => onPage.some((f) => x.file.endsW
         <p>{f.address}<br />{f.hours}</p>
         <p><a class="link" href={`tel:${f.phone.replaceAll(' ', '')}`} dir="ltr">{f.phone}</a><br />{f.cr}</p>
       </div>
-      <a class="link top" href="#top">{f.top} <span class="up" aria-hidden="true">↑</span></a>
+      <a class="link top" href="#top">{f.top} <Signal size={14} class="up" /></a>
     </div>
 
     <a class="mail" href={`mailto:${f.email}`} dir="ltr"><span>{f.emailUser}</span><wbr /><span class="at">{f.emailDomain}</span></a>
@@ -50,6 +51,9 @@ const list = (credits as Credit[]).filter((x) => onPage.some((f) => x.file.endsW
   .notes p { max-width: 26ch; }
   .f-brand { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-weight: 700; font-size: var(--step-lead); line-height: 1.2; }
   .top { white-space: nowrap; font-size: var(--step-small); text-decoration-color: currentColor; }
+  /* the arcs already point up: the logo is the arrow */
+  .top :global(.up) { margin-inline-start: 0.35em; transition: translate var(--t-ui) var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) { .top:hover :global(.up) { translate: 0 -3px; } }
   .mail { display: block; font-family: var(--font-display); font-weight: 700; font-size: clamp(2.5rem, 1rem + 5vw, 6rem); line-height: 1.05; letter-spacing: -0.03em; text-decoration: none; text-align: start; overflow-wrap: anywhere; transition: opacity var(--t-hover) ease; }
   :root[dir="rtl"] .mail { text-align: right; }
   @media (hover: hover) and (pointer: fine) { .mail:hover { opacity: 0.86; } }

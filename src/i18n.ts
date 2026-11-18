@@ -8,7 +8,8 @@ export type Playlist = {
   label: string;        // as shown in the phone app
   meta: string;         // items · schedule
   list: { title: string; items: MenuItem[] };
-  picture: { key: 'breakfast' | 'video' | 'iced'; caption: string; price: string };
+  // the big screen: one combo offer, the way real menu boards sell it (photo, what's in it, price, old price)
+  offer: { key: 'shakshuka' | 'burger' | 'cake'; tag: string; title: string; items: string[]; price: string; was: string; note: string };
   side: { title: string; items?: MenuItem[]; offer?: string; offerNote?: string };
 };
 
@@ -75,7 +76,7 @@ export const content = {
           { name: 'كرواسون زبدة', price: '12' },
           { name: 'عصير برتقال', price: '14' },
         ] },
-        picture: { key: 'breakfast', caption: 'فطور الصباح', price: '39' },
+        offer: { key: 'shakshuka', tag: 'كومبو الفطور', title: 'شكشوكة الصباح', items: ['شكشوكة بالجبن', 'خبز', 'شاي أو قهوة'], price: '29', was: '36', note: 'كل يوم حتى 11 الصبح' },
         side: { title: 'مشروبات ساخنة', items: [
           { name: 'قهوة سعودية', price: '10' },
           { name: 'كابتشينو', price: '15' },
@@ -84,35 +85,40 @@ export const content = {
         ] },
       },
       {
-        id: 'coffee',
-        label: 'قهوة اليوم',
-        meta: '6 عناصر · فيديو',
-        list: { title: 'قهوة مختصة', items: [
-          { name: 'V60 إثيوبي', price: '19' },
-          { name: 'فلات وايت', price: '17' },
-          { name: 'كورتادو', price: '15' },
-          { name: 'قهوة سعودية', price: '10' },
+        id: 'lunch',
+        label: 'وجبات الغداء',
+        meta: '7 عناصر · 12 م – 4 م',
+        list: { title: 'الغداء', items: [
+          { name: 'برجر لحم', price: '28' },
+          { name: 'شاورما دجاج عربي', price: '22' },
+          { name: 'كلوب ساندويتش', price: '24' },
+          { name: 'سلطة سيزر', price: '19' },
         ] },
-        picture: { key: 'video', caption: 'تُحضّر أمامك', price: '17' },
-        side: { title: 'مع قهوتك', items: [
-          { name: 'تمر سكري', price: '6' },
-          { name: 'كيكة التمر', price: '14' },
-          { name: 'كوكيز', price: '9' },
-          { name: 'معمول', price: '7' },
+        offer: { key: 'burger', tag: 'وجبة اليوم', title: 'وجبة البرجر', items: ['برجر لحم', 'بطاطس', 'مشروب بارد'], price: '35', was: '44', note: 'من 12 الظهر إلى 4 العصر' },
+        side: { title: 'الإضافات', items: [
+          { name: 'بطاطس كبيرة', price: '9' },
+          { name: 'صوص ثوم', price: '3' },
+          { name: 'عصير برتقال', price: '12' },
+          { name: 'مشروب غازي', price: '5' },
         ] },
       },
       {
-        id: 'iced',
-        label: 'مشروبات باردة',
-        meta: '7 عناصر · 12 م – 5 م',
-        list: { title: 'باردة', items: [
-          { name: 'آيس لاتيه', price: '18' },
-          { name: 'كولد برو', price: '19' },
-          { name: 'سبانش لاتيه', price: '20' },
-          { name: 'ليمون بالنعناع', price: '14' },
+        id: 'coffee',
+        label: 'قهوة وحلا',
+        meta: '6 عناصر · 2 م – 6 م',
+        list: { title: 'القهوة', items: [
+          { name: 'لاتيه', price: '16' },
+          { name: 'V60 إثيوبي', price: '19' },
+          { name: 'فلات وايت', price: '17' },
+          { name: 'قهوة سعودية', price: '10' },
         ] },
-        picture: { key: 'iced', caption: 'آيس لاتيه', price: '18' },
-        side: { title: 'عرض الظهيرة', offer: 'كوبان آيس لاتيه بـ 30', offerNote: 'من 12 ظهرًا حتى 5 عصرًا' },
+        offer: { key: 'cake', tag: 'عرض العصرية', title: 'لاتيه وكيكة', items: ['لاتيه حار أو بارد', 'قطعة كيك اليوم'], price: '24', was: '30', note: 'من 2 إلى 6 العصر' },
+        side: { title: 'الحلا', items: [
+          { name: 'تشيز كيك', price: '22' },
+          { name: 'كيكة التمر', price: '14' },
+          { name: 'كوكيز', price: '9' },
+          { name: 'تمر سكري', price: '6' },
+        ] },
       },
     ] as Playlist[],
     steps: {
@@ -191,6 +197,45 @@ export const content = {
       text: 'صِل الشاشة الأولى اليوم، وغيّر قائمتك قبل أن يصل أول زبون.',
       button: 'ابدأ مع لوحة',
     },
+    start: {
+      title: 'ابدأ مع لوحة — لوحة',
+      description: 'عبّ بياناتك ويتواصل معك فريق لوحة خلال يوم عمل عشان نجهّز شاشاتك.',
+      heading: 'خلّنا نجهّز شاشاتك',
+      lead: 'عبّ بياناتك، ويتواصل معك أحد فريقنا خلال يوم عمل.',
+      nextTitle: 'وش اللي بيصير بعدها؟',
+      next: [
+        { title: 'نتصل فيك', text: 'نتعرّف على نشاطك وعدد شاشاتك، ونرشّح لك الباقة المناسبة.' },
+        { title: 'نجهّز أول شاشة', text: 'نساعدك تركّب لوحة على التلفاز وترفع قائمتك الأولى.' },
+        { title: 'تبدأ تعرض', text: 'وبعدها تغيّر قوائمك من جوالك متى ما بغيت.' },
+      ],
+      assure: 'بلا عقود، وما فيه أي التزام.',
+      formTitle: 'بياناتك',
+      required: 'مطلوب',
+      optional: 'اختياري',
+      fields: {
+        name: { label: 'الاسم', error: 'اكتب اسمك' },
+        phone: { label: 'رقم الجوال', hint: 'مثال: 05xxxxxxxx', error: 'اكتب رقم جوال سعودي صحيح يبدأ بـ 05' },
+        business: { label: 'اسم المقهى أو المطعم', error: 'اكتب اسم نشاطك' },
+        kind: { label: 'نوع النشاط', error: 'اختر نوع نشاطك', options: [
+          { value: 'cafe', label: 'مقهى' }, { value: 'restaurant', label: 'مطعم' }, { value: 'bakery', label: 'مخبز أو حلويات' }, { value: 'other', label: 'غيره' },
+        ] },
+        screens: { label: 'كم شاشة تحتاج؟', error: 'اختر عدد الشاشات', options: [
+          { value: 'starter', label: 'شاشة أو شاشتين' }, { value: 'growth', label: 'من 3 إلى 10' }, { value: 'chain', label: '11 وأكثر' }, { value: 'unsure', label: 'ما أدري للحين' },
+        ] },
+        city: { label: 'المدينة' },
+        email: { label: 'البريد الإلكتروني', error: 'تأكد من البريد الإلكتروني' },
+        notes: { label: 'شي تحب تقوله لنا؟' },
+      },
+      submit: 'أرسل طلبي',
+      sending: 'جاري الإرسال…',
+      privacy: 'بنستخدم بياناتك بس عشان نتواصل معك.',
+      fixErrors: 'فيه حقول تحتاج تعديل.',
+      doneTitle: 'وصل طلبك، شكرًا لك!',
+      doneText: 'بيتواصل معك أحد فريقنا خلال يوم عمل على الرقم',
+      doneBack: 'ارجع للصفحة الرئيسية',
+      failText: 'ما قدرنا نرسل طلبك. جرّب مرة ثانية، أو كلّمنا على',
+      mailSubject: 'طلب جديد من موقع لوحة',
+    },
     footer: {
       about: 'لوحة: شاشات القوائم للمقاهي والمطاعم.',
       address: 'الرياض، المملكة العربية السعودية',
@@ -210,8 +255,6 @@ export const content = {
       credits: 'صور القوائم وفيديو القهوة من مجموعات مفتوحة',
       creditsTitle: 'مصادر الصور والفيديو',
       city: 'الرياض 2026',
-      mailSubject: 'أرغب في البدء مع لوحة',
-      mailBody: 'مرحبًا،\nاسم المقهى أو المطعم:\nعدد الفروع:\nعدد الشاشات:\n',
     },
   },
 
@@ -275,7 +318,7 @@ export const content = {
           { name: 'Butter croissant', price: '12' },
           { name: 'Orange juice', price: '14' },
         ] },
-        picture: { key: 'breakfast', caption: 'Morning breakfast', price: '39' },
+        offer: { key: 'shakshuka', tag: 'Breakfast combo', title: 'Morning shakshuka', items: ['Shakshuka & cheese', 'Bread', 'Tea or coffee'], price: '29', was: '36', note: 'Every day until 11 am' },
         side: { title: 'Hot drinks', items: [
           { name: 'Saudi coffee', price: '10' },
           { name: 'Cappuccino', price: '15' },
@@ -284,35 +327,40 @@ export const content = {
         ] },
       },
       {
-        id: 'coffee',
-        label: 'Coffee of the day',
-        meta: '6 items · video',
-        list: { title: 'Specialty', items: [
-          { name: 'Ethiopian V60', price: '19' },
-          { name: 'Flat white', price: '17' },
-          { name: 'Cortado', price: '15' },
-          { name: 'Saudi coffee', price: '10' },
+        id: 'lunch',
+        label: 'Lunch meals',
+        meta: '7 items · 12–4 pm',
+        list: { title: 'Lunch', items: [
+          { name: 'Beef burger', price: '28' },
+          { name: 'Chicken shawarma', price: '22' },
+          { name: 'Club sandwich', price: '24' },
+          { name: 'Caesar salad', price: '19' },
         ] },
-        picture: { key: 'video', caption: 'Made in front of you', price: '17' },
-        side: { title: 'With your coffee', items: [
-          { name: 'Sukkari dates', price: '6' },
-          { name: 'Date cake', price: '14' },
-          { name: 'Cookie', price: '9' },
-          { name: 'Maamoul', price: '7' },
+        offer: { key: 'burger', tag: 'Meal of the day', title: 'Burger meal', items: ['Beef burger', 'Fries', 'Cold drink'], price: '35', was: '44', note: 'From 12 noon to 4 pm' },
+        side: { title: 'Extras', items: [
+          { name: 'Large fries', price: '9' },
+          { name: 'Garlic sauce', price: '3' },
+          { name: 'Orange juice', price: '12' },
+          { name: 'Soft drink', price: '5' },
         ] },
       },
       {
-        id: 'iced',
-        label: 'Cold drinks',
-        meta: '7 items · 12–5 pm',
-        list: { title: 'Cold', items: [
-          { name: 'Iced latte', price: '18' },
-          { name: 'Cold brew', price: '19' },
-          { name: 'Spanish latte', price: '20' },
-          { name: 'Lemon mint', price: '14' },
+        id: 'coffee',
+        label: 'Coffee & sweets',
+        meta: '6 items · 2–6 pm',
+        list: { title: 'Coffee', items: [
+          { name: 'Latte', price: '16' },
+          { name: 'Ethiopian V60', price: '19' },
+          { name: 'Flat white', price: '17' },
+          { name: 'Saudi coffee', price: '10' },
         ] },
-        picture: { key: 'iced', caption: 'Iced latte', price: '18' },
-        side: { title: 'Afternoon deal', offer: 'Two iced lattes for 30', offerNote: 'From 12 noon to 5 pm' },
+        offer: { key: 'cake', tag: 'Afternoon deal', title: 'Latte & cake', items: ['Hot or iced latte', 'Cake of the day'], price: '24', was: '30', note: 'From 2 to 6 pm' },
+        side: { title: 'Sweets', items: [
+          { name: 'Cheesecake', price: '22' },
+          { name: 'Date cake', price: '14' },
+          { name: 'Cookie', price: '9' },
+          { name: 'Sukkari dates', price: '6' },
+        ] },
       },
     ] as Playlist[],
     steps: {
@@ -391,6 +439,45 @@ export const content = {
       text: 'Pair your first screen today, and change the menu before the first customer walks in.',
       button: 'Start with Lawha',
     },
+    start: {
+      title: 'Start with Lawha — Lawha',
+      description: 'Leave your details and the Lawha team will contact you within one working day to set up your screens.',
+      heading: 'Let’s set up your screens',
+      lead: 'Leave your details and someone from our team will contact you within one working day.',
+      nextTitle: 'What happens next?',
+      next: [
+        { title: 'We call you', text: 'We learn about your business and your screens, and suggest the right plan.' },
+        { title: 'We set up the first screen', text: 'We help you install Lawha on the TV and upload your first menu.' },
+        { title: 'You go live', text: 'From then on, change your menus from your phone whenever you like.' },
+      ],
+      assure: 'No contract and no commitment.',
+      formTitle: 'Your details',
+      required: 'Required',
+      optional: 'Optional',
+      fields: {
+        name: { label: 'Name', error: 'Enter your name' },
+        phone: { label: 'Mobile number', hint: 'For example 05xxxxxxxx', error: 'Enter a Saudi mobile number starting with 05' },
+        business: { label: 'Café or restaurant name', error: 'Enter your business name' },
+        kind: { label: 'Type of business', error: 'Choose your type of business', options: [
+          { value: 'cafe', label: 'Café' }, { value: 'restaurant', label: 'Restaurant' }, { value: 'bakery', label: 'Bakery or sweets' }, { value: 'other', label: 'Other' },
+        ] },
+        screens: { label: 'How many screens?', error: 'Choose a number of screens', options: [
+          { value: 'starter', label: '1 or 2' }, { value: 'growth', label: '3 to 10' }, { value: 'chain', label: '11 or more' }, { value: 'unsure', label: 'Not sure yet' },
+        ] },
+        city: { label: 'City' },
+        email: { label: 'Email', error: 'Check the email address' },
+        notes: { label: 'Anything you’d like to tell us?' },
+      },
+      submit: 'Send my request',
+      sending: 'Sending…',
+      privacy: 'We only use your details to contact you.',
+      fixErrors: 'Some fields need fixing.',
+      doneTitle: 'Request received, thank you!',
+      doneText: 'Someone from our team will contact you within one working day on',
+      doneBack: 'Back to the home page',
+      failText: 'We couldn’t send your request. Try again, or call us on',
+      mailSubject: 'New request from the Lawha website',
+    },
     footer: {
       about: 'Lawha: menu screens for cafés and restaurants.',
       address: 'Riyadh, Saudi Arabia',
@@ -410,19 +497,17 @@ export const content = {
       credits: 'Menu photos and coffee footage from open collections',
       creditsTitle: 'Photo and video sources',
       city: 'Riyadh 2026',
-      mailSubject: 'I’d like to start with Lawha',
-      mailBody: 'Hello,\nCafé or restaurant name:\nNumber of branches:\nNumber of screens:\n',
     },
   },
 };
 
 export type Content = (typeof content)['ar'];
 
-export function mailto(c: Content, extra = '') {
-  const subject = encodeURIComponent(c.footer.mailSubject);
-  const body = encodeURIComponent(c.footer.mailBody + extra);
-  return `mailto:${c.footer.email}?subject=${subject}&body=${body}`;
-}
+// Where «ابدأ مع لوحة» requests are emailed (through FormSubmit, see Start.astro). PLACEHOLDER until the owner gives the inbox.
+export const LEADS_EMAIL = 'hello@lawha.app';
 
 // A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;
+
+// The «ابدأ مع لوحة» form page, optionally with a plan chosen on the pricing cards.
+export const startHref = (c: Content, plan?: string) => url(`${c.lang === 'ar' ? '' : '/en'}/start/`) + (plan ? `?plan=${plan}` : '');

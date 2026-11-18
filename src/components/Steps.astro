@@ -5,32 +5,33 @@ import { Image } from 'astro:assets';
 import QRCode from 'qrcode';
 import type { Content } from '../i18n';
 import Logo from './Logo.astro';
-import breakfast from '../assets/media/breakfast.jpg';
-import iced from '../assets/media/iced-latte.jpg';
-import poster from '../assets/media/latte-art-poster.jpg';
+import Signal from './Signal.astro';
+import shakshuka from '../assets/media/shakshuka.jpg';
+import burger from '../assets/media/burger-meal.jpg';
+import cake from '../assets/media/coffee-cake.jpg';
 
 interface Props { c: Content }
 const { c } = Astro.props;
 const s = c.steps;
 const qr = await QRCode.toString(`lawha://pair?code=${s.pairing.code}`, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#0a0d14ff', light: '#00000000' } });
 const code = `${s.pairing.code.slice(0, 3)} ${s.pairing.code.slice(3)}`;
-const pic = c.playlists[0]?.picture;
+const pic = c.playlists[0]?.offer;
 
 // Interface copy for the scene (decorative, aria-hidden), kept here like the Features wells.
 const t = c.lang === 'ar'
   ? {
       boot: 'جاهز للربط', addScreen: 'إضافة شاشة', aim: 'وجّه الكاميرا نحو الرمز', paired: 'تم الربط',
       screen: 'شاشة الكاونتر', upload: 'رفع الملفات', waiting: 'بانتظار المحتوى', ready: 'جاهز',
-      files: [{ name: 'قائمة الفطور', kind: 'صورة' }, { name: 'آيس لاتيه', kind: 'صورة' }, { name: 'فن اللاتيه', kind: 'فيديو' }],
+      files: [{ name: 'كومبو الفطور', kind: 'صورة' }, { name: 'وجبة البرجر', kind: 'صورة' }, { name: 'لاتيه وكيكة', kind: 'صورة' }],
       publish: 'انشر', published: 'تم النشر',
     }
   : {
       boot: 'Ready to pair', addScreen: 'Add screen', aim: 'Point the camera at the code', paired: 'Paired',
       screen: 'Counter screen', upload: 'Uploading', waiting: 'Waiting for content', ready: 'Ready',
-      files: [{ name: 'Breakfast menu', kind: 'Photo' }, { name: 'Iced latte', kind: 'Photo' }, { name: 'Latte art', kind: 'Video' }],
+      files: [{ name: 'Breakfast combo', kind: 'Photo' }, { name: 'Burger meal', kind: 'Photo' }, { name: 'Latte & cake', kind: 'Photo' }],
       publish: 'Publish', published: 'Published',
     };
-const thumbs = [breakfast, iced, poster];
+const thumbs = [shakshuka, burger, cake];
 const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="true"><path d="M3.5 8.4l2.9 2.9 6.1-6.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 ---
 <section class="steps wrap" id="how" aria-labelledby="how-h">
@@ -88,8 +89,8 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
             </div>
 
             <div class="ly ly-menu">
-              <Image src={breakfast} alt="" widths={[480, 800]} sizes="(max-width: 54rem) 80vw, 36vw" class="m-img" loading="lazy" />
-              <span class="m-cap"><b>{pic?.caption}</b><span class="m-chip nums">{pic?.price} <small>{c.currency}</small></span></span>
+              <Image src={shakshuka} alt="" widths={[480, 800]} sizes="(max-width: 54rem) 80vw, 36vw" class="m-img" loading="lazy" />
+              <span class="m-cap"><b>{pic?.title}</b><span class="m-chip nums">{pic?.price} <small>{c.currency}</small></span></span>
             </div>
           </div>
         </div>
@@ -126,8 +127,8 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
 
             <div class="pl pl-pub">
               <b class="ph-title">{t.files[0]?.name}</b>
-              <Image src={breakfast} alt="" widths={[240]} sizes="8rem" class="pub-img" loading="lazy" />
-              <span class="pub-to"><span class="dot"></span>{t.screen}</span>
+              <Image src={shakshuka} alt="" widths={[240]} sizes="8rem" class="pub-img" loading="lazy" />
+              <span class="pub-to"><Signal size={12} />{t.screen}</span>
               <span class="pub-btn">{t.publish}</span>
               <span class="pub-ok"><span class="ok-ic" set:html={check} />{t.published}</span>
             </div>
@@ -257,6 +258,10 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
   .scene[data-step="1"] .cable span { animation: grow 400ms var(--a) 650ms both; }
   .scene[data-step="1"] .led { animation: led 300ms ease 1050ms both; }
   .scene[data-step="1"] .ly-boot { animation: show 600ms ease 1300ms both; }
+  /* the screen switches on: the logo's arcs light from the inner one out, like a signal coming up */
+  .scene[data-step="1"] .ly-boot :global(.logo .a) { animation: sig-rx 420ms var(--ease-out) 1600ms both; }
+  .scene[data-step="1"] .ly-boot :global(.logo .a2) { animation-delay: 1750ms; }
+  .scene[data-step="1"] .ly-boot :global(.logo .a3) { animation-delay: 1900ms; }
   .scene[data-step="1"] .pl-idle { animation: show 300ms ease both; }
   .scene[data-step="1"] .phone { opacity: 0.45; transition: opacity 400ms ease; }
 
@@ -279,6 +284,11 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
   .scene[data-step="4"] .ly-wait :global(.slot-img) { opacity: 1; }
   .scene[data-step="4"] .pl-pub { animation: show 300ms ease both; }
   .scene[data-step="4"] .pub-btn { animation: press 360ms ease 700ms both; }
+  /* publishing: the arcs beside the screen's name go out one after another, just before the menu lands */
+  .pub-to :global(.signal) { color: var(--accent); --sig-faint: 0.25; }
+  .scene[data-step="4"] .pub-to :global(.signal .a) { animation: sig-rx 300ms var(--ease-out) 760ms both; }
+  .scene[data-step="4"] .pub-to :global(.signal .a2) { animation-delay: 870ms; }
+  .scene[data-step="4"] .pub-to :global(.signal .a3) { animation-delay: 980ms; }
   .scene[data-step="4"] .pub-ok { animation: pop 400ms var(--a) 1100ms both; }
   .scene[data-step="4"] .ly-menu { opacity: 1; animation: wipe 800ms var(--ease-in-out) 1150ms both; }
 
