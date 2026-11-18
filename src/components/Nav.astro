@@ -48,6 +48,18 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
 
 <style>
   .site-header { position: sticky; inset-block-start: 0; z-index: 50; padding-block: 0.75rem; pointer-events: none; transition: padding var(--t-ui) var(--ease-out); }
+  /* once the page scrolls, a band of the page's own colour sits behind the bar, edge to edge, and frosts what passes
+     under it, so dark TVs and menus never peek around the pill and the bar always sits on a calm ground */
+  .site-header::before {
+    content: ""; position: absolute; inset-block: 0; inset-inline: calc(50% - 50vw); z-index: -1; pointer-events: none;
+    background: rgb(247 248 250 / 0.86); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
+    opacity: 0; transition: opacity var(--t-ui) ease;
+  }
+  .site-header.is-scrolled::before { opacity: 1; }
+  /* over the black closing section and the blue footer the band takes their colour instead of a grey strip */
+  .site-header[data-under="night"]::before { background: rgb(10 13 20 / 0.86); }
+  .site-header[data-under="accent"]::before { background: var(--accent); }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .site-header::before { background: var(--bg); } }
   .capsule { pointer-events: auto; }
   .capsule {
     position: relative; border-radius: var(--pill); background: var(--night); color: var(--night-ink);
@@ -246,7 +258,14 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(() => { header.classList.toggle('is-scrolled', window.scrollY > 24); ticking = false; });
+      requestAnimationFrame(() => {
+        header.classList.toggle('is-scrolled', window.scrollY > 24);
+        // what is passing under the bar: sample a point at the page edge, beside the pill (the header lets pointers through)
+        const under = document.elementFromPoint(4, header.offsetHeight - 4)?.closest('.cta, .footer');
+        const tone = under?.classList.contains('cta') ? 'night' : under ? 'accent' : '';
+        if ((header.dataset['under'] ?? '') !== tone) { if (tone) header.dataset['under'] = tone; else delete header.dataset['under']; }
+        ticking = false;
+      });
     };
     addEventListener('scroll', onScroll, { passive: true });
     onScroll();
