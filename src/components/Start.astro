@@ -12,7 +12,7 @@ const { c } = Astro.props;
 const s = c.start;
 const f = s.fields;
 const ar = content.ar.start.fields;
-const back = new URL(startHref(c) + '?sent=1', Astro.site ?? 'https://lawha.app').toString();
+const back = new URL(startHref(c) + '?sent=1', Astro.site ?? 'https://lawha.tech').toString();
 const labels = {
   name: ar.name.label, phone: ar.phone.label, business: ar.business.label, kind: ar.kind.label, screens: 'عدد الشاشات',
   city: ar.city.label, email: ar.email.label, notes: 'ملاحظات', lang: 'لغة الصفحة',

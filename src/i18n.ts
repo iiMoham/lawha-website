@@ -241,9 +241,9 @@ export const content = {
       address: 'الرياض، المملكة العربية السعودية',
       hours: 'الأحد إلى الخميس، 9 ص – 6 م',
       phone: '+966 50 000 0000',
-      email: 'hello@lawha.app',
-      emailUser: 'hello',
-      emailDomain: '@lawha.app',
+      email: 'contact@lawha.tech',
+      emailUser: 'contact',
+      emailDomain: '@lawha.tech',
       cr: 'سجل تجاري 0000000000',
       top: 'إلى الأعلى',
       links: [
@@ -483,9 +483,9 @@ export const content = {
       address: 'Riyadh, Saudi Arabia',
       hours: 'Sunday to Thursday, 9 am – 6 pm',
       phone: '+966 50 000 0000',
-      email: 'hello@lawha.app',
-      emailUser: 'hello',
-      emailDomain: '@lawha.app',
+      email: 'contact@lawha.tech',
+      emailUser: 'contact',
+      emailDomain: '@lawha.tech',
       cr: 'CR 0000000000',
       top: 'Back to top',
       links: [
@@ -504,7 +504,7 @@ export const content = {
 export type Content = (typeof content)['ar'];
 
 // Where «ابدأ مع لوحة» requests are emailed (through FormSubmit, see Start.astro). PLACEHOLDER until the owner gives the inbox.
-export const LEADS_EMAIL = 'hello@lawha.app';
+export const LEADS_EMAIL = 'contact@lawha.tech';
 
 // A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;

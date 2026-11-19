@@ -294,7 +294,7 @@ Designed to sell; keep it rich, not plain.
   - Brand, short description, address and hours, phone (`dir="ltr"`), CR number, "Back to top".
   - The contact e-mail set very large as the visual anchor.
   - Bottom row: legal and social links, a `<details>` with the photo and video credits (from `src/assets/media/credits.json`), and the city/year.
-- All contact details are placeholders (`hello@lawha.app`, `+966 50 000 0000`, `CR 0000000000`, `#` links).
+- Contact email is real: `contact@lawha.tech` (Titan Email; also the form's `LEADS_EMAIL`). Other contact details are placeholders (`+966 50 000 0000`, `CR 0000000000`, `#` links).
 
 ### 7.10 Start page (`Start.astro`, `pages/start/`, `pages/en/start/`)
 - Where every "Start" button leads (`startHref(c, plan?)` in `i18n.ts`). The pricing cards add `?plan=starter|growth|chain`, which preselects the screens answer.
@@ -388,7 +388,7 @@ Designed to sell; keep it rich, not plain.
 
 ## 14. Open items
 
-- Replace placeholders: prices and plan limits, contact details, CR number, social/legal links, domain (`lawha.app` in `astro.config.mjs`), the sample café «بُن الحي», menus, branch and team names.
+- Replace placeholders: prices and plan limits, contact details, CR number, social/legal links, domain (now `lawha.tech`; SITE comes from the Pages workflow), the sample café «بُن الحي», menus, branch and team names.
 - Confirm the Wafeq font licence allows web embedding before launch.
 - The start form emails `LEADS_EMAIL` (`src/i18n.ts`) through FormSubmit. Set the real inbox, then click FormSubmit's one-time activation e-mail; until then requests are not delivered.
 - Not yet set up from the owner's tooling rules: `oxlint`, `oxfmt`, `vitest` (no unit-testable logic exists yet).
