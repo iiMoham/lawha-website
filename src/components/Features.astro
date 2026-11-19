@@ -110,7 +110,7 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
                     <input class="range" type="range" min="0" max="1080" step="1" value={startMin} aria-label={t.timeLabel} aria-valuetext={fmt(startMin)} data-range />
                   </div>
                   <div class="labels" aria-hidden="true">
-                    {t.blocks.map((b, k) => <span class="lab" data-lab={k} data-on={k === 0 ? '' : undefined} style={`flex-grow:${b.to - b.from}`}><b>{b.emoji} {b.name}</b><span>{b.time}</span></span>)}
+                    {t.blocks.map((b, k) => <span class="lab" data-lab={k} data-on={k === 0 ? '' : undefined} style={`flex-grow:${b.to - b.from}`}><b><span class="lab-e">{b.emoji} </span>{b.name}</b><span>{b.time}</span></span>)}
                   </div>
                 </div>
                 <div class="sched-tv" aria-live="polite">
@@ -364,7 +364,14 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
     .c-schedule { grid-column: auto; }
     .viz { min-block-size: 0; }
     .sched { grid-template-columns: minmax(0, 1fr); }
-    .sched-tv { justify-self: center; inline-size: min(100%, 16rem); }
+    .sched-tv { justify-self: stretch; inline-size: 100%; }
+    .mtv { aspect-ratio: 16 / 9; }
+    /* three blocks share a phone's width: names and hours stay on one line each, the emoji step aside */
+    .labels { gap: 0.5rem; }
+    .lab { font-size: 0.8125rem; }
+    .lab > span { font-size: 0.75rem; }
+    .lab b, .lab span { white-space: nowrap; }
+    .lab-e { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
 </style>

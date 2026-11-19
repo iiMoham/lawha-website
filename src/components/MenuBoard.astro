@@ -133,8 +133,22 @@ const first = c.playlists[0]?.id ?? '';
   .board.is-offline .offline-badge { opacity: 1; transform: none; }
 
   @media (max-width: 54rem) {
-    .board { grid-template-columns: minmax(0, 1fr); }
-    .tv-a, .tv-c { display: none; }
-    .tv-b { grid-row: auto; aspect-ratio: 16 / 9; }
+    /* all three screens stay (the phone says "3 screens"): the offer screen across, the two menu screens side by side under it */
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tv-b { grid-column: 1 / -1; grid-row: 1; aspect-ratio: 16 / 9; }
+    .tv-a { grid-column: 1; grid-row: 2; aspect-ratio: 3 / 2; }
+    .tv-c { grid-column: 2; grid-row: 2; aspect-ratio: 3 / 2; }
+  }
+  /* phones: a taller screen and type sized from its width, so the offer reads at a glance */
+  @media (max-width: 40rem) {
+    .tv-b { aspect-ratio: 4 / 3; }
+    .panel { inline-size: 50%; gap: 2.4cqh; padding: 5cqh 4.5cqw; }
+    .deal .media { inline-size: 50%; }
+    .d-tag { font-size: 3.6cqw; }
+    .d-title { font-size: 7.2cqw; }
+    .d-items { font-size: 4cqw; gap: 0.6cqh; }
+    .now { font-size: 7.2cqw; }
+    .was { font-size: 4.2cqw; }
+    .d-note { font-size: 3.4cqw; }
   }
 </style>

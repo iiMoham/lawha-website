@@ -94,12 +94,12 @@ const firstLabel = c.playlists[0]?.label ?? '';
   .packet[data-weak] :global(.signal .a) { animation: none; }
   .packet[data-weak] :global(.signal :is(.a2, .a3)) { opacity: var(--sig-faint); }
 
-  /* narrower: phone first, the screens right under the publish button */
+  /* narrower: the screen first, the phone right under it, so the screen is still in view when you tap publish */
   @media (max-width: 54rem) {
-    .stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hint" "phone" "wall-label" "wall"; justify-items: center; }
+    .stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hint" "wall-label" "wall" "phone"; justify-items: center; row-gap: 0.75rem; }
     .s-label, .s-wall { inline-size: 100%; max-inline-size: 40rem; }
-    .s-phone { inline-size: 100%; max-inline-size: 21rem; }
-    .s-wall-label { margin-block-start: 1.5rem; }
+    .s-hint { color: var(--muted); }
+    .s-phone { inline-size: 100%; max-inline-size: 21rem; margin-block-start: 0.75rem; }
   }
   @media (max-width: 54rem) {
     .intro { display: flex; flex-direction: column; align-items: stretch; }
@@ -278,7 +278,13 @@ const firstLabel = c.playlists[0]?.label ?? '';
 
     // native radios give arrow-key movement and one tab stop for free
     radios.forEach((r) => r.addEventListener('change', () => { if (r.checked) selected = r.value; }));
-    publishBtn.addEventListener('click', publish);
+    // on a short phone the screen can sit above the fold when you tap publish: bring it back into view, so the change is seen
+    const reveal = () => {
+      const top = board.getBoundingClientRect().top;
+      const nav = 88;
+      if (top < nav) window.scrollBy({ top: top - nav, behavior: reduce ? 'auto' : 'smooth' });
+    };
+    publishBtn.addEventListener('click', () => { reveal(); publish(); });
     net.addEventListener('change', () => setOnline(net.checked));
 
     // play the demo by itself until the visitor touches the phone
