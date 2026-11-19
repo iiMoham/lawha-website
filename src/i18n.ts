@@ -235,6 +235,18 @@ export const content = {
       doneBack: 'ارجع للصفحة الرئيسية',
       failText: 'ما قدرنا نرسل طلبك. جرّب مرة ثانية، أو كلّمنا على',
       mailSubject: 'طلب جديد من موقع لوحة',
+      // the confirmation e-mail the visitor gets from no-reply@lawha.tech (mailer/), when they leave an e-mail
+      reply: {
+        subject: 'وصلنا طلبك، شكرًا لك!',
+        preheader: 'بيتواصل معك أحد فريقنا في أقرب وقت.',
+        heading: 'وصلنا طلبك، شكرًا لك!',
+        hello: 'هلا {name}،',
+        helloAnon: 'هلا،',
+        intro: 'استلمنا طلبك من موقع لوحة، وبيتواصل معك أحد فريقنا في أقرب وقت على رقمك:',
+        summary: 'ملخص طلبك',
+        footer: 'وصلتك هذي الرسالة لأنك طلبت لوحة من موقعنا. عندك سؤال؟ رد على هذي الرسالة ويوصلنا على طول.',
+        ignore: 'ما طلبت شي؟ تجاهل هذي الرسالة.',
+      },
     },
     footer: {
       about: 'لوحة: شاشات القوائم للمقاهي والمطاعم.',
@@ -477,6 +489,17 @@ export const content = {
       doneBack: 'Back to the home page',
       failText: 'We couldn’t send your request. Try again, or call us on',
       mailSubject: 'New request from the Lawha website',
+      reply: {
+        subject: 'We got your request, thank you!',
+        preheader: 'Someone from our team will be in touch as soon as possible.',
+        heading: 'We got your request, thank you!',
+        hello: 'Hi {name},',
+        helloAnon: 'Hi there,',
+        intro: 'Your request from the Lawha website reached us. Someone from our team will call you as soon as possible on:',
+        summary: 'Your request',
+        footer: 'You’re getting this email because you asked about Lawha on our website. Questions? Just reply to this email and it reaches our team.',
+        ignore: 'Didn’t ask for this? You can ignore this email.',
+      },
     },
     footer: {
       about: 'Lawha: menu screens for cafés and restaurants.',
@@ -505,6 +528,9 @@ export type Content = (typeof content)['ar'];
 
 // Where «ابدأ مع لوحة» requests are emailed (through FormSubmit, see Start.astro). PLACEHOLDER until the owner gives the inbox.
 export const LEADS_EMAIL = 'contact@lawha.tech';
+// The «start» form's sender (mailer/, a Cloudflare Worker): mails the team and a confirmation to the visitor
+// from no-reply@lawha.tech. Empty = fall back to FormSubmit (team e-mail only, no confirmation).
+export const MAILER_URL = '';
 
 // A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;

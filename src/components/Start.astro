@@ -1,11 +1,13 @@
 ---
 // «ابدأ مع لوحة»: the form every «start» button leads to. The visitor leaves their details and the team calls them.
-// Requests are emailed to LEADS_EMAIL through FormSubmit (formsubmit.co), because GitHub Pages has no server:
+// Requests go to MAILER_URL (mailer/, our Cloudflare Worker), which mails the team and sends the visitor a
+// confirmation from no-reply@lawha.tech. While MAILER_URL is empty they go to LEADS_EMAIL through FormSubmit instead.
+// Either way:
 // - with script, the form posts JSON to the ajax endpoint and swaps itself for a thank-you panel;
-// - without script, it posts normally and FormSubmit sends the visitor back here with ?sent=1.
+// - without script, it posts normally and the sender redirects the visitor back here with ?sent=1.
 // The email always uses the Arabic labels, so the team reads every request the same way.
 // FormSubmit emails the inbox once to activate it; until that link is clicked, requests are not delivered.
-import { content, LEADS_EMAIL, startHref, url, type Content } from '../i18n';
+import { content, LEADS_EMAIL, MAILER_URL, startHref, url, type Content } from '../i18n';
 import Signal from './Signal.astro';
 interface Props { c: Content }
 const { c } = Astro.props;
@@ -18,6 +20,9 @@ const labels = {
   city: ar.city.label, email: ar.email.label, notes: 'ملاحظات', lang: 'لغة الصفحة',
   options: Object.fromEntries([...ar.kind.options, ...ar.screens.options].map((o) => [o.value, o.label])),
 };
+const via = MAILER_URL ? 'mailer' : 'formsubmit';
+const action = MAILER_URL || `https://formsubmit.co/${LEADS_EMAIL}`;
+const endpoint = MAILER_URL || `https://formsubmit.co/ajax/${LEADS_EMAIL}`;
 const phone = c.footer.phone;
 const tel = `tel:${phone.replaceAll(' ', '')}`;
 ---
@@ -37,8 +42,8 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
   </section>
 
   <section class="card" aria-labelledby="form-h" data-rise style="--i:1">
-    <form class="form" action={`https://formsubmit.co/${LEADS_EMAIL}`} method="POST" novalidate data-form
-      data-endpoint={`https://formsubmit.co/ajax/${LEADS_EMAIL}`} data-labels={JSON.stringify(labels)}
+    <form class="form" action={action} method="POST" novalidate data-form data-via={via}
+      data-endpoint={endpoint} data-labels={JSON.stringify(labels)}
       data-subject={content.ar.start.mailSubject} data-fix={s.fixErrors} data-sending={s.sending}>
       <h2 class="form-h" id="form-h">{s.formTitle}</h2>
       <input type="hidden" name="_subject" value={content.ar.start.mailSubject} />
@@ -286,7 +291,8 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
 
       const phone = phoneOf(value('phone'));
       const opt = (v: string) => labels.options[v] ?? v;
-      const body: Record<string, string> = {
+      const fields = ['name', 'business', 'kind', 'screens', 'city', 'email', 'notes', 'lang', '_honey'];
+      const body: Record<string, string> = form.dataset['via'] === 'mailer' ? { ...Object.fromEntries(fields.map((n) => [n, value(n)])), phone } : {
         _subject: `${form.dataset['subject']}: ${value('business')}`,
         _template: 'table',
         _captcha: 'false',

@@ -1,0 +1,3 @@
+# Its own pnpm root, separate from the site: the site's CI install never pulls wrangler.
+minimumReleaseAge: 1440
+ignoreScripts: true

@@ -1,0 +1,19 @@
+name = "lawha-mailer"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[vars]
+SMTP_HOST = "smtp.titan.email"
+SMTP_PORT = "465"
+SMTP_USER = "no-reply@lawha.tech"
+TEAM_EMAIL = "contact@lawha.tech"
+ALLOWED_ORIGINS = "https://lawha.tech,https://www.lawha.tech,http://127.0.0.1:4321,http://localhost:4321"
+# SMTP_PASS is a secret: npx wrangler secret put SMTP_PASS
+
+# 3 requests a minute per visitor IP
+[[ratelimits]]
+name = "LIMIT"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }

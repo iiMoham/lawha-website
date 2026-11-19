@@ -302,7 +302,9 @@ Designed to sell; keep it rich, not plain.
 - End side (cols 7–12): a white card with the form. Required: name, mobile, business name, type of business (chips), number of screens (chips matching the plans, plus «ما أدري للحين»). Optional, and labelled «اختياري»: city, e-mail, notes.
 - Mobile numbers: Arabic-Indic digits, spaces and `+966` / `00966` prefixes are accepted and tidied to `05xxxxxxxx`.
 - Errors appear only after the first send attempt, under each field in red, with focus moved to the first one; they clear as the visitor types.
-- Sending: JSON to `formsubmit.co/ajax/<LEADS_EMAIL>`; the e-mail always uses the Arabic labels. Success swaps the form for a thank-you panel with the number we will call; failure shows the phone number to call instead. Without script the form posts normally and FormSubmit returns to `?sent=1`. A hidden `_honey` field catches bots.
+- Sending: JSON to `MAILER_URL` (`src/i18n.ts`), the `mailer/` Cloudflare Worker, or to `formsubmit.co/ajax/<LEADS_EMAIL>` while `MAILER_URL` is empty. The team e-mail always uses the Arabic labels. Success swaps the form for a thank-you panel with the number we will call; failure shows the phone number to call instead. Without script the form posts normally and the sender redirects back to `?sent=1`. A hidden `_honey` field catches bots.
+- Confirmation e-mail (Worker only): when the visitor leaves an e-mail they get «وصلنا طلبك، شكرًا لك!» from `no-reply@lawha.tech`, in the page's language: the brand-blue header with the white logo tile, their number large, a summary, the three next steps and «بلا عقود». Replies go to `contact@lawha.tech`. Copy lives in `start.reply` in `i18n.ts`; the logo and fonts it loads are in `public/email/`.
+- `mailer/` (its own pnpm root): `src/emails.ts` builds both e-mails (tables and inline styles, as mail clients need), `src/index.ts` checks origin, honeypot, a 3-a-minute per-IP limit and every field, then sends through Titan SMTP (`smtp.titan.email:465`) as `no-reply@lawha.tech`. A stranger's text is echoed to the visitor only if it can't carry a link. `pnpm test`, `pnpm check`, `pnpm run deploy`; the mailbox password is the `SMTP_PASS` secret (`wrangler secret put SMTP_PASS`).
 - The navbar on this page has no "Start" button (the form is open); its section links lead back to the home page, and the language switch goes to the other language's form.
 
 ## 8. Motion
@@ -390,8 +392,8 @@ Designed to sell; keep it rich, not plain.
 
 - Replace placeholders: prices and plan limits, contact details, CR number, social/legal links, domain (now `lawha.tech`; SITE comes from the Pages workflow), the sample café «بُن الحي», menus, branch and team names.
 - Confirm the Wafeq font licence allows web embedding before launch.
-- The start form emails `LEADS_EMAIL` (`src/i18n.ts`) through FormSubmit. Set the real inbox, then click FormSubmit's one-time activation e-mail; until then requests are not delivered.
-- Not yet set up from the owner's tooling rules: `oxlint`, `oxfmt`, `vitest` (no unit-testable logic exists yet).
+- Form sending: create the `no-reply@lawha.tech` mailbox in Titan, deploy `mailer/` and set its `SMTP_PASS`, then put the Worker's URL in `MAILER_URL`. Until then the form uses FormSubmit, which needs its one-time activation e-mail clicked in `contact@lawha.tech`.
+- Not yet set up from the owner's tooling rules: `oxlint`, `oxfmt`, `vitest` for the site (the `mailer/` has vitest tests).
 
 ## 15. File map
 
