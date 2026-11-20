@@ -530,7 +530,7 @@ export type Content = (typeof content)['ar'];
 export const LEADS_EMAIL = 'contact@lawha.tech';
 // The «start» form's sender (mailer/, a Cloudflare Worker): mails the team and a confirmation to the visitor
 // from no-reply@lawha.tech. Empty = fall back to FormSubmit (team e-mail only, no confirmation).
-export const MAILER_URL = '';
+export const MAILER_URL = 'https://lawha-mailer.lawha.workers.dev/';
 
 // A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;
