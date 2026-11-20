@@ -178,11 +178,12 @@ All copy lives in `src/i18n.ts` (`content.ar`, `content.en`; the `Content` type 
 ### 7.2 Hero (`Hero.astro`, `Phone.astro`, `MenuBoard.astro`): the signature
 - **Intro row:**
   - Start side (cols 1–8): headline on two lines (owner's request):
-    - AR: «غيّر شاشات **مطعمك**» / «من جوالك». EN: "Change your **restaurant** screens" / "from your phone".
-    - Line 1 never wraps, so its size is capped to fit the longest rotating word: `.tl` uses `min(1em, 100cqi / --fit)`, where `--fit` is that line's width in em (AR 11.6, EN 15.1). Re-measure `--fit` if the words change.
-    - Phones (≤40rem) go back to three lines ("Change your" / "**restaurant** screens" / "from your phone"), because two lines would make the headline too small.
+    - AR: «تحكّم في جميع شاشات» / «**مطعمك** من جوالك» (the rotating word opens line 2, `hero.wordLine: 2`). EN: "Control every **restaurant** screen" / "from your phone" (`wordLine: 1`).
+    - The lines never wrap, so their size is capped to fit the widest one: `.tl` uses `min(1em, 100cqi / --fit)`, where `--fit` is that line's width in em (AR 11, for «أي نشاط عندك من جوالك»; EN 15.9). Re-measure `--fit` if the words change.
+    - Phones (≤40rem): English goes back to three lines ("Control every" / "**restaurant** screen" / "from your phone"), because two lines would make the headline too small. Arabic keeps its two lines, sized to fit, since they can't split without breaking the sentence.
+    - Lead (owner's wording): «حدّث قوائمك، غيّر أسعارك، وانشر عروضك على كل الشاشات خلال ثوانٍ.»
     - The blue word rotates every 2.6s: مطعمك → مقهاك → أي نشاط عندك (EN: restaurant → café → business). Copy: `hero.words`, `hero.wordAfter` in `i18n.ts`.
-    - All words share one grid cell (`.rot`); the script sets the box width to the current word so "screens" follows it smoothly. The old word slides up and fades, the new one rises in.
+    - All words share one grid cell (`.rot`); the script sets the box width to the current word so the words after it follow smoothly. The old word slides up and fades, the new one rises in.
     - Only the first word is exposed to screen readers (the rest are `aria-hidden`). With reduced motion or no script, the first word stays.
     - Keep the longest word on one line at 360px; if you add a longer word, re-measure.
   - End side (cols 9–12), level with the headline's bottom: the one-sentence lead, then the "Start with Lawha" button and the "See pricing" link.

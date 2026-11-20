@@ -10,9 +10,18 @@ const firstLabel = c.playlists[0]?.label ?? '';
 ---
 <section class="hero" id="top" data-hero>
   <div class="wrap intro">
-    <h1 class="title" data-rise style="--i:0">
-      <span class="tl tl-1"><span class="tl-a">{h.before}</span> <span class="tl-b"><span class="rot hl" data-rot>{h.words.map((w, i) => <span class="rot-w" data-on={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>{w}</span>)}</span>{h.wordAfter && ` ${h.wordAfter}`}</span></span>
-      <span class="tl">{h.after}</span>
+    <h1 class:list={['title', { two: h.wordLine === 2 }]} data-rise style="--i:0">
+      {h.wordLine === 2 ? (
+        <>
+          <span class="tl tl-1">{h.before}</span>
+          <span class="tl tl-1"><span class="rot hl" data-rot>{h.words.map((w, i) => <span class="rot-w" data-on={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>{w}</span>)}</span> {h.after}</span>
+        </>
+      ) : (
+        <>
+          <span class="tl tl-1"><span class="tl-a">{h.before}</span> <span class="tl-b"><span class="rot hl" data-rot>{h.words.map((w, i) => <span class="rot-w" data-on={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>{w}</span>)}</span>{h.wordAfter && ` ${h.wordAfter}`}</span></span>
+          <span class="tl">{h.after}</span>
+        </>
+      )}
     </h1>
     <div class="copy" data-rise style="--i:1">
       <p class="lead">{h.lead}</p>
@@ -42,13 +51,15 @@ const firstLabel = c.playlists[0]?.label ?? '';
 
   /* intro: the headline on one side, what it is and what to do on the other */
   .intro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: 1.75rem; align-items: end; }
-  /* Two lines: «غيّر شاشات [word]» / «من جوالك». Line 1 never wraps, so its size is capped to fit the longest
-     rotating word in the headline's width: --fit is that line's width in em (Wafeq Bold; AR «أي نشاط عندك»
-     = 11.35em, EN "Change your restaurant screens" = 14.85em), plus a little room. Re-measure if the words change. */
-  .title { grid-column: 1 / span 8; container-type: inline-size; --fit: 11.6; font-size: clamp(3.25rem, 1.2rem + 4.8vw, 5rem); line-height: var(--lh-display); font-weight: 700; }
-  :root[lang="en"] .title { --fit: 15.1; font-size: clamp(2.25rem, 0.9rem + 3.9vw, 4.25rem); }
+  /* Two lines that never wrap: AR «تحكّم في جميع شاشات» / «[word] من جوالك», EN "Control every [word] screen" /
+     "from your phone". Their size is capped to fit the widest line in the headline's width: --fit is that line's
+     width in em (Wafeq Bold; AR «أي نشاط عندك من جوالك» = 10.74em, EN "Control every restaurant screen" = 15.58em),
+     plus a little room. Re-measure if the words change. */
+  .title { grid-column: 1 / span 8; container-type: inline-size; --fit: 11; font-size: clamp(3.25rem, 1.2rem + 4.8vw, 5rem); line-height: var(--lh-display); font-weight: 700; }
+  :root[lang="en"] .title { --fit: 15.9; font-size: clamp(2.25rem, 0.9rem + 3.9vw, 4.25rem); }
   .tl { display: block; font-size: min(1em, calc(100cqi / var(--fit))); }
   .tl-1 { white-space: nowrap; }
+  .two .tl { white-space: nowrap; }
   .hl { color: var(--accent); }
 
   /* the business word: restaurant → café → any business. All words share one grid cell;
@@ -105,9 +116,10 @@ const firstLabel = c.playlists[0]?.label ?? '';
     .intro { display: flex; flex-direction: column; align-items: stretch; }
     .copy { padding: 0; }
   }
-  /* phones: two lines would make the headline too small, so the rotating word (with "screens") gets its own line */
+  /* phones: in English two lines would make the headline too small, so the rotating word (with "screen") gets its
+     own line. The Arabic lines can't split without breaking the sentence, so they keep two lines, sized to fit. */
   @media (max-width: 40rem) {
-    .tl { font-size: 1em; }
+    .title:not(.two) .tl { font-size: 1em; }
     .tl-a { display: block; }
   }
 </style>
