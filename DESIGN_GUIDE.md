@@ -295,7 +295,7 @@ Yearly packages only (owner's prices, SAR, Nov 2026). No monthly billing, no scr
 
 ### 7.10 Start page (`Start.astro`, `pages/start/`, `pages/en/start/`)
 - Where every "Start" button leads (`startHref(c, plan?)` in `i18n.ts`). The pricing cards add `?plan=trial|basic|growth|vip`, which preselects the package answer («أي باقة تناسبك؟»).
-- Start side (cols 1–5, sticky on desktop): «خلّنا نجهّز شاشاتك», one line on the promise (a call within one working day), then «وش اللي بيصير بعدها؟» as three numbered steps and «بلا عقود».
+- Start side (cols 1–5): «خلّنا نجهّز شاشاتك» and one line on the promise (a call within one working day). Under it, «وش اللي بيصير بعدها؟» as a dark (night) panel: three steps, each with the logo's signal lighting one, two, then three arcs (the last on a blue tile), and «بلا عقود» as a pill. On phones the order is heading, form, then this panel, so what happens next comes after sending.
 - End side (cols 7–12): a white card with the form. Required: name, mobile, business name, type of business (chips), package (chips matching the pricing cards, plus «ما أدري للحين»). Optional, and labelled «اختياري»: city, e-mail, notes.
 - Mobile numbers: Arabic-Indic digits, spaces and `+966` / `00966` prefixes are accepted and tidied to `05xxxxxxxx`.
 - Errors appear only after the first send attempt, under each field in red, with focus moved to the first one; they clear as the visitor types.

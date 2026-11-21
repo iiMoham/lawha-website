@@ -30,15 +30,6 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
   <section class="intro" aria-labelledby="start-h">
     <h1 class="head" id="start-h" data-rise style="--i:0">{s.heading}</h1>
     <p class="lead muted" data-rise style="--i:1">{s.lead}</p>
-    <div class="next" data-rise style="--i:2">
-      <h2 class="next-h">{s.nextTitle}</h2>
-      <ol class="steps">
-        {s.next.map((x, i) => (
-          <li><span class="num nums" aria-hidden="true">{i + 1}</span><span><b>{x.title}</b><span class="muted">{x.text}</span></span></li>
-        ))}
-      </ol>
-      <p class="assure small muted">{s.assure}</p>
-    </div>
   </section>
 
   <section class="card" aria-labelledby="form-h" data-rise style="--i:1">
@@ -119,25 +110,45 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
       <a class="button" href={url(c.lang === 'ar' ? '/' : '/en/')}>{s.doneBack} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </section>
+  <section class="next" aria-labelledby="next-h" data-rise style="--i:2">
+    <h2 class="next-h" id="next-h">{s.nextTitle}</h2>
+    <ol class="steps">
+      {s.next.map((x, i) => (
+        <li>
+          <span class="mark" aria-hidden="true"><Signal size={22} level={(i + 1) as 1 | 2 | 3} /></span>
+          <span class="step-t"><b>{x.title}</b><span>{x.text}</span></span>
+        </li>
+      ))}
+    </ol>
+    <p class="assure">{s.assure}</p>
+  </section>
 </main>
 
 <style>
-  .start { --error: #c4291c; --field: #d5dae3; padding-block: clamp(2rem, 5vw, 4.5rem) var(--section); row-gap: 3rem; align-items: start; }
-  .intro { grid-column: 1 / span 5; position: sticky; inset-block-start: 7rem; }
-  .card { grid-column: 7 / -1; background: #fff; border-radius: calc(var(--radius) * 1.5); padding: clamp(1.5rem, 3.2vw, 2.75rem); }
+  /* desktop: heading and «what happens next» on the start side, the form beside them.
+     phones: heading, then the form, then what happens after it is sent. */
+  .start { --error: #c4291c; --field: #d5dae3; padding-block: clamp(2rem, 5vw, 4.5rem) var(--section); row-gap: 2.5rem; align-items: start; grid-template-rows: auto 1fr; }
+  .intro { grid-column: 1 / span 5; grid-row: 1; }
+  .card { grid-column: 7 / -1; grid-row: 1 / span 2; background: #fff; border-radius: calc(var(--radius) * 1.5); padding: clamp(1.5rem, 3.2vw, 2.75rem); }
+  .next { grid-column: 1 / span 5; grid-row: 2; }
   @media (max-width: 54rem) {
-    .intro, .card { grid-column: 1 / -1; }
-    .intro { position: static; }
+    .start { grid-template-rows: none; }
+    .intro, .card, .next { grid-column: 1 / -1; grid-row: auto; }
   }
 
   .intro .head { margin-block-end: 1rem; }
-  .next { margin-block-start: clamp(2rem, 4vw, 3rem); padding-block-start: clamp(1.5rem, 3vw, 2rem); border-block-start: 1px solid var(--field); }
-  .next-h { font-size: var(--step-body); font-weight: 700; margin-block-end: 1.25rem; }
-  .steps { display: grid; gap: 1.25rem; }
-  .steps li { display: flex; gap: 1rem; align-items: start; }
-  .steps li > span:last-child { display: grid; gap: 0.15rem; }
-  .num { flex: none; display: grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-  .assure { margin-block-start: 1.75rem; }
+  /* «what happens next» as a screen: a dark panel where the logo's signal grows one arc per step,
+     from the call (one arc) to your screens going live (all three) */
+  .next { padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: calc(var(--radius) * 1.5); background: var(--night); color: var(--night-ink); }
+  .next-h { font-size: var(--step-lead); font-weight: 700; line-height: 1.35; margin-block-end: 1.5rem; }
+  .steps { display: grid; gap: 0.5rem; }
+  .steps li { display: flex; gap: 1rem; align-items: center; padding: 0.875rem; border-radius: var(--radius); background: var(--night-2); }
+  .mark { flex: none; display: grid; place-items: center; inline-size: 3.25rem; block-size: 3.25rem; border-radius: calc(var(--radius) * 0.75); background: rgb(142 167 255 / 0.12); color: var(--signal); --sig-faint: 0.22; }
+  .steps li:last-child .mark { background: var(--accent); color: #fff; --sig-faint: 0.35; }
+  .step-t { display: grid; gap: 0.15rem; }
+  .step-t b { font-size: var(--step-body); }
+  .step-t span { color: #a7afbf; font-size: var(--step-small); line-height: 1.6; }
+  .assure { display: inline-flex; margin-block-start: 1.25rem; padding: 0.35rem 0.85rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.08); color: var(--night-ink); font-size: var(--step-small); font-weight: 500; }
 
   .form { display: grid; gap: 1.5rem; }
   .form[hidden], .done[hidden] { display: none; }
