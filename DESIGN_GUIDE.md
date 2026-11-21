@@ -259,30 +259,21 @@ All copy lives in `src/i18n.ts` (`content.ar`, `content.en`; the `Content` type 
 - **Reduced motion:** no auto-play, wipes or slides. Every control still works and switches instantly.
 
 ### 7.6 Pricing (`Pricing.astro`)
-Designed to sell; keep it rich, not plain.
-- Section header «ادفع حسب عدد شاشاتك» with the sub line about per-screen pricing and no contracts.
-- **Calculator bar** (grey panel):
-  - "How many screens do you have?" with a range slider (1–30, default 5) and the number shown beside it.
-  - The result line: "5 screens · Growth · Total 195 SAR per month".
-  - Next to it, the Monthly / "Yearly, save two months" toggle.
-- **Three equal plan cards**, in this order:
-  1. "Most popular" badge (Growth only); "Fits you" chip on the card that matches the slider.
-  2. Plan name.
-  3. Big price with currency, and "per screen, per month". On yearly billing the monthly price shows struck through.
-  4. A full-width "Start with {plan}" button: outlined on white cards, solid blue on the popular card.
-  5. The screen range in bold.
-  6. A check-marked feature list.
-- Growth is the dark (night) popular card. The card matching the slider gets a 3px blue outline.
-- **Reassurance row:** four ticked facts (no contract, VAT included, pairing under a minute, works with any HDMI TV). Under it, the player-box note (199 SAR once, or use your own Android/Google TV).
-- Prices and plan limits are **placeholders**:
+Yearly packages only (owner's prices, SAR, Nov 2026). No monthly billing, no screen calculator and no period toggle: each package names its screens.
+- Section header «باقات سنوية حسب عدد شاشاتك», with the sub line about the 14-day free trial and yearly billing.
+- **Four cards in a row** (2×2 under 72rem, one column on phones):
 
-  | Plan | Monthly | Yearly | Screens |
+  | Package | Price | Screens | Card |
   | --- | --- | --- | --- |
-  | Starter | 49 | 41 | 1–2 |
-  | Growth | 39 | 33 | 3–10 |
-  | Chain | 29 | 24 | 11+ |
+  | التجربة المجانية / Free trial | «مجانًا», 14 days | 1 | grey (`--surface`), a way in rather than a fourth package |
+  | الأساسية / Basic | 678 a year | 1 | white |
+  | النمو / Growth | 1,870 a year | 3 | dark (night), «الأكثر طلبًا» |
+  | VIP | 4,720 a year | 9 | white |
 
-  The price is per screen. Yearly is roughly 10/12 of monthly.
+- Each card: name with the logo arcs (1, 1, 2, 3 lit), the screens under it, the big price with «سنويًا», a full-width button (trial: «ابدأ تجربتك المجانية»; others «ابدأ بباقة …»), then the features.
+- Features are tiered, not repeated: Basic has the core (one branch, uploads from the phone, unlimited playlists, changes in seconds, offline playback, stopped-screen alert); Growth adds «كل ما في الأساسية», up to 3 branches, schedules, publish to all, timed announcements, remote control; VIP is «كل مزايا التطبيق»: unlimited branches, team roles and branch managers, screen groups, play log, media folders and tags, on-site installation. The first item of each list is bold. Features come from the app spec (`~/Desktop/myProject/Lawha/PROMPT.md` §3).
+- Buttons open the start form with `?plan=trial|basic|growth|vip`, which preselects the package.
+- **Reassurance row:** four ticked facts (14-day free trial, VAT included, pairing under a minute, works with any HDMI TV). Under it, the player-box note (199 SAR once, or use your own Android/Google TV).
 
 ### 7.7 FAQ (`Faq.astro`)
 - Section header «أسئلة شائعة». A `<dl>`: question in cols 1–5 (bold, card-title size), answer in cols 6–12 in full ink. Everything is open, with no accordions.
@@ -295,12 +286,17 @@ Designed to sell; keep it rich, not plain.
   - Brand, short description, address and hours, phone (`dir="ltr"`), CR number, "Back to top".
   - The contact e-mail set very large as the visual anchor.
   - Bottom row: legal and social links, a `<details>` with the photo and video credits (from `src/assets/media/credits.json`), and the city/year.
+- Phone (≤ 54rem): one grid with named areas (`.f-top` and `.notes` become `display: contents`).
+  - Brand and "Back to top" share the first row; the line about Lawha sits under them; then the e-mail on two lines.
+  - A hairline (`rgb(255 255 255 / 0.3)`) above the address and phone, and another above the links.
+  - Credits and city share the last row. Opened credits take the full width and the city drops below them.
+  - Links, "Back to top", credits and city have 0.75rem block padding, so each is about 44px tall to tap.
 - Contact email is real: `contact@lawha.tech` (Titan Email; also the form's `LEADS_EMAIL`). Other contact details are placeholders (`+966 50 000 0000`, `CR 0000000000`, `#` links).
 
 ### 7.10 Start page (`Start.astro`, `pages/start/`, `pages/en/start/`)
-- Where every "Start" button leads (`startHref(c, plan?)` in `i18n.ts`). The pricing cards add `?plan=starter|growth|chain`, which preselects the screens answer.
+- Where every "Start" button leads (`startHref(c, plan?)` in `i18n.ts`). The pricing cards add `?plan=trial|basic|growth|vip`, which preselects the package answer («أي باقة تناسبك؟»).
 - Start side (cols 1–5, sticky on desktop): «خلّنا نجهّز شاشاتك», one line on the promise (a call within one working day), then «وش اللي بيصير بعدها؟» as three numbered steps and «بلا عقود».
-- End side (cols 7–12): a white card with the form. Required: name, mobile, business name, type of business (chips), number of screens (chips matching the plans, plus «ما أدري للحين»). Optional, and labelled «اختياري»: city, e-mail, notes.
+- End side (cols 7–12): a white card with the form. Required: name, mobile, business name, type of business (chips), package (chips matching the pricing cards, plus «ما أدري للحين»). Optional, and labelled «اختياري»: city, e-mail, notes.
 - Mobile numbers: Arabic-Indic digits, spaces and `+966` / `00966` prefixes are accepted and tidied to `05xxxxxxxx`.
 - Errors appear only after the first send attempt, under each field in red, with focus moved to the first one; they clear as the visitor types.
 - Sending: JSON to `MAILER_URL` (`src/i18n.ts`), the `mailer/` Cloudflare Worker, or to `formsubmit.co/ajax/<LEADS_EMAIL>` while `MAILER_URL` is empty. The team e-mail always uses the Arabic labels. Success swaps the form for a thank-you panel with the number we will call; failure shows the phone number to call instead. Without script the form posts normally and the sender redirects back to `?sent=1`. A hidden `_honey` field catches bots.

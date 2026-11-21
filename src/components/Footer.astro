@@ -17,9 +17,9 @@ const list = (credits as Credit[]).filter((x) => onPage.some((f) => x.file.endsW
     <div class="f-top">
       <div class="notes">
         <span class="f-brand"><Logo size={28} inverse /> {c.nav.brand}</span>
-        <p>{f.about}</p>
-        <p>{f.address}<br />{f.hours}</p>
-        <p><a class="link" href={`tel:${f.phone.replaceAll(' ', '')}`} dir="ltr">{f.phone}</a><br />{f.cr}</p>
+        <p class="about">{f.about}</p>
+        <p class="place">{f.address}<br />{f.hours}</p>
+        <p class="call"><a class="link" href={`tel:${f.phone.replaceAll(' ', '')}`} dir="ltr">{f.phone}</a><br />{f.cr}</p>
       </div>
       <a class="link top" href="#top">{f.top} <Signal size={14} class="up" /></a>
     </div>
@@ -64,12 +64,38 @@ const list = (credits as Credit[]).filter((x) => onPage.some((f) => x.file.endsW
   .credits summary::-webkit-details-marker { display: none; }
   .credits ul { margin-top: 0.75rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.35rem; max-width: 44rem; text-align: left; font-size: 0.875rem; line-height: 1.5; }
   .city { justify-self: end; }
+  /* Phone: brand and "Back to top" share a row, the e-mail follows the
+     line about Lawha, and hairlines split the details from the links. */
   @media (max-width: 54rem) {
-    .f-top { flex-direction: column; }
-    .notes { grid-template-columns: 1fr; }
-    .mail { font-size: clamp(3rem, 1rem + 10vw, 5rem); }
+    .f-in {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "brand top" "about about" "mail mail" "place place" "call call" "meta meta";
+      gap: 0;
+      padding-block: 2.5rem 1.5rem;
+    }
+    .f-top, .notes { display: contents; }
+    .f-brand { grid-area: brand; align-self: center; }
+    .top { grid-area: top; align-self: center; padding-block: 0.75rem; }
+    .notes .about { grid-area: about; max-width: none; margin-top: 0.75rem; }
+    .mail { grid-area: mail; margin-block: 2.25rem 2.5rem; font-size: clamp(2.5rem, 0.75rem + 9vw, 4.5rem); }
     .mail .at { display: block; }
-    .meta { grid-template-columns: 1fr; }
-    .city { justify-self: start; }
+    .notes .place { grid-area: place; max-width: none; padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 0.3); }
+    .notes .call { grid-area: call; max-width: none; margin-top: 0.75rem; }
+    .meta {
+      grid-area: meta;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgb(255 255 255 / 0.3);
+    }
+    .f-links { grid-column: 1 / -1; gap: 0 1.5rem; }
+    /* 44px rows to tap, without looking any bigger */
+    .f-links .link { display: inline-block; padding-block: 0.75rem; }
+    .credits summary { padding-block: 0.75rem; }
+    .credits { grid-column: 1; }
+    .credits[open] { grid-column: 1 / -1; }
+    .city { grid-column: 2; justify-self: end; padding-block: 0.75rem; }
   }
 </style>

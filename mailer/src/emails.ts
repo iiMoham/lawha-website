@@ -161,7 +161,7 @@ export function customerEmail(lead: Lead): Mail {
   const summary: [string, string][] = [
     ...(business ? [[f.business.label, business] as [string, string]] : []),
     [f.kind.label, label(lang, lead.kind)],
-    [rtl ? 'عدد الشاشات' : 'Screens', label(lang, lead.screens)],
+    [rtl ? 'الباقة' : 'Plan', label(lang, lead.screens)],
     [f.phone.label, phone],
   ];
 
@@ -236,7 +236,7 @@ export function teamEmail(lead: Lead): Mail {
     [f.phone.label, phone],
     [f.business.label, lead.business],
     [f.kind.label, label('ar', lead.kind)],
-    ['عدد الشاشات', label('ar', lead.screens)],
+    ['الباقة', label('ar', lead.screens)],
     [f.city.label, lead.city || '—'],
     [f.email.label, lead.email || '—'],
     ['ملاحظات', lead.notes || '—'],
