@@ -59,7 +59,8 @@ const firstLabel = c.playlists[0]?.label ?? '';
   :root[lang="en"] .title { --fit: 15.9; font-size: clamp(2.25rem, 0.9rem + 3.9vw, 4.25rem); }
   .tl { display: block; font-size: min(1em, calc(100cqi / var(--fit))); }
   .tl-1 { white-space: nowrap; }
-  .two .tl { white-space: nowrap; }
+  /* Arabic: «في» on line 1 dips into the tall «ك» of the word below, so the two lines need more room */
+  .two .tl { white-space: nowrap; line-height: 1.5; }
   .hl { color: var(--accent); }
 
   /* the business word: restaurant → café → any business. All words share one grid cell;
