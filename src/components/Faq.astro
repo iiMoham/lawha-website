@@ -26,7 +26,8 @@ const f = c.faq;
   .q { grid-column: 1 / span 5; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem); line-height: var(--lh-head); text-wrap: balance; }
   .a { grid-column: 6 / -1; font-size: var(--step-body); max-width: 58ch; }
   @media (max-width: 54rem) {
-    .row { display: flex; flex-direction: column; gap: 0.75rem; }
+    /* stretch, not the desktop baseline: in a column, baseline pushed the questions to the left in Arabic */
+    .row { display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem; }
     .q { font-size: 1.25rem; }
     .list { gap: 2.25rem; }
   }
