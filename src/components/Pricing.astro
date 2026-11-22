@@ -2,7 +2,7 @@
 // Pricing: four yearly packages side by side (owner's prices). No monthly billing and no screen calculator:
 // each package names its screens. The free trial leads, Growth is the popular (dark) card, VIP carries every
 // feature in the app. Each card's button opens the start form with that package chosen (?plan=).
-import { startHref, type Content } from '../i18n';
+import { startHref, trialHref, type Content } from '../i18n';
 import Signal from './Signal.astro';
 interface Props { c: Content }
 const { c } = Astro.props;
@@ -30,7 +30,7 @@ const money = (n: number) => n.toLocaleString('en-US');
         ) : (
           <><p class="price"><span class="amount nums">{money(plan.price)}</span><span class="cur">{c.currency}</span></p><p class="per">{p.perYear}</p></>
         )}
-        <a class="button p-cta" href={startHref(c, plan.id)}>{plan.price === 0 ? p.trialCta : `${p.cta} ${plan.name}`} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="button p-cta" href={plan.price === 0 ? trialHref() : startHref(c, plan.id)}>{plan.price === 0 ? p.trialCta : `${p.cta} ${plan.name}`} <span class="arrow" aria-hidden="true">→</span></a>
         <ul class="feats">
           {plan.items.map((x) => <li><span class="tick" set:html={check} />{x}</li>)}
         </ul>

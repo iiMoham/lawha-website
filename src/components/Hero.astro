@@ -2,7 +2,7 @@
 import MenuBoard from './MenuBoard.astro';
 import Phone from './Phone.astro';
 import Signal from './Signal.astro';
-import { startHref, type Content } from '../i18n';
+import { trialHref, type Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
 const h = c.hero;
@@ -26,7 +26,7 @@ const firstLabel = c.playlists[0]?.label ?? '';
     <div class="copy" data-rise style="--i:1">
       <p class="lead">{h.lead}</p>
       <div class="actions">
-        <a class="button" href={startHref(c)}>{h.cta} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="button" href={trialHref()}>{h.cta} <span class="arrow" aria-hidden="true">→</span></a>
         <a class="link more" href="#pricing">{h.secondary}</a>
       </div>
     </div>

@@ -1,7 +1,7 @@
 ---
 // «Start» call after the features: a blue band where the features just shown run past as chips, under one line
 // that offers them all for the 14-day trial. The chips are a plain wrapped list without motion.
-import { startHref, type Content } from '../i18n';
+import { trialHref, type Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
 const k = c.startPerks;
@@ -10,7 +10,7 @@ const k = c.startPerks;
   <div class="band">
     <div class="row">
       <p class="title">{k.title}</p>
-      <a class="button button--light go" href={startHref(c, 'trial')}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="button button--light go" href={trialHref()}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
     <div class="track" aria-label={k.chips.join('، ')} role="img">
       <ul class="chips" aria-hidden="true">

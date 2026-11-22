@@ -552,5 +552,10 @@ export const MAILER_URL = 'https://lawha-mailer.lawha.workers.dev/';
 // A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;
 
+// The console's sign-up page (the Lawha app repo, apps/console): signing up starts the 14-day trial by itself
+// (TRIAL_DAYS in backend/functions/src/lib/config.ts). Every general «ابدأ» button goes here; the paid plans keep the form.
+export const CONSOLE_SIGNUP = 'https://console.lawha.tech/sign-up';
+export const trialHref = () => CONSOLE_SIGNUP;
+
 // The «ابدأ مع لوحة» form page, optionally with a plan chosen on the pricing cards.
 export const startHref = (c: Content, plan?: string) => url(`${c.lang === 'ar' ? '' : '/en'}/start/`) + (plan ? `?plan=${plan}` : '');

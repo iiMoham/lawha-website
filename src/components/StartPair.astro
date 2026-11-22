@@ -2,7 +2,7 @@
 // «Start» call after «how it works»: a dark screen with a pairing clock. When it scrolls into view the clock
 // runs from 0:00 to 0:48 and the logo's arcs light up («paired»), the same minute the steps above promise.
 // Without script it shows the finished state.
-import { startHref, type Content } from '../i18n';
+import { trialHref, type Content } from '../i18n';
 import Signal from './Signal.astro';
 interface Props { c: Content }
 const { c } = Astro.props;
@@ -15,7 +15,7 @@ const LEN = +(2 * Math.PI * R).toFixed(1);
     <div class="copy">
       <p class="title">{k.title}</p>
       <p class="text">{k.text}</p>
-      <a class="button go" href={startHref(c)}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="button go" href={trialHref()}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
     <div class="clock" aria-hidden="true">
       <svg viewBox="0 0 128 128" class="ring">
