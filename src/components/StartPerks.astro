@@ -1,0 +1,49 @@
+---
+// «Start» call after the features: a blue band where the features just shown run past as chips, under one line
+// that offers them all for the 14-day trial. The chips are a plain wrapped list without motion.
+import { startHref, type Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const k = c.startPerks;
+---
+<aside class="perks wrap" data-reveal>
+  <div class="band">
+    <div class="row">
+      <p class="title">{k.title}</p>
+      <a class="button button--light go" href={startHref(c, 'trial')}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+    <div class="track" aria-label={k.chips.join('، ')} role="img">
+      <ul class="chips" aria-hidden="true">
+        {[...k.chips, ...k.chips].map((x, i) => <li class:list={{ dup: i >= k.chips.length }}>{x}</li>)}
+      </ul>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .perks { margin-block-start: calc(var(--section) * -0.5); padding-block-end: var(--section); }
+  .band { overflow: hidden; display: flex; flex-direction: column; gap: clamp(1.5rem, 3vw, 2.25rem); padding-block: clamp(1.75rem, 4vw, 3rem); border-radius: calc(var(--radius) * 2); background: var(--accent); color: #fff; }
+  .row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem 2rem; padding-inline: clamp(1.5rem, 4vw, 3.5rem); }
+  .title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.75rem, 1.2rem + 2.2vw, 3.25rem); line-height: var(--lh-head); text-wrap: balance; }
+  .go { box-shadow: 0 0 0 0 rgb(255 255 255 / 0.5); animation: ping 2.4s var(--ease-out) infinite; }
+  @keyframes ping { 0%, 40% { box-shadow: 0 0 0 0 rgb(255 255 255 / 0.55); } 100% { box-shadow: 0 0 0 14px rgb(255 255 255 / 0); } }
+
+  .track { mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
+  .chips { display: flex; gap: 0.75rem; inline-size: max-content; animation: run 38s linear infinite; }
+  .chips li { flex: none; padding: 0.6rem 1.1rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.14); font-weight: 500; white-space: nowrap; }
+  .chips li:nth-child(3n + 2) { background: #fff; color: var(--accent); }
+  @keyframes run { to { translate: calc(-50% - 0.375rem) 0; } }
+  :global(:root[dir="rtl"]) .chips { animation-name: run-rtl; }
+  @keyframes run-rtl { to { translate: calc(50% + 0.375rem) 0; } }
+  @media (hover: hover) and (pointer: fine) { .band:hover .chips { animation-play-state: paused; } }
+
+  @media (max-width: 40rem) {
+    .go { inline-size: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .go { animation: none; }
+    .track { mask-image: none; padding-inline: clamp(1.5rem, 4vw, 3.5rem); }
+    .chips { animation: none; inline-size: auto; flex-wrap: wrap; }
+    .chips .dup { display: none; }
+  }
+</style>

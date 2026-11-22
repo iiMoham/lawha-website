@@ -1,0 +1,102 @@
+---
+// «Start» call after «how it works»: a dark screen with a pairing clock. When it scrolls into view the clock
+// runs from 0:00 to 0:48 and the logo's arcs light up («paired»), the same minute the steps above promise.
+// Without script it shows the finished state.
+import { startHref, type Content } from '../i18n';
+import Signal from './Signal.astro';
+interface Props { c: Content }
+const { c } = Astro.props;
+const k = c.startPair;
+const R = 54;
+const LEN = +(2 * Math.PI * R).toFixed(1);
+---
+<aside class="pair wrap" data-reveal>
+  <div class="panel" data-pair>
+    <div class="copy">
+      <p class="title">{k.title}</p>
+      <p class="text">{k.text}</p>
+      <a class="button go" href={startHref(c)}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+    <div class="clock" aria-hidden="true">
+      <svg viewBox="0 0 128 128" class="ring">
+        <circle cx="64" cy="64" r={R} class="track" />
+        <circle cx="64" cy="64" r={R} class="fill" style={`--len:${LEN}`} data-ring />
+      </svg>
+      <div class="face">
+        <span class="time nums" dir="ltr" data-time>0:48</span>
+        <span class="lbl">{k.clock}</span>
+        <Signal size={26} class="sig" />
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const RUN = 48; // seconds shown on the clock
+  const DUR = 2400; // ms the run takes
+  for (const panel of document.querySelectorAll<HTMLElement>('[data-pair]')) {
+    const time = panel.querySelector<HTMLElement>('[data-time]');
+    const ring = panel.querySelector<SVGCircleElement>('[data-ring]');
+    if (!time || !ring) continue;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer = 0;
+    const show = (p: number) => {
+      const s = Math.round(RUN * p);
+      time.textContent = `0:${String(s).padStart(2, '0')}`;
+      ring.style.setProperty('--p', String(p));
+    };
+    const run = () => {
+      if (still) return;
+      panel.removeAttribute('data-done');
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - t0) / DUR);
+        show(1 - (1 - p) ** 2);
+        if (p < 1) requestAnimationFrame(tick);
+        else { panel.setAttribute('data-done', ''); timer = window.setTimeout(run, 5000); }
+      };
+      requestAnimationFrame(tick);
+    };
+    panel.setAttribute('data-done', '');
+    new IntersectionObserver(([e]) => {
+      clearTimeout(timer);
+      if (e?.isIntersecting) { show(0); run(); }
+    }, { threshold: 0.5 }).observe(panel);
+  }
+</script>
+
+<style>
+  .pair { margin-block-start: calc(var(--section) * -0.5); padding-block-end: var(--section); }
+  .panel {
+    position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2rem clamp(2rem, 5vw, 5rem);
+    padding: clamp(1.75rem, 4vw, 3.5rem); border-radius: calc(var(--radius) * 2); background: var(--night); color: var(--night-ink);
+  }
+  /* the screen's glow: a soft blue field behind the clock */
+  .panel::before { content: ''; position: absolute; inset-block: -40%; inset-inline-end: -10%; inline-size: 55%; background: radial-gradient(closest-side, rgb(36 83 255 / 0.35), transparent); pointer-events: none; }
+  .copy { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem); line-height: var(--lh-head); text-wrap: balance; }
+  .text { max-width: 46ch; color: #c4cad6; font-size: var(--step-body); }
+  .go { margin-block-start: 0.5rem; }
+  @media (hover: hover) and (pointer: fine) { .go:hover .arrow { transform: translateX(4px); } :global(:root[dir="rtl"]) .go:hover .arrow { transform: scaleX(-1) translateX(4px); } }
+
+  .clock { position: relative; inline-size: clamp(9.5rem, 16vw, 13rem); aspect-ratio: 1; }
+  .ring { inline-size: 100%; block-size: 100%; rotate: -90deg; }
+  .track { fill: none; stroke: var(--night-2); stroke-width: 8; }
+  .fill { --p: 1; fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: var(--len); stroke-dashoffset: calc(var(--len) * (1 - var(--p))); }
+  :global(:root[dir="rtl"]) .ring { scale: 1 -1; }
+  .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; }
+  .time { font-size: clamp(2rem, 1.5rem + 1.5vw, 2.75rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+  .lbl { color: #a7afbf; font-size: var(--step-small); }
+  .face :global(.sig) { margin-block-start: 0.35rem; color: var(--signal, #8ea7ff); --sig-faint: 0.18; }
+  .face :global(.sig .a) { opacity: var(--sig-faint); transition: opacity 240ms ease; }
+  .panel[data-done] .face :global(.sig .a) { opacity: 1; }
+  .panel[data-done] .face :global(.sig .a2) { transition-delay: 120ms; }
+  .panel[data-done] .face :global(.sig .a3) { transition-delay: 240ms; }
+
+  @media (max-width: 40rem) {
+    .panel { grid-template-columns: minmax(0, 1fr); }
+    .clock { grid-row: 1; inline-size: 8.5rem; }
+    .panel::before { inset-block: -25% auto; inset-inline: -30% auto; inline-size: 110%; block-size: 70%; }
+    .go { inline-size: 100%; }
+  }
+</style>

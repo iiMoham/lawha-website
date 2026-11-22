@@ -9,7 +9,8 @@ import Pricing from './Pricing.astro';
 import Faq from './Faq.astro';
 import Cta from './Cta.astro';
 import Footer from './Footer.astro';
-import StartBar from './StartBar.astro';
+import StartPair from './StartPair.astro';
+import StartPerks from './StartPerks.astro';
 import type { Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
@@ -19,10 +20,10 @@ const { c } = Astro.props;
   <main>
     <Hero c={c} />
     <Steps c={c} />
-    <StartBar c={c} />
+    <StartPair c={c} />
     <Announce c={c} />
     <Features c={c} />
-    <StartBar c={c} />
+    <StartPerks c={c} />
     <Pricing c={c} />
     <Faq c={c} />
     <Cta c={c} />

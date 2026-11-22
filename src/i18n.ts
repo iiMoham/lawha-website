@@ -193,8 +193,10 @@ export const content = {
         { q: 'وش يصير بعد التجربة المجانية؟', a: 'بعد 14 يوم تختار الباقة السنوية اللي تناسب عدد شاشاتك. وإذا ما حبيت تكمل، ما عليك أي رسوم.' },
       ],
     },
-    // the small «start» line between sections (StartBar.astro), so a button is never far away
-    startBar: { text: 'جاهز تبدأ؟ جرّب لوحة 14 يوم مجانًا.', button: 'ابدأ مع لوحة' },
+    // the «start» calls between sections (StartPair.astro after «how it works», StartPerks.astro after the features):
+    // each one different, each built from the section it closes
+    startPair: { title: 'شاشتك الأولى على بُعد دقيقة.', text: 'توصّل الجهاز، تمسح الرمز، والقائمة على الشاشة. وفريقنا معك من أول خطوة.', button: 'جهّز شاشتي الأولى', clock: 'وقت الربط' },
+    startPerks: { title: 'جرّب كل هذا 14 يوم ببلاش.', button: 'ابدأ تجربتك المجانية', chips: ['🍳 قوائم تتبدل بوقتها', '📶 تعرض بدون نت', '🔔 تنبيه لو وقفت شاشة', '🚀 نشر لكل الفروع بلمسة', '👥 مدير لكل فرع', '📢 إعلانات عاجلة', '🎬 صور وفيديو من جوالك'] },
     cta: {
       line1: 'لوحتك جاهزة،',
       line2: 'وجوالك أيضًا.',
@@ -454,7 +456,8 @@ export const content = {
         { q: 'What happens after the free trial?', a: 'After 14 days you pick the yearly plan that fits your screens. If you decide not to continue, you pay nothing.' },
       ],
     },
-    startBar: { text: 'Ready to start? Try Lawha free for 14 days.', button: 'Start with Lawha' },
+    startPair: { title: 'Your first screen is a minute away.', text: 'Plug in the box, scan the code, and your menu is on the screen. Our team is with you from the first step.', button: 'Set up my first screen', clock: 'Pairing time' },
+    startPerks: { title: 'Try all of this free for 14 days.', button: 'Start your free trial', chips: ['🍳 Menus that switch on time', '📶 Plays offline', '🔔 Alerts if a screen stops', '🚀 Publish to every branch', '👥 A manager per branch', '📢 Instant announcements', '🎬 Photos and video from your phone'] },
     cta: {
       line1: 'Your board is set.',
       line2: 'So is your phone.',
