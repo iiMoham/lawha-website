@@ -1,0 +1,29 @@
+---
+// The privacy policy and terms of use: the site's header and footer around plain, readable text.
+import Base from '../layouts/Base.astro';
+import Nav from './Nav.astro';
+import Footer from './Footer.astro';
+import type { Content } from '../i18n';
+interface Props { c: Content; page: 'privacy' | 'terms'; html: string }
+const { c, page, html } = Astro.props;
+const meta = c.legal[page];
+---
+<Base c={c} page={`${page}/`} title={meta.title} description={meta.description}>
+  <Nav c={c} page={page} />
+  <main class="wrap legal">
+    <article class="prose" set:html={html} />
+  </main>
+  <Footer c={c} />
+</Base>
+
+<style>
+  .legal { padding-block: clamp(7rem, 10vw, 9rem) var(--section); }
+  .prose { max-width: 46rem; margin-inline: auto; font-size: var(--step-body); line-height: var(--lh-text); }
+  .prose :global(h1) { font-family: var(--font-display); font-size: clamp(2rem, 1.4rem + 2.4vw, 3.25rem); line-height: var(--lh-head); letter-spacing: -0.02em; }
+  .prose :global(.meta) { margin-top: 0.5rem; color: var(--muted); font-size: var(--step-small); }
+  .prose :global(h2) { margin-top: 2.5rem; font-family: var(--font-display); font-size: var(--step-lead); line-height: var(--lh-head); }
+  .prose :global(p), .prose :global(ul) { margin-top: 1rem; }
+  .prose :global(ul) { padding-inline-start: 1.25rem; list-style: disc; display: grid; gap: 0.5rem; }
+  .prose :global(a) { color: var(--accent); text-decoration: underline; text-underline-offset: 0.25em; overflow-wrap: anywhere; }
+  .prose :global(strong) { font-weight: 700; }
+</style>

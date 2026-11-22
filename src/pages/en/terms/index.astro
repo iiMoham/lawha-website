@@ -1,0 +1,6 @@
+---
+import Legal from '../../../components/Legal.astro';
+import { content } from '../../../i18n';
+import html from '../../../legal/en-terms.html?raw';
+---
+<Legal c={content.en} page="terms" html={html} />

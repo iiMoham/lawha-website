@@ -3,7 +3,7 @@
 import Logo from './Logo.astro';
 import Signal from './Signal.astro';
 import credits from '../assets/media/credits.json';
-import type { Content } from '../i18n';
+import { url, type Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
 const f = c.footer;
@@ -28,7 +28,7 @@ const list = (credits as Credit[]).filter((x) => onPage.some((f) => x.file.endsW
 
     <div class="meta">
       <nav class="f-links" aria-label={c.nav.brand}>
-        {f.links.map((l) => <a class="link" href={l.href}>{l.label}</a>)}
+        {f.links.map((l) => <a class="link" href={l.href.startsWith('/') ? url(l.href) : l.href}>{l.label}</a>)}
       </nav>
       <details class="credits">
         <summary>{f.credits}</summary>

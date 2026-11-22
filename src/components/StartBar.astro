@@ -1,0 +1,25 @@
+---
+// A short «start» line between sections (owner's ask: the start button in more than one place).
+// A grey band with one sentence and the button; it pulls up into the section above so it reads as that
+// section's ending, not as a section of its own.
+import { startHref, type Content } from '../i18n';
+interface Props { c: Content }
+const { c } = Astro.props;
+const b = c.startBar;
+---
+<aside class="start-bar wrap" data-reveal>
+  <div class="band">
+    <p class="text">{b.text}</p>
+    <a class="button" href={startHref(c)}>{b.button} <span class="arrow" aria-hidden="true">→</span></a>
+  </div>
+</aside>
+
+<style>
+  .start-bar { margin-block-start: calc(var(--section) * -0.5); padding-block-end: var(--section); }
+  .band { display: flex; align-items: center; justify-content: space-between; gap: 1rem 2rem; flex-wrap: wrap; padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.25rem, 3vw, 2.5rem); border-radius: calc(var(--radius) * 1.75); background: var(--surface); }
+  .text { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem); line-height: var(--lh-head); }
+  @media (max-width: 40rem) {
+    .band { flex-direction: column; align-items: stretch; text-align: start; }
+    .band .button { inline-size: 100%; }
+  }
+</style>
