@@ -49,7 +49,6 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
               <span>{it.line}</span>
             </button>
           </h3>
-          <p class="note" set:html={it.note} />
           <span class="prog" aria-hidden="true"><i></i></span>
         </li>
       ))}
@@ -156,7 +155,6 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
     border: 2px solid currentColor; font-size: 1rem; font-weight: 700; line-height: 1;
     transition: background-color var(--t-ui) ease, border-color var(--t-ui) ease, color var(--t-ui) ease;
   }
-  .note { margin-block-start: 0.35rem; padding-inline-start: 3.1rem; max-width: 46ch; color: var(--muted); font-size: var(--step-body); }
   .prog { display: block; margin-block-start: 0.85rem; margin-inline-start: 3.1rem; block-size: 3px; border-radius: 3px; background: #dfe3ea; overflow: hidden; opacity: 0; transition: opacity var(--t-ui) ease; }
   .prog i { display: block; block-size: 100%; background: var(--accent); scale: 0 1; transform-origin: left; }
   :global([dir="rtl"]) .prog i { transform-origin: right; }
@@ -313,8 +311,6 @@ const check = '<svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="
   @media (max-width: 64rem) {
     .list { grid-column: 1 / span 6; }
     .scene-wrap { grid-column: 7 / -1; }
-    .note { display: none; }
-    .step[data-on] .note { display: block; }
   }
   @media (max-width: 54rem) {
     .how { display: flex; flex-direction: column-reverse; align-items: stretch; gap: 2rem; }

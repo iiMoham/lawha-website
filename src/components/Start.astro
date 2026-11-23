@@ -95,7 +95,7 @@ const stepOf = (n: number) => s.stepOf.replace('{n}', String(n));
       {s.next.map((x, i) => (
         <li>
           <span class="mark" aria-hidden="true"><Signal size={22} level={(i + 1) as 1 | 2 | 3} /></span>
-          <span class="step-t"><b>{x.title}</b><span>{x.text}</span></span>
+          <span class="step-t"><b>{x.title}</b></span>
         </li>
       ))}
     </ol>
