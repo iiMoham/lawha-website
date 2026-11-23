@@ -1,30 +1,23 @@
 ---
-// «ابدأ مع لوحة»: the form every «start» button leads to. The visitor leaves their details and the team calls them.
-// Requests go to MAILER_URL (mailer/, our Cloudflare Worker), which mails the team and sends the visitor a
-// confirmation from no-reply@lawha.tech. While MAILER_URL is empty they go to LEADS_EMAIL through FormSubmit instead.
-// Either way:
-// - with script, the form posts JSON to the ajax endpoint and swaps itself for a thank-you panel;
-// - without script, it posts normally and the sender redirects the visitor back here with ?sent=1.
-// The email always uses the Arabic labels, so the team reads every request the same way.
-// FormSubmit emails the inbox once to activate it; until that link is clicked, requests are not delivered.
-import { content, LEADS_EMAIL, MAILER_URL, startHref, url, type Content } from '../i18n';
+// «ابدأ مع لوحة»: four questions, one at a time (name, mobile, type of business, number of screens). The answers go
+// to MAILER_URL (mailer/, our Cloudflare Worker), which e-mails them to the team; then the visitor is sent on to the
+// console's sign-up (CONSOLE_SIGNUP), where the 14-day trial starts.
+// - With script: one question per view, Enter or «التالي» moves on, picking a tile moves on by itself, and the
+//   last tile sends. A plan chosen on a pricing card arrives as ?plan= and rides along to the team.
+// - Without script: the four questions show together as one form; the mailer redirects back here with ?sent=1,
+//   where a link carries on to the console.
+import { CONSOLE_SIGNUP, MAILER_URL, type Content } from '../i18n';
 import Signal from './Signal.astro';
 interface Props { c: Content }
 const { c } = Astro.props;
 const s = c.start;
 const f = s.fields;
-const ar = content.ar.start.fields;
-const back = new URL(startHref(c) + '?sent=1', Astro.site ?? 'https://lawha.tech').toString();
-const labels = {
-  name: ar.name.label, phone: ar.phone.label, business: ar.business.label, kind: ar.kind.label, screens: 'الباقة',
-  city: ar.city.label, email: ar.email.label, notes: 'ملاحظات', lang: 'لغة الصفحة',
-  options: Object.fromEntries([...ar.kind.options, ...ar.screens.options].map((o) => [o.value, o.label])),
-};
-const via = MAILER_URL ? 'mailer' : 'formsubmit';
-const action = MAILER_URL || `https://formsubmit.co/${LEADS_EMAIL}`;
-const endpoint = MAILER_URL || `https://formsubmit.co/ajax/${LEADS_EMAIL}`;
+const q = s.questions;
+const kindIcon: Record<string, string> = { cafe: '☕', restaurant: '🍽️', bakery: '🥐', other: '✨' };
+const screenBig: Record<string, string> = { '1': '1', '2-3': '2–3', '4-9': '4–9', '10+': '10+' };
 const phone = c.footer.phone;
 const tel = `tel:${phone.replaceAll(' ', '')}`;
+const stepOf = (n: number) => s.stepOf.replace('{n}', String(n));
 ---
 <main class="start wrap grid" id="top">
   <section class="intro" aria-labelledby="start-h">
@@ -32,73 +25,58 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
     <p class="lead muted" data-rise style="--i:1">{s.lead}</p>
   </section>
 
-  <section class="card" aria-labelledby="form-h" data-rise style="--i:1">
-    <form class="form" action={action} method="POST" novalidate data-form data-via={via}
-      data-endpoint={endpoint} data-labels={JSON.stringify(labels)}
-      data-subject={content.ar.start.mailSubject} data-fix={s.fixErrors} data-sending={s.sending}>
-      <h2 class="form-h" id="form-h">{s.formTitle}</h2>
-      <input type="hidden" name="_subject" value={content.ar.start.mailSubject} />
-      <input type="hidden" name="_template" value="table" />
-      <input type="hidden" name="_next" value={back} />
+  <section class="card" aria-label={s.formTitle} data-rise style="--i:1">
+    <form class="form" action={MAILER_URL} method="POST" novalidate data-form data-endpoint={MAILER_URL}
+      data-fix={s.fixErrors} data-sending={s.sending} data-console={CONSOLE_SIGNUP} data-step-of={s.stepOf}>
       <input type="hidden" name="lang" value={c.lang} />
+      <input type="hidden" name="plan" value="" data-plan />
       <label class="hp" aria-hidden="true">Leave empty <input type="text" name="_honey" tabindex="-1" autocomplete="off" /></label>
 
-      <div class="field">
-        <label for="f-name">{f.name.label}</label>
-        <input class="input" id="f-name" name="name" type="text" required autocomplete="name" maxlength="80" aria-describedby="f-name-err" />
+      <div class="top" aria-hidden="true">
+        <span class="count nums" data-count>{stepOf(1)}</span>
+        <span class="bar"><i data-bar></i></span>
+      </div>
+
+      <div class="q" data-q="name" data-on>
+        <label class="q-h" for="f-name"><span class="q-n nums">1</span>{q.name}</label>
+        <input class="input" id="f-name" name="name" type="text" required autocomplete="name" maxlength="80" aria-describedby="f-name-err" enterkeyhint="next" />
         <p class="err" id="f-name-err" hidden>{f.name.error}</p>
       </div>
 
-      <div class="field">
-        <label for="f-phone">{f.phone.label}</label>
+      <div class="q" data-q="phone">
+        <label class="q-h" for="f-phone"><span class="q-n nums">2</span>{q.phone}</label>
         <input class="input" id="f-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel" dir="ltr" maxlength="20"
-          placeholder="05xxxxxxxx" aria-describedby="f-phone-err" data-phone />
+          placeholder="05xxxxxxxx" aria-describedby="f-phone-err" data-phone enterkeyhint="next" />
         <p class="err" id="f-phone-err" hidden>{f.phone.error}</p>
       </div>
 
-      <div class="field">
-        <label for="f-business">{f.business.label}</label>
-        <input class="input" id="f-business" name="business" type="text" required autocomplete="organization" maxlength="100" aria-describedby="f-business-err" />
-        <p class="err" id="f-business-err" hidden>{f.business.error}</p>
-      </div>
-
-      <fieldset class="field" aria-describedby="f-kind-err">
-        <legend>{f.kind.label}</legend>
-        <div class="chips">
-          {f.kind.options.map((o) => <label class="chip"><input class="ghost-input" type="radio" name="kind" value={o.value} required />{o.label}</label>)}
+      <fieldset class="q" data-q="kind" aria-describedby="f-kind-err">
+        <legend class="q-h"><span class="q-n nums">3</span>{q.kind}</legend>
+        <div class="tiles">
+          {f.kind.options.map((o) => (
+            <label class="tile"><input class="ghost-input" type="radio" name="kind" value={o.value} required /><span class="t-big" aria-hidden="true">{kindIcon[o.value]}</span><span class="t-lbl">{o.label}</span></label>
+          ))}
         </div>
         <p class="err" id="f-kind-err" hidden>{f.kind.error}</p>
       </fieldset>
 
-      <fieldset class="field" aria-describedby="f-screens-err">
-        <legend>{f.screens.label}</legend>
-        <div class="chips">
-          {f.screens.options.map((o) => <label class="chip"><input class="ghost-input" type="radio" name="screens" value={o.value} required />{o.label}</label>)}
+      <fieldset class="q" data-q="screens" aria-describedby="f-screens-err">
+        <legend class="q-h"><span class="q-n nums">4</span>{q.screens}</legend>
+        <div class="tiles">
+          {f.screens.options.map((o) => (
+            <label class="tile"><input class="ghost-input" type="radio" name="screens" value={o.value} required /><span class="t-big nums" dir="ltr" aria-hidden="true">{screenBig[o.value]}</span><span class="t-lbl">{o.label}</span></label>
+          ))}
         </div>
         <p class="err" id="f-screens-err" hidden>{f.screens.error}</p>
       </fieldset>
 
-      <div class="pair">
-        <div class="field">
-          <label for="f-city">{f.city.label} <span class="opt">{s.optional}</span></label>
-          <input class="input" id="f-city" name="city" type="text" autocomplete="address-level2" maxlength="60" />
-        </div>
-        <div class="field">
-          <label for="f-email">{f.email.label} <span class="opt">{s.optional}</span></label>
-          <input class="input" id="f-email" name="email" type="email" autocomplete="email" dir="ltr" maxlength="120" aria-describedby="f-email-err" />
-          <p class="err" id="f-email-err" hidden>{f.email.error}</p>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="f-notes">{f.notes.label} <span class="opt">{s.optional}</span></label>
-        <textarea class="input" id="f-notes" name="notes" rows="3" maxlength="1000"></textarea>
-      </div>
-
-      <div class="send">
+      <div class="nav">
+        <button class="back" type="button" data-back hidden><span class="arrow" aria-hidden="true">←</span> {s.backBtn}</button>
+        <button class="button next" type="button" data-next>{s.nextBtn} <span class="arrow" aria-hidden="true">→</span></button>
         <button class="button submit" type="submit" data-submit><span data-label>{s.submit}</span> <span class="arrow" aria-hidden="true">→</span><Signal size={16} state="send" class="sending" /></button>
-        <p class="small muted">{s.privacy}</p>
+        <span class="hint small muted" data-hint>{s.enterHint}</span>
       </div>
+      <p class="small muted privacy">{s.privacy}</p>
       <p class="status" role="alert" data-status></p>
       <p class="fail" data-fail hidden>{s.failText} <a class="link" href={tel} dir="ltr">{phone}</a></p>
     </form>
@@ -106,11 +84,12 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
     <div class="done" data-done hidden tabindex="-1">
       <span class="tick" aria-hidden="true"><Signal size={26} /></span>
       <h2 class="form-h">{s.doneTitle}</h2>
-      <p class="muted">{s.doneText} <bdi class="nums" dir="ltr" data-done-phone></bdi></p>
-      <a class="button" href={url(c.lang === 'ar' ? '/' : '/en/')}>{s.doneBack} <span class="arrow" aria-hidden="true">→</span></a>
+      <p class="muted" data-redirecting>{s.redirecting}</p>
+      <a class="button" href={CONSOLE_SIGNUP}>{s.goConsole} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </section>
-  <section class="next" aria-labelledby="next-h" data-rise style="--i:2">
+
+  <section class="next-panel" aria-labelledby="next-h" data-rise style="--i:2">
     <h2 class="next-h" id="next-h">{s.nextTitle}</h2>
     <ol class="steps">
       {s.next.map((x, i) => (
@@ -125,21 +104,19 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
 </main>
 
 <style>
-  /* desktop: heading and «what happens next» on the start side, the form beside them.
-     phones: heading, then the form, then what happens after it is sent. */
+  /* desktop: heading and «what happens next» on the start side, the questions beside them.
+     phones: heading, then the questions, then what happens after. */
   .start { --error: #c4291c; --field: #d5dae3; padding-block: clamp(2rem, 5vw, 4.5rem) var(--section); row-gap: 2.5rem; align-items: start; grid-template-rows: auto 1fr; }
   .intro { grid-column: 1 / span 5; grid-row: 1; }
   .card { grid-column: 7 / -1; grid-row: 1 / span 2; background: #fff; border-radius: calc(var(--radius) * 1.5); padding: clamp(1.5rem, 3.2vw, 2.75rem); }
-  .next { grid-column: 1 / span 5; grid-row: 2; }
+  .next-panel { grid-column: 1 / span 5; grid-row: 2; }
   @media (max-width: 54rem) {
     .start { grid-template-rows: none; }
-    .intro, .card, .next { grid-column: 1 / -1; grid-row: auto; }
+    .intro, .card, .next-panel { grid-column: 1 / -1; grid-row: auto; }
   }
-
   .intro .head { margin-block-end: 1rem; }
-  /* «what happens next» as a screen: a dark panel where the logo's signal grows one arc per step,
-     from the call (one arc) to your screens going live (all three) */
-  .next { padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: calc(var(--radius) * 1.5); background: var(--night); color: var(--night-ink); }
+
+  .next-panel { padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: calc(var(--radius) * 1.5); background: var(--night); color: var(--night-ink); }
   .next-h { font-size: var(--step-lead); font-weight: 700; line-height: 1.35; margin-block-end: 1.5rem; }
   .steps { display: grid; gap: 0.5rem; }
   .steps li { display: flex; gap: 1rem; align-items: center; padding: 0.875rem; border-radius: var(--radius); background: var(--night-2); }
@@ -150,56 +127,77 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
   .step-t span { color: #a7afbf; font-size: var(--step-small); line-height: 1.6; }
   .assure { display: inline-flex; margin-block-start: 1.25rem; padding: 0.35rem 0.85rem; border-radius: var(--pill); background: rgb(255 255 255 / 0.08); color: var(--night-ink); font-size: var(--step-small); font-weight: 500; }
 
-  .form { display: grid; gap: 1.5rem; }
+  /* ---------- the questions ---------- */
+  .form { display: grid; gap: 1.75rem; }
   .form[hidden], .done[hidden] { display: none; }
-  .form :is(input, textarea) { scroll-margin-block: 7rem 2rem; }
-  .form-h { font-size: var(--step-lead); line-height: 1.3; }
-  .field { display: grid; gap: 0.5rem; min-inline-size: 0; margin: 0; padding: 0; border: 0; }
-  .field > label, .field > legend { font-weight: 500; padding: 0; }
-  .field > legend { margin-block-end: 0.5rem; }
-  .opt { color: var(--muted); font-weight: 400; font-size: var(--step-small); }
+  .top { display: none; }
+  .q { display: grid; gap: 0.75rem; min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+  .q-h { display: flex; align-items: baseline; gap: 0.6rem; padding: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.375rem, 1.1rem + 1vw, 2rem); line-height: 1.3; }
+  .q-n { flex: none; display: inline-grid; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 0.875rem; translate: 0 -0.2em; }
+  fieldset.q > legend { margin-block-end: 0.75rem; }
   .input {
-    inline-size: 100%; min-block-size: 3.25rem; padding: 0.7rem 1rem; background: var(--bg); color: var(--ink);
+    inline-size: 100%; min-block-size: 3.75rem; padding: 0.7rem 1.1rem; background: var(--bg); color: var(--ink); font-size: 1.25rem;
     border: 1.5px solid var(--field); border-radius: var(--radius); transition: border-color var(--t-hover) ease, background-color var(--t-hover) ease;
   }
-  textarea.input { resize: vertical; min-block-size: 6rem; line-height: 1.6; }
-  .input::placeholder { color: #8b93a3; }
+  .input::placeholder { color: #a2a9b6; }
   :root[dir="rtl"] .input[dir="ltr"] { text-align: right; }
   .input:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 0; border-color: var(--accent); background: #fff; }
   .input[aria-invalid="true"] { border-color: var(--error); }
   .err { color: var(--error); font-size: var(--step-small); line-height: 1.5; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .chip {
-    position: relative; display: inline-flex; align-items: center; min-block-size: 2.75rem; padding-inline: 1.1rem;
-    border: 1.5px solid var(--field); border-radius: var(--pill); background: var(--bg); cursor: pointer; user-select: none;
-    transition: background-color var(--t-hover) ease, border-color var(--t-hover) ease, color var(--t-hover) ease;
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
+  .tile {
+    position: relative; display: grid; gap: 0.35rem; align-content: center; justify-items: start; min-block-size: 6.5rem; padding: 1rem 1.1rem;
+    border: 1.5px solid var(--field); border-radius: var(--radius); background: var(--bg); cursor: pointer; user-select: none;
+    transition: background-color var(--t-hover) ease, border-color var(--t-hover) ease, color var(--t-hover) ease, transform var(--t-press) var(--ease-out);
   }
-  .chip:has(:checked) { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  fieldset[data-invalid] .chip:not(:has(:checked)) { border-color: var(--error); }
+  .tile:active { transform: scale(0.97); }
+  .t-big { font-size: 1.875rem; font-weight: 700; line-height: 1; }
+  .t-lbl { font-weight: 500; }
+  .tile:has(:checked) { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .tile:has(:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .q[data-invalid] .tile:not(:has(:checked)) { border-color: var(--error); }
   @media (hover: hover) and (pointer: fine) {
-    .chip:hover:not(:has(:checked)) { border-color: var(--ink); }
+    .tile:hover:not(:has(:checked)) { border-color: var(--ink); }
     .input:hover:not(:focus-visible) { border-color: #aeb5c2; }
   }
 
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  @media (max-width: 36rem) { .pair { grid-template-columns: 1fr; } }
-
-  .send { display: flex; align-items: center; gap: 1rem 1.5rem; flex-wrap: wrap; padding-block-start: 0.5rem; }
-  .submit { min-block-size: 3.5rem; padding-inline: 2rem; }
-  /* sending your request is the same signal as publishing a menu: the arrow becomes the arcs going out */
+  .nav { display: flex; align-items: center; gap: 0.75rem 1rem; flex-wrap: wrap; }
+  .next, .submit { min-block-size: 3.5rem; padding-inline: 2rem; }
+  .next, .hint, .back { display: none; }
+  .back { display: none; align-items: center; gap: 0.4rem; min-block-size: 3.5rem; padding-inline: 0.75rem; border: 0; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+  .back:hover { color: var(--ink); }
   .submit[aria-busy="true"] { cursor: progress; }
   .submit[aria-busy="true"] .arrow, .submit:not([aria-busy="true"]) :global(.sending) { display: none; }
-  @media (max-width: 36rem) { .submit { inline-size: 100%; } }
+  .privacy { margin-block-start: -0.75rem; }
   .status:empty { display: none; }
   .status { color: var(--error); font-weight: 500; }
   .fail { padding: 1rem 1.25rem; border-radius: var(--radius); background: #fdecea; color: #7a1a12; }
-
   .hp { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* with script: one question at a time, a progress bar, and Next / Back */
+  :global(.js) .form { min-block-size: 22rem; align-content: start; }
+  :global(.js) .top { display: grid; gap: 0.6rem; }
+  .count { color: var(--muted); font-size: var(--step-small); font-weight: 500; }
+  .bar { display: block; block-size: 6px; border-radius: 3px; background: var(--surface); overflow: hidden; }
+  .bar i { display: block; block-size: 100%; inline-size: 25%; border-radius: inherit; background: var(--accent); transition: inline-size 420ms var(--ease-out); }
+  :global(.js) .q:not([data-on]) { display: none; }
+  :global(.js) .q[data-on] { animation: q-in 420ms var(--ease-out) both; }
+  :global(.js) .form[data-dir="back"] .q[data-on] { animation-name: q-back; }
+  @keyframes q-in { from { opacity: 0; translate: 0 18px; } }
+  @keyframes q-back { from { opacity: 0; translate: 0 -18px; } }
+  :global(.js) .form:not([data-last]) .submit { display: none; }
+  :global(.js) .form:not([data-last]):not([data-tiles]) .next { display: inline-flex; }
+  :global(.js) .form:not([data-last]):not([data-tiles]) .hint { display: inline; }
+  :global(.js) .form:not([data-first]) .back { display: inline-flex; }
+  @media (max-width: 36rem) {
+    .next, .submit { flex: 1; }
+    :global(.js) .form:not([data-last]):not([data-tiles]) .hint { display: none; }
+  }
 
   .done { display: grid; justify-items: start; gap: 1rem; padding-block: 1rem; }
   .done:focus { outline: none; }
-  /* received: the logo tile, its arcs lighting from the inside out as the panel appears */
+  .form-h { font-size: var(--step-lead); line-height: 1.3; }
   .tick { display: grid; place-items: center; inline-size: 3.75rem; block-size: 3.75rem; border-radius: 1.1rem; background: var(--accent); color: var(--accent-ink); }
   .tick :global(.signal) { display: block; }
   @media (prefers-reduced-motion: no-preference) {
@@ -208,9 +206,10 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
     .done:not([hidden]) .tick :global(.a3) { animation-delay: 480ms; }
   }
   .done .button { margin-block-start: 0.5rem; }
+  @media (prefers-reduced-motion: reduce) { :global(.js) .q[data-on] { animation: none; } .bar i { transition: none; } }
 
   @media (forced-colors: active) {
-    .chip:has(:checked) { outline: 3px solid Highlight; }
+    .tile:has(:checked) { outline: 3px solid Highlight; }
     .card { border: 1px solid CanvasText; } /* taste-skill-ignore: forced-colors needs an edge */
   }
 </style>
@@ -219,29 +218,18 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
   const form = document.querySelector<HTMLFormElement>('[data-form]');
   const done = document.querySelector<HTMLElement>('[data-done]');
   if (form && done) {
-    type Labels = Record<'name' | 'phone' | 'business' | 'kind' | 'screens' | 'city' | 'email' | 'notes' | 'lang', string> & { options: Record<string, string> };
-    const labels = JSON.parse(form.dataset['labels'] ?? '{}') as Labels;
+    const ORDER = ['name', 'phone', 'kind', 'screens'] as const;
+    type Q = (typeof ORDER)[number];
+    const qs = ORDER.map((n) => form.querySelector<HTMLElement>(`[data-q="${n}"]`)!);
     const status = form.querySelector<HTMLElement>('[data-status]')!;
     const fail = form.querySelector<HTMLElement>('[data-fail]')!;
     const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
     const submitLabel = submit.querySelector<HTMLElement>('[data-label]')!;
     const idle = submitLabel.textContent ?? '';
-    let tried = false;
-
-    const showDone = (phone: string) => {
-      form.hidden = true;
-      done.hidden = false;
-      done.querySelector<HTMLElement>('[data-done-phone]')!.textContent = phone;
-      if (!phone) done.querySelector('p')?.setAttribute('hidden', '');
-      done.focus();
-    };
-    const params = new URLSearchParams(location.search);
-    if (params.has('sent')) showDone('');
-
-    // a plan chosen on the pricing cards arrives as ?plan=
-    const plan = params.get('plan');
-    const planInput = plan ? form.querySelector<HTMLInputElement>(`input[name="screens"][value="${CSS.escape(plan)}"]`) : null;
-    if (planInput) planInput.checked = true;
+    const count = form.querySelector<HTMLElement>('[data-count]')!;
+    const bar = form.querySelector<HTMLElement>('[data-bar]')!;
+    const consoleUrl = form.dataset['console']!;
+    let at = 0;
 
     // Saudi mobile: accepts Arabic-Indic digits, spaces, +966 / 00966 / 966 prefixes; returns 05xxxxxxxx or ''
     const phoneOf = (raw: string) => {
@@ -250,74 +238,88 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
       return m ? `0${m[1]}` : '';
     };
     const value = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | RadioNodeList | null)?.value.trim() ?? '';
-
-    const checks: Record<string, () => boolean> = {
+    const checks: Record<Q, () => boolean> = {
       name: () => value('name').length >= 2,
       phone: () => phoneOf(value('phone')) !== '',
-      business: () => value('business').length >= 2,
       kind: () => value('kind') !== '',
       screens: () => value('screens') !== '',
-      email: () => value('email') === '' || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value('email')),
     };
-    const mark = (name: string) => {
-      const ok = checks[name]!();
-      const err = form.querySelector<HTMLElement>(`#f-${name}-err`);
+    const mark = (name: Q) => {
+      const ok = checks[name]();
+      const q = qs[ORDER.indexOf(name)]!;
+      const err = q.querySelector<HTMLElement>('.err');
       if (err) err.hidden = ok;
-      const input = form.querySelector<HTMLInputElement>(`#f-${name}`);
-      if (input) input.setAttribute('aria-invalid', String(!ok));
-      const set = form.querySelector<HTMLFieldSetElement>(`fieldset:has(input[name="${name}"])`);
-      if (set) set.toggleAttribute('data-invalid', !ok);
+      q.querySelector('input.input')?.setAttribute('aria-invalid', String(!ok));
+      q.toggleAttribute('data-invalid', !ok);
       return ok;
     };
+
+    const show = (i: number, focus = true) => {
+      form.dataset['dir'] = i < at ? 'back' : 'fwd';
+      at = i;
+      qs.forEach((q, n) => q.toggleAttribute('data-on', n === i));
+      form.toggleAttribute('data-first', i === 0);
+      form.toggleAttribute('data-last', i === ORDER.length - 1);
+      form.toggleAttribute('data-tiles', qs[i]!.tagName === 'FIELDSET');
+      count.textContent = (form.dataset['stepOf'] ?? '').replace('{n}', String(i + 1));
+      bar.style.inlineSize = `${((i + 1) / ORDER.length) * 100}%`;
+      status.textContent = '';
+      if (focus) qs[i]!.querySelector<HTMLInputElement>('input.input, input:checked, input[type="radio"]')?.focus({ preventScroll: true });
+    };
+    const forward = () => {
+      if (!mark(ORDER[at]!)) return;
+      if (at < ORDER.length - 1) show(at + 1);
+    };
+
+    form.querySelector('[data-next]')!.addEventListener('click', forward);
+    form.querySelector('[data-back]')!.addEventListener('click', () => at > 0 && show(at - 1));
+    form.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.target as HTMLElement).matches('input.input')) { e.preventDefault(); forward(); }
+    });
     form.addEventListener('input', (e) => {
-      const name = (e.target as HTMLInputElement).name;
-      if (tried && name in checks) { mark(name); if (Object.keys(checks).every((n) => checks[n]!())) status.textContent = ''; }
+      const name = (e.target as HTMLInputElement).name as Q;
+      if (name in checks && qs[ORDER.indexOf(name)]!.hasAttribute('data-invalid')) mark(name);
     });
+    // picking a tile is the answer: move on by itself (the last one sends)
     form.addEventListener('change', (e) => {
-      const name = (e.target as HTMLInputElement).name;
-      if (tried && name in checks) mark(name);
+      const input = e.target as HTMLInputElement;
+      if (input.type !== 'radio') return;
+      mark(input.name as Q);
+      window.setTimeout(() => (input.name === 'screens' ? form.requestSubmit() : forward()), 260);
     });
-    // tidy the number once the visitor leaves the field
     form.querySelector<HTMLInputElement>('[data-phone]')?.addEventListener('blur', (e) => {
       const input = e.target as HTMLInputElement;
       const clean = phoneOf(input.value);
       if (clean) input.value = clean;
     });
 
+    const finish = () => {
+      form.hidden = true;
+      done.hidden = false;
+      done.focus();
+      window.setTimeout(() => location.assign(consoleUrl), 1800);
+    };
+
+    const params = new URLSearchParams(location.search);
+    // a package picked on a pricing card: tell the team, and guess the screens from it
+    const plan = params.get('plan') ?? '';
+    const guess: Record<string, string> = { basic: '1', growth: '2-3', vip: '4-9' };
+    if (plan) form.querySelector<HTMLInputElement>('[data-plan]')!.value = plan;
+    const pre = guess[plan] ? form.querySelector<HTMLInputElement>(`input[name="screens"][value="${guess[plan]}"]`) : null;
+    if (pre) pre.checked = true;
+
+    show(0, false);
+    if (params.has('sent')) finish();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (submit.getAttribute('aria-busy') === 'true') return;
-      tried = true;
-      const bad = Object.keys(checks).filter((n) => !mark(n));
-      if (bad.length) {
-        status.textContent = form.dataset['fix'] ?? '';
-        const first = form.querySelector<HTMLElement>(`#f-${bad[0]}, input[name="${bad[0]}"]`);
-        first?.focus();
-        return;
-      }
-      status.textContent = '';
+      const bad = ORDER.filter((n) => !mark(n));
+      if (bad.length) { show(ORDER.indexOf(bad[0]!)); status.textContent = form.dataset['fix'] ?? ''; return; }
       fail.hidden = true;
       submit.setAttribute('aria-busy', 'true');
       submitLabel.textContent = form.dataset['sending'] ?? idle;
-
-      const phone = phoneOf(value('phone'));
-      const opt = (v: string) => labels.options[v] ?? v;
-      const fields = ['name', 'business', 'kind', 'screens', 'city', 'email', 'notes', 'lang', '_honey'];
-      const body: Record<string, string> = form.dataset['via'] === 'mailer' ? { ...Object.fromEntries(fields.map((n) => [n, value(n)])), phone } : {
-        _subject: `${form.dataset['subject']}: ${value('business')}`,
-        _template: 'table',
-        _captcha: 'false',
-        _honey: value('_honey'),
-        [labels.name]: value('name'),
-        [labels.phone]: phone,
-        [labels.business]: value('business'),
-        [labels.kind]: opt(value('kind')),
-        [labels.screens]: opt(value('screens')),
-        [labels.city]: value('city') || '—',
-        [labels.email]: value('email') || '—',
-        [labels.notes]: value('notes') || '—',
-        [labels.lang]: value('lang') === 'ar' ? 'العربية' : 'English',
-      };
+      const body = { name: value('name'), phone: phoneOf(value('phone')), kind: value('kind'), screens: value('screens'), plan: value('plan'), lang: value('lang'), _honey: value('_honey') };
       try {
         const res = await fetch(form.dataset['endpoint']!, {
           method: 'POST',
@@ -326,7 +328,7 @@ const tel = `tel:${phone.replaceAll(' ', '')}`;
         });
         const data = (await res.json().catch(() => ({}))) as { success?: string | boolean };
         if (!res.ok || String(data.success) !== 'true') throw new Error('not sent');
-        showDone(phone);
+        finish();
       } catch {
         fail.hidden = false;
       } finally {

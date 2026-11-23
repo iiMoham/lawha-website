@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { customerEmail, parseLead, phoneOf, safeEcho, teamEmail } from './emails.ts';
 
-const good = { name: 'محمد', phone: '+966 50 123 4567', business: 'مقهى الركن', kind: 'cafe', screens: 'growth', email: 'A@Example.com', lang: 'ar' };
+const good = { name: 'محمد', phone: '+966 50 123 4567', business: 'مقهى الركن', kind: 'cafe', screens: '2-3', email: 'A@Example.com', lang: 'ar' };
 
 describe('phoneOf', () => {
   it('normalises Saudi mobiles', () => {
@@ -16,6 +16,13 @@ describe('parseLead', () => {
   it('accepts and cleans a good request', () => {
     const r = parseLead(good);
     expect('lead' in r && r.lead).toMatchObject({ phone: '0501234567', email: 'a@example.com', lang: 'ar' });
+  });
+  it('takes the four-question form: no business name, plan only when known', () => {
+    const r = parseLead({ name: 'سارة', phone: '0551234567', kind: 'restaurant', screens: '1', plan: 'vip', lang: 'ar' });
+    expect('lead' in r && r.lead).toMatchObject({ business: '', plan: 'vip' });
+    const r2 = parseLead({ ...good, plan: 'gold' });
+    expect('lead' in r2 && r2.lead.plan).toBe('');
+    expect(parseLead({ ...good, screens: 'growth' })).toEqual({ bad: ['screens'] });
   });
   it('names every bad field', () => {
     expect(parseLead({ ...good, name: 'x', kind: 'shop', email: 'nope' })).toEqual({ bad: ['name', 'kind', 'email'] });
@@ -55,5 +62,11 @@ describe('emails', () => {
     expect(m.subject).toBe('طلب جديد من موقع لوحة: مقهى الركن');
     expect(m.html).toContain('https://wa.me/966501234567');
     expect(m.html).toContain('line1<br>line2');
+  });
+  it('titles the team e-mail with the name when there is no business name', () => {
+    const m = teamEmail(lead({ business: '', plan: 'growth' }));
+    expect(m.subject).toBe('طلب جديد من موقع لوحة: محمد');
+    expect(m.html).toContain('الباقة المختارة');
+    expect(m.html).toContain('2 – 3 شاشات');
   });
 });

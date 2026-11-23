@@ -14,6 +14,7 @@ export type Lead = {
   business: string;
   kind: string;
   screens: string;
+  plan: string; // the package picked on a pricing card, or ''
   city: string;
   email: string;
   notes: string;
@@ -23,6 +24,8 @@ export type Mail = { subject: string; html: string; text: string };
 
 const KINDS = content.ar.start.fields.kind.options.map((o) => o.value);
 const SCREENS = content.ar.start.fields.screens.options.map((o) => o.value);
+const PLANS = content.ar.pricing.plans.map((p) => p.id);
+const planName = (lang: Lang, id: string) => content[lang].pricing.plans.find((p) => p.id === id)?.name ?? '';
 const EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[^\s@<>()",;:]{2,}$/;
 
 const digitsOf = (raw: string) =>
@@ -43,6 +46,7 @@ export function parseLead(raw: Record<string, unknown>): { lead: Lead } | { bad:
     business: clip(s('business'), 100),
     kind: s('kind'),
     screens: s('screens'),
+    plan: PLANS.includes(s('plan') as never) ? s('plan') : '',
     city: clip(s('city'), 60),
     email: clip(s('email'), 120).toLowerCase(),
     notes: s('notes').replace(/\r\n?/g, '\n').trim().slice(0, 1000),
@@ -51,7 +55,6 @@ export function parseLead(raw: Record<string, unknown>): { lead: Lead } | { bad:
   const bad = [
     lead.name.length < 2 && 'name',
     !lead.phone && 'phone',
-    lead.business.length < 2 && 'business',
     !KINDS.includes(lead.kind as never) && 'kind',
     !SCREENS.includes(lead.screens as never) && 'screens',
     lead.email !== '' && !EMAIL_RE.test(lead.email) && 'email',
@@ -161,7 +164,8 @@ export function customerEmail(lead: Lead): Mail {
   const summary: [string, string][] = [
     ...(business ? [[f.business.label, business] as [string, string]] : []),
     [f.kind.label, label(lang, lead.kind)],
-    [rtl ? 'الباقة' : 'Plan', label(lang, lead.screens)],
+    [f.screens.label, label(lang, lead.screens)],
+    ...(lead.plan ? [[rtl ? 'الباقة' : 'Plan', planName(lang, lead.plan)] as [string, string]] : []),
     [f.phone.label, phone],
   ];
 
@@ -231,25 +235,29 @@ export function teamEmail(lead: Lead): Mail {
   const f = ar.fields;
   const phone = prettyPhone(lead.phone);
   const wa = `https://wa.me/966${lead.phone.slice(1)}`;
+  // the form asks four things (name, phone, kind, screens); the rest only show when they were sent
+  const opt = (k: string, v: string): [string, string][] => (v ? [[k, v]] : []);
   const list: [string, string][] = [
     [f.name.label, lead.name],
     [f.phone.label, phone],
-    [f.business.label, lead.business],
+    ...opt(f.business.label, lead.business),
     [f.kind.label, label('ar', lead.kind)],
-    ['الباقة', label('ar', lead.screens)],
-    [f.city.label, lead.city || '—'],
-    [f.email.label, lead.email || '—'],
-    ['ملاحظات', lead.notes || '—'],
+    [f.screens.label, label('ar', lead.screens)],
+    ...opt('الباقة المختارة', planName('ar', lead.plan)),
+    ...opt(f.city.label, lead.city),
+    ...opt(f.email.label, lead.email),
+    ...opt('ملاحظات', lead.notes),
     ['لغة الصفحة', lead.lang === 'ar' ? 'العربية' : 'English'],
   ];
+  const title = lead.business || lead.name;
   const btn = (href: string, text: string, solid: boolean) =>
     `<a href="${href}" style="display:inline-block;margin:0 0 8px 8px;padding:12px 22px;border-radius:999px;font-size:15px;line-height:20px;font-weight:700;text-decoration:none;${solid ? `background:${C.accent};color:${C.white};` : `background:${C.soft};color:${C.accent};`}">${text}</a>`;
 
   const html = frame({
     lang: 'ar',
     title: ar.mailSubject,
-    preheader: `${lead.business} · ${label('ar', lead.screens)} · ${phone}`,
-    head: h1(lead.business),
+    preheader: `${title} · ${label('ar', lead.screens)} · ${phone}`,
+    head: h1(title),
     body: [
       p(`${esc(ar.mailSubject)}${lead.email ? '. الرد على هذي الرسالة يروح للعميل مباشرة.' : '.'}`, `color:${C.muted};`),
       `<div style="margin:0 0 28px;">${btn(`tel:${lead.phone}`, `اتصل على <span dir="ltr">${phone}</span>`, true)}${btn(wa, 'واتساب', false)}</div>`,
@@ -258,5 +266,5 @@ export function teamEmail(lead: Lead): Mail {
     foot: p(`وصل من نموذج «ابدأ مع لوحة» في <a href="${SITE}" style="color:${C.muted};">lawha.tech</a>.`, 'margin:0;'),
   });
   const text = [ar.mailSubject, '', ...list.map(([k, v]) => `${k}: ${v}`), '', `واتساب: ${wa}`].join('\n');
-  return { subject: `${ar.mailSubject}: ${clip(lead.business, 80)}`, html, text };
+  return { subject: `${ar.mailSubject}: ${clip(title, 80)}`, html, text };
 }

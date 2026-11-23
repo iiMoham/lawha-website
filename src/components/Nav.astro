@@ -7,7 +7,7 @@
 // becomes a native popover opened by the menu button (no hard-coded breakpoint, so translations and text
 // scaling move the point by themselves). Without script the collapsed popover layout is used.
 import Signal from './Signal.astro';
-import { trialHref, url, type Content } from '../i18n';
+import { startHref, url, type Content } from '../i18n';
 // `page`: on the start (form) page the section links lead back to the home page, the language switch goes to the
 // other language's form, and the «start» button is dropped because the form is already open.
 interface Props { c: Content; page?: 'home' | 'start' | 'privacy' | 'terms' }
@@ -39,7 +39,7 @@ const langShort = n.switchLang === 'en' ? 'EN' : 'ع';
       </nav>
       <div class="actions">
         <a class="lang" href={switchHref} hreflang={n.switchLang} lang={n.switchLang} aria-label={n.switchLabel} title={n.switchLabel}>{langShort}</a>
-        {page !== 'start' && <a class="button nav-cta" href={trialHref()}>{n.cta} <span class="arrow" aria-hidden="true">→</span></a>}
+        {page !== 'start' && <a class="button nav-cta" href={startHref(c)}>{n.cta} <span class="arrow" aria-hidden="true">→</span></a>}
       </div>
     </div>
     <span class="progress" aria-hidden="true"></span>

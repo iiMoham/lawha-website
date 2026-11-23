@@ -211,14 +211,22 @@ export const content = {
       title: 'ابدأ مع لوحة — لوحة',
       description: 'عبّ بياناتك ويتواصل معك فريق لوحة خلال يوم عمل عشان نجهّز شاشاتك.',
       heading: 'خلّنا نجهّز شاشاتك',
-      lead: 'عبّ بياناتك، ويتواصل معك أحد فريقنا خلال يوم عمل.',
+      lead: '4 أسئلة سريعة، وبعدها تنشئ حسابك وتبدأ تجربتك المجانية.',
       nextTitle: 'وش اللي بيصير بعدها؟',
       next: [
-        { title: 'نتصل فيك', text: 'نتعرّف على نشاطك وعدد شاشاتك، ونرشّح لك الباقة المناسبة.' },
-        { title: 'نجهّز أول شاشة', text: 'نساعدك تركّب لوحة على التلفاز وترفع قائمتك الأولى.' },
-        { title: 'تبدأ تعرض', text: 'وبعدها تغيّر قوائمك من جوالك متى ما بغيت.' },
+        { title: 'تجاوب 4 أسئلة', text: 'اسمك ورقمك ونوع نشاطك وكم شاشة عندك. أقل من دقيقة.' },
+        { title: 'تنشئ حسابك', text: 'نوديك على طول للوحة التحكم تسجّل فيها.' },
+        { title: 'تبدأ تجربتك', text: '14 يوم مجانًا، وفريقنا معك لو احتجت أي شي.' },
       ],
-      assure: 'بلا عقود، وما فيه أي التزام.',
+      assure: 'التجربة مجانية 14 يوم.',
+      // one question at a time (Start.astro); «{n}» is the step number
+      stepOf: 'سؤال {n} من 4',
+      nextBtn: 'التالي',
+      backBtn: 'رجوع',
+      enterHint: 'أو اضغط Enter',
+      questions: { name: 'وش اسمك؟', phone: 'وش رقم جوالك؟', kind: 'وش نوع نشاطك؟', screens: 'كم شاشة عندك؟' },
+      redirecting: 'نوديك الحين لصفحة التسجيل…',
+      goConsole: 'كمّل للتسجيل',
       formTitle: 'بياناتك',
       required: 'مطلوب',
       optional: 'اختياري',
@@ -229,18 +237,18 @@ export const content = {
         kind: { label: 'نوع النشاط', error: 'اختر نوع نشاطك', options: [
           { value: 'cafe', label: 'مقهى' }, { value: 'restaurant', label: 'مطعم' }, { value: 'bakery', label: 'مخبز أو حلويات' }, { value: 'other', label: 'غيره' },
         ] },
-        screens: { label: 'أي باقة تناسبك؟', error: 'اختر الباقة', options: [
-          { value: 'trial', label: 'التجربة المجانية' }, { value: 'basic', label: 'الأساسية · شاشة' }, { value: 'growth', label: 'النمو · حتى 3 شاشات' }, { value: 'vip', label: 'باقة VIP\u200F · شاشات بلا حدود' }, { value: 'unsure', label: 'ما أدري للحين' },
+        screens: { label: 'عدد الشاشات', error: 'اختر عدد الشاشات', options: [
+          { value: '1', label: 'شاشة وحدة' }, { value: '2-3', label: '2 – 3 شاشات' }, { value: '4-9', label: '4 – 9 شاشات' }, { value: '10+', label: '10 شاشات أو أكثر' },
         ] },
         city: { label: 'المدينة' },
         email: { label: 'البريد الإلكتروني', error: 'تأكد من البريد الإلكتروني' },
         notes: { label: 'شي تحب تقوله لنا؟' },
       },
-      submit: 'أرسل طلبي',
+      submit: 'ابدأ تجربتي',
       sending: 'جاري الإرسال…',
       privacy: 'بنستخدم بياناتك بس عشان نتواصل معك.',
       fixErrors: 'فيه حقول تحتاج تعديل.',
-      doneTitle: 'وصل طلبك، شكرًا لك!',
+      doneTitle: 'تمام، وصلتنا بياناتك!',
       doneText: 'بيتواصل معك أحد فريقنا خلال يوم عمل على الرقم',
       doneBack: 'ارجع للصفحة الرئيسية',
       failText: 'ما قدرنا نرسل طلبك. جرّب مرة ثانية، أو كلّمنا على',
@@ -472,14 +480,21 @@ export const content = {
       title: 'Start with Lawha — Lawha',
       description: 'Leave your details and the Lawha team will contact you within one working day to set up your screens.',
       heading: 'Let’s set up your screens',
-      lead: 'Leave your details and someone from our team will contact you within one working day.',
+      lead: 'Four quick questions, then create your account and start your free trial.',
       nextTitle: 'What happens next?',
       next: [
-        { title: 'We call you', text: 'We learn about your business and your screens, and suggest the right plan.' },
-        { title: 'We set up the first screen', text: 'We help you install Lawha on the TV and upload your first menu.' },
-        { title: 'You go live', text: 'From then on, change your menus from your phone whenever you like.' },
+        { title: 'Answer 4 questions', text: 'Your name, number, type of business and how many screens. Under a minute.' },
+        { title: 'Create your account', text: 'We take you straight to the Lawha console to sign up.' },
+        { title: 'Start your trial', text: '14 days free, and our team is here if you need anything.' },
       ],
-      assure: 'No contract and no commitment.',
+      assure: 'The trial is free for 14 days.',
+      stepOf: 'Question {n} of 4',
+      nextBtn: 'Next',
+      backBtn: 'Back',
+      enterHint: 'or press Enter',
+      questions: { name: 'What’s your name?', phone: 'What’s your mobile number?', kind: 'What kind of business is it?', screens: 'How many screens do you have?' },
+      redirecting: 'Taking you to sign up…',
+      goConsole: 'Continue to sign up',
       formTitle: 'Your details',
       required: 'Required',
       optional: 'Optional',
@@ -490,18 +505,18 @@ export const content = {
         kind: { label: 'Type of business', error: 'Choose your type of business', options: [
           { value: 'cafe', label: 'Café' }, { value: 'restaurant', label: 'Restaurant' }, { value: 'bakery', label: 'Bakery or sweets' }, { value: 'other', label: 'Other' },
         ] },
-        screens: { label: 'Which plan fits you?', error: 'Choose a plan', options: [
-          { value: 'trial', label: 'Free trial' }, { value: 'basic', label: 'Basic · 1 screen' }, { value: 'growth', label: 'Growth · up to 3 screens' }, { value: 'vip', label: 'VIP · unlimited screens' }, { value: 'unsure', label: 'Not sure yet' },
+        screens: { label: 'Screens', error: 'Choose how many screens', options: [
+          { value: '1', label: 'One screen' }, { value: '2-3', label: '2 – 3 screens' }, { value: '4-9', label: '4 – 9 screens' }, { value: '10+', label: '10 screens or more' },
         ] },
         city: { label: 'City' },
         email: { label: 'Email', error: 'Check the email address' },
         notes: { label: 'Anything you’d like to tell us?' },
       },
-      submit: 'Send my request',
+      submit: 'Start my trial',
       sending: 'Sending…',
       privacy: 'We only use your details to contact you.',
       fixErrors: 'Some fields need fixing.',
-      doneTitle: 'Request received, thank you!',
+      doneTitle: 'Got it, thank you!',
       doneText: 'Someone from our team will contact you within one working day on',
       doneBack: 'Back to the home page',
       failText: 'We couldn’t send your request. Try again, or call us on',
@@ -553,9 +568,8 @@ export const MAILER_URL = 'https://lawha-mailer.lawha.workers.dev/';
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;
 
 // The console's sign-up page (the Lawha app repo, apps/console): signing up starts the 14-day trial by itself
-// (TRIAL_DAYS in backend/functions/src/lib/config.ts). Every general «ابدأ» button goes here; the paid plans keep the form.
+// (TRIAL_DAYS in backend/functions/src/lib/config.ts). The start form sends the visitor here once their answers are in.
 export const CONSOLE_SIGNUP = 'https://console.lawha.tech/sign-up';
-export const trialHref = () => CONSOLE_SIGNUP;
 
 // The «ابدأ مع لوحة» form page, optionally with a plan chosen on the pricing cards.
 export const startHref = (c: Content, plan?: string) => url(`${c.lang === 'ar' ? '' : '/en'}/start/`) + (plan ? `?plan=${plan}` : '');

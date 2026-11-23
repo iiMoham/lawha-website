@@ -1,6 +1,6 @@
 ---
 // The close: the page's colours flip and the opening idea returns.
-import { trialHref, type Content } from '../i18n';
+import { startHref, type Content } from '../i18n';
 interface Props { c: Content }
 const { c } = Astro.props;
 const k = c.cta;
@@ -10,7 +10,7 @@ const k = c.cta;
     <h2 class="c-head" id="cta-h" data-reveal>{k.line1}<br />{k.line2}</h2>
     <div class="c-foot" data-reveal style="--i:1">
       <p class="c-text">{k.text}</p>
-      <a class="button c-btn" href={trialHref()}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="button c-btn" href={startHref(c)}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
