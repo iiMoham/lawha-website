@@ -194,7 +194,7 @@ export const content = {
     },
     // the «start» calls between sections (StartPair.astro after «how it works», StartPerks.astro after the features):
     // each one different, each built from the section it closes
-    startPair: { title: 'شاشتك الأولى على بُعد دقيقة.', button: 'جهّز شاشتي الأولى', clock: 'وقت الربط' },
+    startPair: { title: 'شاشتك الأولى على بُعد دقيقة.', button: 'جهّز شاشتي الأولى' },
     startPerks: { title: 'جرّب كل هذا 14 يوم ببلاش.', button: 'ابدأ تجربتك المجانية', chips: ['🍳 قوائم تتبدل بوقتها', '📶 تعرض بدون نت', '🔔 تنبيه لو وقفت شاشة', '🚀 نشر لكل الفروع بلمسة', '👥 مدير لكل فرع', '📢 إعلانات عاجلة', '🎬 صور وفيديو من جوالك'] },
     cta: {
       line1: 'لوحتك جاهزة،',
@@ -461,7 +461,7 @@ export const content = {
         { q: 'What happens after the free trial?', a: 'You pick a yearly plan. If you stop, you pay nothing.' },
       ],
     },
-    startPair: { title: 'Your first screen is a minute away.', button: 'Set up my first screen', clock: 'Pairing time' },
+    startPair: { title: 'Your first screen is a minute away.', button: 'Set up my first screen' },
     startPerks: { title: 'Try all of this free for 14 days.', button: 'Start your free trial', chips: ['🍳 Menus that switch on time', '📶 Plays offline', '🔔 Alerts if a screen stops', '🚀 Publish to every branch', '👥 A manager per branch', '📢 Instant announcements', '🎬 Photos and video from your phone'] },
     cta: {
       line1: 'Your board is set.',

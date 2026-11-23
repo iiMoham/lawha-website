@@ -1,100 +1,76 @@
 ---
-// «Start» call after «how it works»: a dark screen with a pairing clock. When it scrolls into view the clock
-// runs from 0:00 to 0:48 and the logo's arcs light up («paired»), the same minute the steps above promise.
-// Without script it shows the finished state.
+// «Start» call after «how it works»: the call is a TV. A wide screen in its bezel with the player box under it;
+// when it scrolls into view the screen switches on (a line of light opening into the picture) and shows the
+// headline and the button, as the visitor's own first screen will. Without script, or with reduced motion,
+// the screen is simply on.
 import { startHref, type Content } from '../i18n';
 import Signal from './Signal.astro';
 interface Props { c: Content }
 const { c } = Astro.props;
 const k = c.startPair;
-const R = 54;
-const LEN = +(2 * Math.PI * R).toFixed(1);
 ---
-<aside class="pair wrap" data-reveal>
-  <div class="panel" data-pair>
-    <div class="copy">
-      <p class="title">{k.title}</p>
-      <a class="button go" href={startHref(c)}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
-    </div>
-    <div class="clock" aria-hidden="true">
-      <svg viewBox="0 0 128 128" class="ring">
-        <circle cx="64" cy="64" r={R} class="track" />
-        <circle cx="64" cy="64" r={R} class="fill" style={`--len:${LEN}`} data-ring />
-      </svg>
-      <div class="face">
-        <span class="time nums" dir="ltr" data-time>0:48</span>
-        <span class="lbl">{k.clock}</span>
-        <Signal size={26} class="sig" />
+<aside class="pair wrap" data-pair>
+  <div class="tv">
+    <div class="scr">
+      <div class="pic">
+        <span class="live"><Signal size={12} />{c.lang === 'ar' ? 'شاشتك' : 'Your screen'}</span>
+        <p class="title">{k.title}</p>
+        <a class="button go" href={startHref(c)}>{k.button} <span class="arrow" aria-hidden="true">→</span></a>
       </div>
     </div>
   </div>
+  <div class="box" aria-hidden="true"><span class="led"></span></div>
 </aside>
 
 <script>
-  const RUN = 48; // seconds shown on the clock
-  const DUR = 2400; // ms the run takes
-  for (const panel of document.querySelectorAll<HTMLElement>('[data-pair]')) {
-    const time = panel.querySelector<HTMLElement>('[data-time]');
-    const ring = panel.querySelector<SVGCircleElement>('[data-ring]');
-    if (!time || !ring) continue;
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let timer = 0;
-    const show = (p: number) => {
-      const s = Math.round(RUN * p);
-      time.textContent = `0:${String(s).padStart(2, '0')}`;
-      ring.style.setProperty('--p', String(p));
-    };
-    const run = () => {
-      if (still) return;
-      panel.removeAttribute('data-done');
-      const t0 = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min(1, (now - t0) / DUR);
-        show(1 - (1 - p) ** 2);
-        if (p < 1) requestAnimationFrame(tick);
-        else { panel.setAttribute('data-done', ''); timer = window.setTimeout(run, 5000); }
-      };
-      requestAnimationFrame(tick);
-    };
-    panel.setAttribute('data-done', '');
-    new IntersectionObserver(([e]) => {
-      clearTimeout(timer);
-      if (e?.isIntersecting) { show(0); run(); }
-    }, { threshold: 0.5 }).observe(panel);
+  for (const el of document.querySelectorAll<HTMLElement>('[data-pair]')) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
+    el.setAttribute('data-off', '');
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      el.removeAttribute('data-off');
+      el.setAttribute('data-switch', '');
+      io.disconnect();
+    }, { threshold: 0.45 });
+    io.observe(el);
   }
 </script>
 
 <style>
-  .pair { margin-block-start: calc(var(--section) * -0.5); padding-block-end: var(--section); }
-  .panel {
-    position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2rem clamp(2rem, 5vw, 5rem);
-    padding: clamp(1.75rem, 4vw, 3.5rem); border-radius: calc(var(--radius) * 2); background: var(--night); color: var(--night-ink);
+  .pair { display: flex; flex-direction: column; align-items: center; margin-block-start: calc(var(--section) * -0.5); padding-block-end: var(--section); }
+  .tv { inline-size: 100%; padding: clamp(8px, 1vw, 14px); border-radius: calc(var(--radius) * 2); background: var(--tv); }
+  .scr { position: relative; overflow: hidden; border-radius: var(--radius); background: #000; }
+  .pic {
+    position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.25rem, 2.5vw, 2rem);
+    min-block-size: clamp(17rem, 30vw, 24rem); padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 3rem); text-align: center; color: var(--tv-ink);
+    background: radial-gradient(120% 90% at 50% 0%, #1b2f86 0%, #0b1230 45%, var(--tv-screen) 100%);
   }
-  /* the screen's glow: a soft blue field behind the clock */
-  .panel::before { content: ''; position: absolute; inset-block: -40%; inset-inline-end: -10%; inline-size: 55%; background: radial-gradient(closest-side, rgb(36 83 255 / 0.35), transparent); pointer-events: none; }
-  .copy { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem); line-height: var(--lh-head); text-wrap: balance; }
-  .go { margin-block-start: 0.5rem; }
-  @media (hover: hover) and (pointer: fine) { .go:hover .arrow { transform: translateX(4px); } :global(:root[dir="rtl"]) .go:hover .arrow { transform: scaleX(-1) translateX(4px); } }
+  .live { position: absolute; inset-block-start: 1.1rem; inset-inline-start: 1.25rem; display: inline-flex; align-items: center; gap: 0.45em; padding: 0.25em 0.75em; border-radius: var(--pill); background: rgb(255 255 255 / 0.08); color: var(--tv-muted); font-size: var(--step-small); }
+  .live :global(.signal) { color: var(--live); }
+  .title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 1.2rem + 3.4vw, 4.5rem); line-height: var(--lh-head); text-wrap: balance; max-width: 18ch; }
+  .go { min-block-size: 3.5rem; padding-inline: 2rem; }
 
-  .clock { position: relative; inline-size: clamp(9.5rem, 16vw, 13rem); aspect-ratio: 1; }
-  .ring { inline-size: 100%; block-size: 100%; rotate: -90deg; }
-  .track { fill: none; stroke: var(--night-2); stroke-width: 8; }
-  .fill { --p: 1; fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: var(--len); stroke-dashoffset: calc(var(--len) * (1 - var(--p))); }
-  :global(:root[dir="rtl"]) .ring { scale: 1 -1; }
-  .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; }
-  .time { font-size: clamp(2rem, 1.5rem + 1.5vw, 2.75rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
-  .lbl { color: #a7afbf; font-size: var(--step-small); }
-  .face :global(.sig) { margin-block-start: 0.35rem; color: var(--signal, #8ea7ff); --sig-faint: 0.18; }
-  .face :global(.sig .a) { opacity: var(--sig-faint); transition: opacity 240ms ease; }
-  .panel[data-done] .face :global(.sig .a) { opacity: 1; }
-  .panel[data-done] .face :global(.sig .a2) { transition-delay: 120ms; }
-  .panel[data-done] .face :global(.sig .a3) { transition-delay: 240ms; }
+  /* the player box and its light */
+  .box { position: relative; inline-size: clamp(7rem, 14vw, 10rem); block-size: clamp(1.4rem, 2.4vw, 1.9rem); margin-block-start: 0.9rem; border-radius: 0.55rem; background: var(--ink); }
+  .led { position: absolute; inset-block-start: 50%; inset-inline-end: 0.8rem; inline-size: 0.45rem; block-size: 0.45rem; margin-block-start: -0.225rem; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); }
+
+  /* switching on: off (black, box light dim) → a bright line → the picture opens → the words arrive */
+  [data-off] .pic { clip-path: inset(50% 0 50% 0); }
+  [data-off] .led { background: #3a4152; box-shadow: none; }
+  [data-switch] .scr::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: #fff; animation: flash 900ms ease-out both; }
+  [data-switch] .pic { animation: open 760ms 140ms cubic-bezier(0.2, 0.9, 0.2, 1) both; }
+  [data-switch] .pic > * { animation: rise 520ms var(--ease-out) both; }
+  [data-switch] .title { animation-delay: 620ms; }
+  [data-switch] .go { animation-delay: 760ms; }
+  [data-switch] .live { animation-delay: 900ms; }
+  [data-switch] .led { animation: led 600ms 80ms ease-out both; }
+  @keyframes flash { 0% { opacity: 0; clip-path: inset(49.6% 8% 49.6% 8%); } 18% { opacity: 1; clip-path: inset(49.6% 0 49.6% 0); } 60% { opacity: 0.35; clip-path: inset(0 0 0 0); } 100% { opacity: 0; clip-path: inset(0 0 0 0); } }
+  @keyframes open { 0% { clip-path: inset(50% 0 50% 0); } 100% { clip-path: inset(0 0 0 0); } }
+  @keyframes rise { from { opacity: 0; translate: 0 14px; } }
+  @keyframes led { from { background: #3a4152; box-shadow: none; } }
 
   @media (max-width: 40rem) {
-    .panel { grid-template-columns: minmax(0, 1fr); }
-    .clock { grid-row: 1; inline-size: 8.5rem; }
-    .panel::before { inset-block: -25% auto; inset-inline: -30% auto; inline-size: 110%; block-size: 70%; }
+    .pic { min-block-size: 20rem; padding-block-start: 3.5rem; }
     .go { inline-size: 100%; }
   }
 </style>
