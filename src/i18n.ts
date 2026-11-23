@@ -222,7 +222,7 @@ export const content = {
       nextBtn: 'التالي',
       backBtn: 'رجوع',
       enterHint: 'أو اضغط Enter',
-      questions: { name: 'وش اسمك؟', phone: 'وش رقم جوالك؟', kind: 'وش نوع نشاطك؟', screens: 'كم شاشة عندك؟' },
+      questions: { name: 'الاسم الكريم؟', phone: 'وش رقم جوالك؟', kind: 'وش نوع نشاطك؟', screens: 'كم شاشة عندك؟' },
       redirecting: 'نوديك الحين لصفحة التسجيل…',
       goConsole: 'كمّل للتسجيل',
       formTitle: 'بياناتك',
