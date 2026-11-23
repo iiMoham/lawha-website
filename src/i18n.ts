@@ -138,18 +138,6 @@ export const content = {
         refresh: 'يتجدد الرمز كل 10 دقائق',
       },
     },
-    announce: {
-      heading: 'إعلان عاجل',
-      inputLabel: 'اكتب إعلانًا ليظهر على الشاشات',
-      initial: 'مغلق للصلاة، نعود بعد 20 دقيقة',
-      examples: ['نفد الكرواسون اليوم، نعتذر', 'كوبان آيس لاتيه بـ 30 ر.س', 'مرحبًا بضيوف موسم الرياض'],
-      exampleLabel: 'جرّب مثال',
-      statement: 'يظهر فوق القائمة، ويختفي لحاله.',
-      durations: ['15 دقيقة', '30 دقيقة', 'ساعة'],
-      durationLabel: 'المدة',
-      ends: 'تعود القائمة بعد',
-      tag: 'إعلان',
-    },
     features: {
       heading: 'مزايا لوحة',
       items: [
@@ -406,18 +394,6 @@ export const content = {
         code: 'K7Q4MP',
         refresh: 'The code refreshes every 10 minutes',
       },
-    },
-    announce: {
-      heading: 'Announcements',
-      inputLabel: 'Type an announcement for the screens',
-      initial: 'Closed for prayer, back in 20 minutes',
-      examples: ['Sorry, croissants are sold out today', 'Two iced lattes for SAR 30', 'Welcome, Riyadh Season guests'],
-      exampleLabel: 'Try an example',
-      statement: 'It shows over the menu, then goes away by itself.',
-      durations: ['15 min', '30 min', '1 hour'],
-      durationLabel: 'Duration',
-      ends: 'Menu returns in',
-      tag: 'Announcement',
     },
     features: {
       heading: 'Lawha features',
