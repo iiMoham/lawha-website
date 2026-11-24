@@ -4,7 +4,12 @@
 // All controls are native (range, switch, buttons). Emoji are plain characters, so each platform draws its own
 // (Apple's on iPhone and Mac).
 import type { Content } from '../i18n';
+import { Image } from 'astro:assets';
 import Signal from './Signal.astro';
+import shakshuka from '../assets/media/shakshuka.jpg';
+import burger from '../assets/media/burger-meal.jpg';
+import latte from '../assets/media/iced-latte.jpg';
+import cake from '../assets/media/coffee-cake.jpg';
 interface Props { c: Content }
 const { c } = Astro.props;
 const f = c.features;
@@ -41,6 +46,8 @@ const t = ar
         { initial: 'ف', name: 'فهد', role: 'مدير العليا', can: [1], sees: 'فهد يدير شاشات العليا فقط.' },
       ],
       pickMember: 'اختر عضوًا لترى صلاحياته',
+      fresh: 'جديد', splitHint: 'جرّب تقسيم الشاشة 👇', splitLabel: 'طريقة عرض الشاشة', one: 'صورة وحدة', four: '4 صور',
+      quads: [['شكشوكة الصباح', '29'], ['وجبة برجر', '39'], ['آيس لاتيه', '18'], ['كيكة وقهوة', '22']],
     }
   : {
       dragHint: 'Drag the handle to change the time',
@@ -72,6 +79,8 @@ const t = ar
         { initial: 'F', name: 'Fahad', role: 'Olaya manager', can: [1], sees: 'Fahad runs the Olaya screens only.' },
       ],
       pickMember: 'Pick a member to see their access',
+      fresh: 'New', splitHint: 'Try splitting the screen 👇', splitLabel: 'Screen layout', one: 'One picture', four: '4 pictures',
+      quads: [['Morning shakshuka', '29'], ['Burger meal', '39'], ['Iced latte', '18'], ['Cake & coffee', '22']],
     };
 const total = t.branches.reduce((s, b) => s + b.n, 0);
 const startMin = 220; // 9:40 am, 3h40 into the day that starts at 6
@@ -83,7 +92,8 @@ const fmt = (m: number) => {
   return `${h12}:${mm} ${h24 < 12 ? t.am : t.pm}`;
 };
 const firstBlock = t.blocks[0]!;
-const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
+const keys = ['schedule', 'offline', 'alerts', 'split', 'branches', 'team'] as const;
+const quadImgs = [shakshuka, burger, latte, cake];
 ---
 <section class="features wrap" id="features" aria-labelledby="feat-h">
   <header class="sec-head" data-reveal>
@@ -156,6 +166,33 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
               </div>
             )}
 
+            {key === 'split' && (
+              <div class="split" data-split>
+                <div class="s-tv" aria-hidden="true">
+                  <div class="s-scr" data-mode="four" data-split-scr>
+                    {t.quads.map(([name, price], k) => (
+                      <span class={`q q${k}`}>
+                        <Image src={quadImgs[k]!} alt="" widths={[360, 720]} sizes="(max-width: 40rem) 90vw, (max-width: 64rem) 60vw, 34vw" class="q-img" loading="lazy" />
+                        <span class="q-cap"><b>{name}</b><span class="q-price nums">{price} <small>{c.currency}</small></span></span>
+                      </span>
+                    ))}
+                  </div>
+                  <span class="s-box"><span class="s-led"></span></span>
+                </div>
+                <div class="s-side">
+                  <span class="hint">{t.splitHint}</span>
+                  <div class="s-opts" role="group" aria-label={t.splitLabel}>
+                    <button type="button" class="s-opt" aria-pressed="false" data-split-to="one">
+                      <svg class="s-ic" viewBox="0 0 32 18" aria-hidden="true"><rect x="1" y="1" width="30" height="16" rx="2.5" /></svg>{t.one}
+                    </button>
+                    <button type="button" class="s-opt" aria-pressed="true" data-split-to="four">
+                      <svg class="s-ic" viewBox="0 0 32 18" aria-hidden="true"><rect x="1" y="1" width="14" height="7" rx="1.5" /><rect x="17" y="1" width="14" height="7" rx="1.5" /><rect x="1" y="10" width="14" height="7" rx="1.5" /><rect x="17" y="10" width="14" height="7" rx="1.5" /></svg>{t.four}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {key === 'branches' && (
               <div class="branches" data-branches data-total={total} data-publishing={t.publishing} data-published={t.published}>
                 <span class="b-head" aria-live="polite"><span data-b-status>{t.published}</span> <span class="nums b-count" data-b-count>{total}/{total}</span></span>
@@ -185,7 +222,7 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
               </div>
             )}
           </div>
-          <h3 class="c-title" id={`feat-${i}`}>{it.title}</h3>
+          <h3 class="c-title" id={`feat-${i}`}>{key === 'split' && <span class="fresh">{t.fresh}</span>}{it.title}</h3>
         </article>
       );
     })}
@@ -196,7 +233,8 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
   .features { padding-block: 0 var(--section); }
   .grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(0.75rem, 1.4vw, 1.25rem); }
   .card { --card: #ffffff; --card-ink: var(--ink); --card-muted: var(--muted); --well: var(--bg); grid-column: span 2; display: flex; flex-direction: column; gap: 1.25rem; padding: clamp(1rem, 1.6vw, 1.25rem) clamp(1rem, 1.6vw, 1.25rem) clamp(1.25rem, 2vw, 1.5rem); border-radius: calc(var(--radius) * 1.5); background: var(--card); color: var(--card-ink); outline: 1.5px solid #e3e6ec; outline-offset: -1.5px; transition: translate var(--t-ui) var(--ease-out), outline-color var(--t-ui) ease; }
-  .c-schedule { grid-column: span 4; }
+  .c-schedule, .c-split { grid-column: span 4; }
+  .c-branches, .c-team { grid-column: span 3; }
   .c-offline { --card: var(--night); --card-ink: var(--night-ink); --card-muted: #a7afbf; --well: var(--night-2); outline-color: var(--night); }
   .c-branches { --card: var(--accent); --card-ink: var(--accent-ink); --card-muted: rgb(255 255 255 / 0.82); --well: rgb(255 255 255 / 0.12); outline-color: var(--accent); }
   .c-offline :focus-visible, .c-branches :focus-visible { outline-color: var(--night-ink); }
@@ -315,6 +353,56 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
   }
   .branches .act { margin-block-start: 0.35rem; }
 
+  /* ---------- split: one picture, or four on the same screen ----------
+     Each quarter of a 16:9 screen is itself 16:9, so every picture is a full-screen layer scaled to half from its own
+     corner: the first one shrinks from the whole screen into its corner, the other three pop into theirs. */
+  .split { inline-size: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(10rem, 13rem); gap: clamp(1rem, 2.4vw, 2rem); align-items: center; }
+  .s-tv { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; min-inline-size: 0; }
+  .s-scr { position: relative; inline-size: 100%; aspect-ratio: 16 / 9; container-type: inline-size; overflow: hidden; border: clamp(5px, 0.7vw, 8px) solid var(--tv); border-radius: 12px; background: var(--tv-screen); }
+  .s-box { position: relative; inline-size: 22%; block-size: 0.7rem; border-radius: 0.35rem; background: var(--ink); }
+  .s-led { position: absolute; inset-block-start: 50%; inset-inline-end: 0.5rem; inline-size: 0.3rem; block-size: 0.3rem; margin-block-start: -0.15rem; border-radius: 50%; background: var(--live); }
+  .q { --ox: 0%; --oy: 0%; position: absolute; inset: 0; padding: 0.8cqi; transform-origin: var(--ox) var(--oy); transform: scale(0.5);
+    transition: transform 620ms var(--ease-out), opacity 380ms ease; transition-delay: calc(var(--d, 0) * 1ms); }
+  .q1 { --ox: 100%; --d: 140; }
+  .q2 { --oy: 100%; --d: 230; }
+  .q3 { --ox: 100%; --oy: 100%; --d: 320; }
+  :root[dir="rtl"] .q0 { --ox: 100%; }
+  :root[dir="rtl"] .q1 { --ox: 0%; }
+  :root[dir="rtl"] .q2 { --ox: 100%; }
+  :root[dir="rtl"] .q3 { --ox: 0%; }
+  .q-img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; border-radius: 1.2cqi; }
+  .q-cap { position: absolute; inset-inline: 4cqi; inset-block-end: 4cqi; display: flex; align-items: center; justify-content: space-between; gap: 2cqi; color: #fff; font-size: 5.4cqi; line-height: 1.2; text-shadow: 0 1px 8px rgb(0 0 0 / 0.65); }
+  .q-cap b { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .q-price { flex: none; padding: 0.15em 0.6em; border-radius: var(--pill); background: var(--accent); font-weight: 700; text-shadow: none; }
+  .q-price small { font-size: 0.75em; font-weight: 500; }
+  /* one picture: the first fills the screen, the others wait small and unseen in their corners */
+  .s-scr[data-mode="one"] .q0 { transform: none; transition-delay: 0ms; }
+  .s-scr[data-mode="one"] .q:not(.q0) { transform: scale(0.36); opacity: 0; transition-delay: 0ms; }
+  .s-scr[data-mode="one"] .q0 .q-cap { font-size: 3.6cqi; }
+  /* a small screen (a phone): the quarters keep only their price; the name shows when one picture fills the screen */
+  @container (max-width: 30rem) {
+    .q-cap { justify-content: flex-end; font-size: 8cqi; }
+    .q-cap b { display: none; }
+    [data-mode="one"] .q0 .q-cap { justify-content: space-between; font-size: 5cqi; }
+    [data-mode="one"] .q0 .q-cap b { display: block; }
+  }
+
+  .s-side { display: flex; flex-direction: column; gap: 0.6rem; }
+  .s-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+  .s-opt {
+    display: flex; align-items: center; gap: 0.75rem; min-block-size: 3rem; padding: 0.55rem 0.9rem; border: 0; border-radius: 14px; background: #fff;
+    color: var(--ink); font: inherit; font-weight: 500; cursor: pointer; outline: 2px solid transparent; outline-offset: -2px;
+    transition: background-color var(--t-hover) ease, color var(--t-hover) ease, transform var(--t-press) var(--ease-out);
+  }
+  .s-opt:active { transform: scale(0.97); }
+  .s-opt[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .s-opt:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { .s-opt[aria-pressed="false"]:hover { outline-color: var(--accent); } }
+  .s-ic { flex: none; inline-size: 2rem; block-size: 1.125rem; fill: currentColor; opacity: 0.9; }
+  .s-opt[aria-pressed="true"] .s-ic { fill: var(--signal); opacity: 1; }
+  .fresh { display: inline-block; margin-inline-end: 0.5rem; padding: 0.1em 0.6em; border-radius: var(--pill); background: var(--accent); color: var(--accent-ink); font-size: 0.6em; font-weight: 500; vertical-align: 0.2em; }
+  @media (prefers-reduced-motion: reduce) { .q { transition: none; } }
+
   /* ---------- team: pick a member, see what they can open ---------- */
   .team { inline-size: 100%; display: flex; flex-direction: column; gap: 0.6rem; }
   .members { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
@@ -356,13 +444,16 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
 
   @media (max-width: 64rem) {
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .card { grid-column: span 1; }
-    .c-schedule { grid-column: 1 / -1; }
+    .card, .c-branches, .c-team { grid-column: span 1; }
+    .c-schedule, .c-split { grid-column: 1 / -1; }
   }
   @media (max-width: 40rem) {
     .grid { grid-template-columns: minmax(0, 1fr); }
-    .c-schedule { grid-column: auto; }
+    .c-schedule, .c-split { grid-column: auto; }
     .viz { min-block-size: 0; }
+    .split { grid-template-columns: minmax(0, 1fr); }
+    .s-opts { flex-direction: row; }
+    .s-opt { flex: 1; justify-content: center; }
     .sched { grid-template-columns: minmax(0, 1fr); }
     .sched-tv { justify-self: stretch; inline-size: 100%; }
     .mtv { aspect-ratio: 16 / 9; }
@@ -385,6 +476,24 @@ const keys = ['schedule', 'offline', 'alerts', 'branches', 'team'] as const;
   const whileVisible = (el: Element, fn: (v: boolean) => void) => {
     new IntersectionObserver(([e]) => fn(!!e?.isIntersecting), { threshold: 0.3 }).observe(el);
   };
+
+  // ---------- split: one picture or four. Without script the screen shows the four. ----------
+  const split = document.querySelector<HTMLElement>('[data-split]');
+  if (split) {
+    const scr = split.querySelector<HTMLElement>('[data-split-scr]')!;
+    const opts = [...split.querySelectorAll<HTMLButtonElement>('[data-split-to]')];
+    const set = (mode: string) => {
+      scr.dataset['mode'] = mode;
+      for (const o of opts) o.setAttribute('aria-pressed', String(o.dataset['splitTo'] === mode));
+    };
+    let touched = false;
+    for (const o of opts) o.addEventListener('click', () => { touched = true; set(o.dataset['splitTo'] ?? 'four'); });
+    // the visitor first sees one picture, then the screen splits by itself as the card comes into view
+    if (!reduce) {
+      set('one');
+      onceVisible(split, () => window.setTimeout(() => { if (!touched) set('four'); }, 650), 0.6);
+    }
+  }
 
   // ---------- schedule ----------
   const sched = document.querySelector<HTMLElement>('[data-sched]');

@@ -144,6 +144,7 @@ export const content = {
         { title: 'تبديل تلقائي حسب وقت أنت تحدده', more: 'الفطور من 6 إلى 11 صباحًا، والغداء حتى 4 عصرًا، ثم قائمة المساء. يعمل الجدول على الشاشة نفسها، حتى دون إنترنت.', field: 'mint', on: true },
         { title: 'عروض مكمّلة حتى إذا انقطع النت', more: 'تحفظ الشاشة المحتوى عليها، وتعود إلى العرض وحدها بعد انقطاع الكهرباء.', field: 'saffron', on: true },
         { title: 'نبّهني إذا توقفت شاشة', more: 'يصلك تنبيه بعد 10 دقائق من انقطاع الشاشة، وآخر عند عودتها.', field: 'sea', on: false },
+        { title: 'اعرض 4 صور على شاشة وحدة', more: 'قسّم الشاشة لأربعة أجزاء، ولكل جزء صورة.', field: 'sky', on: false },
         { title: 'انشر على كل الفروع بلمسة', more: 'يُعرض الآن على 12 شاشة في 4 فروع، من الرياض إلى الخبر.', field: 'sand', on: false },
         { title: 'أعطِ كل مدير فرعه فقط', more: 'يدير المدير شاشات فرعه ومحتواه، وتبقى الفوترة والفريق بيدك.', field: 'teal', on: false },
       ],
@@ -183,7 +184,7 @@ export const content = {
     // the «start» calls between sections (StartPair.astro after «how it works», StartPerks.astro after the features):
     // each one different, each built from the section it closes
     startPair: { title: 'شاشتك الأولى على بُعد دقيقة.', button: 'جهّز شاشتي الأولى' },
-    startPerks: { title: 'جرّب كل هذا 14 يوم ببلاش.', button: 'ابدأ تجربتك المجانية', chips: ['🍳 قوائم تتبدل بوقتها', '📶 تعرض بدون نت', '🔔 تنبيه لو وقفت شاشة', '🚀 نشر لكل الفروع بلمسة', '👥 مدير لكل فرع', '📢 إعلانات عاجلة', '🎬 صور وفيديو من جوالك'] },
+    startPerks: { title: 'جرّب كل هذا 14 يوم ببلاش.', button: 'ابدأ تجربتك المجانية', chips: ['🍳 قوائم تتبدل بوقتها', '📶 تعرض بدون نت', '🔔 تنبيه لو وقفت شاشة', '🖼️ 4 صور على شاشة وحدة', '🚀 نشر لكل الفروع بلمسة', '👥 مدير لكل فرع', '📢 إعلانات عاجلة', '🎬 صور وفيديو من جوالك'] },
     cta: {
       line1: 'لوحتك جاهزة،',
       line2: 'وجوالك أيضًا.',
@@ -401,6 +402,7 @@ export const content = {
         { title: 'Auto-switch at the times you set', more: 'Breakfast 6 to 11 am, lunch until 4 pm, then the evening menu. The schedule runs on the screen itself, even offline.', field: 'mint', on: true },
         { title: 'Keep playing when the internet drops', more: 'Screens keep the content on the device and start playing again by themselves after a power cut.', field: 'saffron', on: true },
         { title: 'Tell me if a screen stops', more: 'You get an alert after a screen has been offline for 10 minutes, and another when it’s back.', field: 'sea', on: false },
+        { title: 'Show 4 pictures on one screen', more: 'Split the screen into four, with a picture in each.', field: 'sky', on: false },
         { title: 'Publish to every branch in one tap', more: 'Live on 12 screens in 4 branches, from Riyadh to Khobar.', field: 'sand', on: false },
         { title: 'Give each manager their own branch', more: 'Managers run their branch’s screens and content. Billing and the team stay with you.', field: 'teal', on: false },
       ],
@@ -438,7 +440,7 @@ export const content = {
       ],
     },
     startPair: { title: 'Your first screen is a minute away.', button: 'Set up my first screen' },
-    startPerks: { title: 'Try all of this free for 14 days.', button: 'Start your free trial', chips: ['🍳 Menus that switch on time', '📶 Plays offline', '🔔 Alerts if a screen stops', '🚀 Publish to every branch', '👥 A manager per branch', '📢 Instant announcements', '🎬 Photos and video from your phone'] },
+    startPerks: { title: 'Try all of this free for 14 days.', button: 'Start your free trial', chips: ['🍳 Menus that switch on time', '📶 Plays offline', '🔔 Alerts if a screen stops', '🖼️ 4 pictures on one screen', '🚀 Publish to every branch', '👥 A manager per branch', '📢 Instant announcements', '🎬 Photos and video from your phone'] },
     cta: {
       line1: 'Your board is set.',
       line2: 'So is your phone.',
