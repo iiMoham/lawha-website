@@ -156,9 +156,9 @@ export const content = {
       popular: 'الأكثر طلبًا',
       free: 'مجانًا',
       perYear: 'سنويًا',
-      trialFor: '14 يوم',
+      trialFor: '7 أيام',
       plans: [
-        { id: 'trial', name: 'التجربة المجانية', price: 0, level: 1, range: 'شاشة واحدة', items: ['شاشة واحدة لمدة 14 يوم', 'كل مزايا الأساسية'] },
+        { id: 'trial', name: 'التجربة المجانية', price: 0, level: 1, range: 'شاشة واحدة', items: ['شاشة واحدة لمدة 7 أيام', 'كل مزايا الأساسية'] },
         { id: 'basic', name: 'الأساسية', price: 678, level: 1, range: 'شاشة واحدة', items: ['فرع واحد', 'ارفع صورك وفيديوهاتك من الجوال', 'قوائم عرض بلا حدود', 'تتغير الشاشة خلال ثوانٍ', 'تعرض حتى لو انقطع الإنترنت', 'تنبيه إذا توقفت الشاشة'] },
         { id: 'growth', name: 'النمو', price: 1870, level: 2, range: 'حتى 3 شاشات باشتراك واحد', items: ['كل ما في الأساسية', 'تطبيق خاص للمالك', 'إمكانية إضافة فرع', 'مساحة تخزين 128 جيجا', 'دعم فني', 'جدولة المحتوى'] },
         { id: 'vip', name: 'VIP', price: 4720, level: 3, range: 'شاشات بلا حدود', items: ['كل مزايا التطبيق', 'شاشات بلا حدود', 'مساحة تخزين بلا حدود', 'صلاحيات وتعدد المستخدمين', 'قوالب جاهزة للعروض', 'متجر تطبيقات'] },
@@ -184,7 +184,7 @@ export const content = {
     // the «start» calls between sections (StartPair.astro after «how it works», StartPerks.astro after the features):
     // each one different, each built from the section it closes
     startPair: { title: 'شاشتك الأولى على بُعد دقيقة.', button: 'جهّز شاشتي الأولى' },
-    startPerks: { title: 'جرّب كل هذا 14 يوم ببلاش.', button: 'ابدأ تجربتك المجانية', chips: ['🍳 قوائم تتبدل بوقتها', '📶 تعرض بدون نت', '🔔 تنبيه لو وقفت شاشة', '🖼️ 4 صور على شاشة وحدة', '🚀 نشر لكل الفروع بلمسة', '👥 مدير لكل فرع', '📢 إعلانات عاجلة', '🎬 صور وفيديو من جوالك'] },
+    startPerks: { title: 'جرّب كل هذا 7 أيام ببلاش.', button: 'ابدأ تجربتك المجانية', chips: ['🍳 قوائم تتبدل بوقتها', '📶 تعرض بدون نت', '🔔 تنبيه لو وقفت شاشة', '🖼️ 4 صور على شاشة وحدة', '🚀 نشر لكل الفروع بلمسة', '👥 مدير لكل فرع', '📢 إعلانات عاجلة', '🎬 صور وفيديو من جوالك'] },
     cta: {
       line1: 'لوحتك جاهزة،',
       line2: 'وجوالك أيضًا.',
@@ -203,9 +203,9 @@ export const content = {
       next: [
         { title: 'تجاوب 4 أسئلة', text: 'اسمك ورقمك ونوع نشاطك وكم شاشة عندك. أقل من دقيقة.' },
         { title: 'تنشئ حسابك', text: 'نوديك على طول للوحة التحكم تسجّل فيها.' },
-        { title: 'تبدأ تجربتك', text: '14 يوم مجانًا، وفريقنا معك لو احتجت أي شي.' },
+        { title: 'تبدأ تجربتك', text: '7 أيام مجانًا، وفريقنا معك لو احتجت أي شي.' },
       ],
-      assure: 'التجربة مجانية 14 يوم.',
+      assure: 'التجربة مجانية 7 أيام.',
       // one question at a time (Start.astro); «{n}» is the step number
       stepOf: 'سؤال {n} من 4',
       nextBtn: 'التالي',
@@ -415,9 +415,9 @@ export const content = {
       popular: 'Most popular',
       free: 'Free',
       perYear: 'per year',
-      trialFor: 'for 14 days',
+      trialFor: 'for 7 days',
       plans: [
-        { id: 'trial', name: 'Free trial', price: 0, level: 1, range: 'One screen', items: ['One screen for 14 days', 'Everything in Basic'] },
+        { id: 'trial', name: 'Free trial', price: 0, level: 1, range: 'One screen', items: ['One screen for 7 days', 'Everything in Basic'] },
         { id: 'basic', name: 'Basic', price: 678, level: 1, range: 'One screen', items: ['One branch', 'Upload photos and videos from your phone', 'Unlimited playlists', 'Screens change in seconds', 'Keeps playing when the internet drops', 'Alert if a screen stops'] },
         { id: 'growth', name: 'Growth', price: 1870, level: 2, range: 'Up to 3 screens on one plan', items: ['Everything in Basic', 'A dedicated owner app', 'Add a branch', '128 GB storage', 'Technical support', 'Content scheduling'] },
         { id: 'vip', name: 'VIP', price: 4720, level: 3, range: 'Unlimited screens', items: ['Every feature in the app', 'Unlimited screens', 'Unlimited storage', 'Roles and multiple users', 'Ready-made offer templates', 'App store'] },
@@ -441,7 +441,7 @@ export const content = {
       ],
     },
     startPair: { title: 'Your first screen is a minute away.', button: 'Set up my first screen' },
-    startPerks: { title: 'Try all of this free for 14 days.', button: 'Start your free trial', chips: ['🍳 Menus that switch on time', '📶 Plays offline', '🔔 Alerts if a screen stops', '🖼️ 4 pictures on one screen', '🚀 Publish to every branch', '👥 A manager per branch', '📢 Instant announcements', '🎬 Photos and video from your phone'] },
+    startPerks: { title: 'Try all of this free for 7 days.', button: 'Start your free trial', chips: ['🍳 Menus that switch on time', '📶 Plays offline', '🔔 Alerts if a screen stops', '🖼️ 4 pictures on one screen', '🚀 Publish to every branch', '👥 A manager per branch', '📢 Instant announcements', '🎬 Photos and video from your phone'] },
     cta: {
       line1: 'Your board is set.',
       line2: 'So is your phone.',
@@ -460,9 +460,9 @@ export const content = {
       next: [
         { title: 'Answer 4 questions', text: 'Your name, number, type of business and how many screens. Under a minute.' },
         { title: 'Create your account', text: 'We take you straight to the Lawha console to sign up.' },
-        { title: 'Start your trial', text: '14 days free, and our team is here if you need anything.' },
+        { title: 'Start your trial', text: '7 days free, and our team is here if you need anything.' },
       ],
-      assure: 'The trial is free for 14 days.',
+      assure: 'The trial is free for 7 days.',
       stepOf: 'Question {n} of 4',
       nextBtn: 'Next',
       backBtn: 'Back',
@@ -543,7 +543,7 @@ export const MAILER_URL = 'https://lawha-mailer.lawha.workers.dev/';
 // A site-relative path ("/en/") under the deploy base, e.g. /lawha-website/en/ on GitHub Pages.
 export const url = (path: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + path;
 
-// The console's sign-up page (the Lawha app repo, apps/console): signing up starts the 14-day trial by itself
+// The console's sign-up page (the Lawha app repo, apps/console): signing up starts the 7-day trial by itself
 // (TRIAL_DAYS in backend/functions/src/lib/config.ts). The start form sends the visitor here once their answers are in.
 export const CONSOLE_SIGNUP = 'https://console.lawha.tech/sign-up';
 

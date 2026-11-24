@@ -260,12 +260,12 @@ All copy lives in `src/i18n.ts` (`content.ar`, `content.en`; the `Content` type 
 
 ### 7.6 Pricing (`Pricing.astro`)
 Yearly packages only (owner's prices, SAR, Nov 2026). No monthly billing, no screen calculator and no period toggle: each package names its screens.
-- Section header «باقات سنوية حسب عدد شاشاتك», with the sub line about the 14-day free trial and yearly billing.
+- Section header «باقات سنوية حسب عدد شاشاتك», with the sub line about the 7-day free trial and yearly billing.
 - **Four cards in a row** (2×2 under 72rem, one column on phones):
 
   | Package | Price | Screens | Card |
   | --- | --- | --- | --- |
-  | التجربة المجانية / Free trial | «مجانًا», 14 days | 1 | grey (`--surface`), a way in rather than a fourth package |
+  | التجربة المجانية / Free trial | «مجانًا», 7 days | 1 | grey (`--surface`), a way in rather than a fourth package |
   | الأساسية / Basic | 678 a year | 1 | white |
   | النمو / Growth | 1,870 a year | 3 | dark (night), «الأكثر طلبًا» |
   | VIP | 4,720 a year | 9 | white |
@@ -273,7 +273,7 @@ Yearly packages only (owner's prices, SAR, Nov 2026). No monthly billing, no scr
 - Each card: name with the logo arcs (1, 1, 2, 3 lit), the screens under it, the big price with «سنويًا», a full-width button (trial: «ابدأ تجربتك المجانية»; others «ابدأ بباقة …»), then the features.
 - Features are tiered, not repeated: Basic has the core (one branch, uploads from the phone, unlimited playlists, changes in seconds, offline playback, stopped-screen alert); Growth adds «كل ما في الأساسية», up to 3 branches, schedules, publish to all, timed announcements, remote control; VIP is «كل مزايا التطبيق»: unlimited branches, team roles and branch managers, screen groups, play log, media folders and tags, on-site installation. The first item of each list is bold. Features come from the app spec (`~/Desktop/myProject/Lawha/PROMPT.md` §3).
 - Buttons open the start form with `?plan=trial|basic|growth|vip`, which preselects the package.
-- **Reassurance row:** four ticked facts (14-day free trial, VAT included, pairing under a minute, works with any HDMI TV). Under it, the player-box note (199 SAR once, or use your own Android/Google TV).
+- **Reassurance row:** four ticked facts (7-day free trial, VAT included, pairing under a minute, works with any HDMI TV). Under it, the player-box note (199 SAR once, or use your own Android/Google TV).
 
 ### 7.7 FAQ (`Faq.astro`)
 - Section header «أسئلة شائعة». A `<dl>`: question in cols 1–5 (bold, card-title size), answer in cols 6–12 in full ink. Everything is open, with no accordions.
