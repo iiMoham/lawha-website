@@ -16,7 +16,7 @@ const q = s.questions;
 const kindIcon: Record<string, string> = { cafe: '☕', restaurant: '🍽️', bakery: '🥐', other: '✨' };
 const screenBig: Record<string, string> = { '1': '1', '2-3': '2–3', '4-9': '4–9', '10+': '10+' };
 const phone = c.footer.phone;
-const tel = `tel:${phone.replaceAll(' ', '')}`;
+const whatsapp = c.footer.whatsapp;
 const stepOf = (n: number) => s.stepOf.replace('{n}', String(n));
 ---
 <main class="start wrap grid" id="top">
@@ -78,7 +78,7 @@ const stepOf = (n: number) => s.stepOf.replace('{n}', String(n));
       </div>
       <p class="small muted privacy">{s.privacy}</p>
       <p class="status" role="alert" data-status></p>
-      <p class="fail" data-fail hidden>{s.failText} <a class="link" href={tel} dir="ltr">{phone}</a></p>
+      <p class="fail" data-fail hidden>{s.failText} <a class="link" href={whatsapp} dir="ltr">{phone}</a></p>
     </form>
 
     <div class="done" data-done hidden tabindex="-1">
